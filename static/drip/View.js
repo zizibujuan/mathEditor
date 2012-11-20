@@ -47,13 +47,13 @@ define(["dojo/_base/declare",
 				//"border-radius":"3px",
 				height:"100%",
 				width:"100%",
-				border:"solid 1px black",
+				//border:"solid 1px black",
 				position:"absolute",
 				cursor:"text"
 			};
 			var editorDiv = this.editorDiv = domConstruct.create("div",{"style":style}, this.parentNode);
 			// 内容层
-			var textLayer = this.textLayer = domConstruct.create("div",{"class":"drip_layer"}, editorDiv);
+			var textLayer = this.textLayer = domConstruct.create("div",{"class":"drip_layer drip_text"}, editorDiv);
 			this.textLayerPosition = domGeom.position(textLayer);
 			// 光标层， 看是否需要把光标放到光标层中
 			var cursor = this.cursor = new Cursor({parentEl:editorDiv});
@@ -75,6 +75,7 @@ define(["dojo/_base/declare",
 				this.focused = true;
 				var textarea = this.textarea;
 				var cursor = this.cursor;
+				domClass.add(this.textLayer,"drip_editor_focus");
 				
 				setTimeout(function() {
 					 textarea.focus();
@@ -95,6 +96,7 @@ define(["dojo/_base/declare",
 		blur: function(){
 			if(this.focused == true){
 				this.focused = false;
+				domClass.remove(this.textLayer,"drip_editor_focus");
 				this.cursor.hide();
 			}
 		},
