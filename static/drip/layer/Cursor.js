@@ -26,7 +26,7 @@ define(["dojo/_base/declare",
 		
 		constructor: function(kwArgs){
 			lang.mixin(this, kwArgs);
-			var caret = this.caret = domConstruct.create("div",{class:"drip_cursor"},this.parentEl);
+			var caret = this.caret = domConstruct.create("div",{"class":"drip_cursor"},this.parentEl);
 			caret.style.visibility = "hidden";
 			
 			this.defaultHeight = caret.clientHeight;
