@@ -25,6 +25,8 @@ define(["dojo/_base/declare",
 		Cursor,
 		dripLang){
 	
+	// TODO:为view添加一个row属性。每行有个默认的高度，但是高度可以根据内容调整
+	
 	var ELEMENT = 1, TEXT = 3;
 	
 	return declare("drip.View",null,{
@@ -44,17 +46,18 @@ define(["dojo/_base/declare",
 			// 创建一个div容器，然后其中按照垂直层次，罗列各div
 			// 不能将style移到class中，因为移到class中让一些样式无效了，FIXME：什么原因呢？
 			var style={
-				//"border-radius":"3px",
+				"border-radius":"3px",
 				height:"100%",
 				width:"100%",
-				//border:"solid 1px black",
+				border:"solid 1px #CCC",
 				position:"absolute",
 				cursor:"text"
 			};
 			var editorDiv = this.editorDiv = domConstruct.create("div",{"style":style}, this.parentNode);
+			
 			// 内容层
 			var textLayer = this.textLayer = domConstruct.create("div",{"class":"drip_layer drip_text"}, editorDiv);
-			this.textLayerPosition = domGeom.position(textLayer);
+			
 			// 光标层， 看是否需要把光标放到光标层中
 			var cursor = this.cursor = new Cursor({parentEl:editorDiv});
 			
@@ -76,7 +79,8 @@ define(["dojo/_base/declare",
 				this.focused = true;
 				var textarea = this.textarea;
 				var cursor = this.cursor;
-				domClass.add(this.textLayer,"drip_editor_focus");
+				//textLayer
+				domClass.add(this.editorDiv,"drip_editor_focus");
 				
 				setTimeout(function() {
 					 textarea.focus();
@@ -180,7 +184,7 @@ define(["dojo/_base/declare",
 			var node = focusInfo.node;
 			var offset = focusInfo.offset;
 			
-			var textLayerPosition = this.textLayerPosition;
+			var textLayerPosition = this.getTextLayerPosition();
 			var mrowNode = focusInfo.mrowNode;
 			if(mrowNode){
 				var mrowPosition = domGeom.position(mrowNode);
@@ -220,14 +224,20 @@ define(["dojo/_base/declare",
 			// summary:
 			//		相对浏览器视窗的左上角位置
 			//		注意这里定位的是提示框弹出前的位置。用在更普遍的场合，是在执行其他操作前的光标位置。
-			
-			var textLayerPosition = this.textLayerPosition;
+			var textLayerPosition = this.getTextLayerPosition();
 			var x = textLayerPosition.x;
 			var y = textLayerPosition.y;
 			var cursorConfig = this.cursor.getCursorConfig();
 			x += cursorConfig.left;
 			y += cursorConfig.top + cursorConfig.height;
 			return {x:x, y:y};
+		},
+		
+		getTextLayerPosition: function(){
+			if(!this.textLayerPosition)
+				this.textLayerPosition = domGeom.position(this.textLayer);
+					
+			return this.textLayerPosition;
 		}
 		
 	});

@@ -30,10 +30,13 @@
 }
 
 .drip_text {
+	/*
 	border: 1px solid #CCC;
 	border-radius: 3px;
-	outline: none;
 	padding: 6px;
+	*/
+	outline: none;
+	
 }
 
 .drip_cursor-layer {

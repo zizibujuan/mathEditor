@@ -46,6 +46,8 @@ define(["dojo/_base/declare",
 	    },
 	    
 		postCreate : function(){
+			this.inherited(arguments);
+			
 			domStyle.set(this.domNode, {position: "relative"});
 			var textarea = this.textarea = domConstruct.create("textarea",{style:{position:"absolute"/*,top:"-10000px",left:'-10000px'*/}}, this.domNode);
 			

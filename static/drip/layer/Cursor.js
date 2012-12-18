@@ -5,12 +5,14 @@ define(["dojo/_base/declare",
         "dojo/_base/lang",
         "dojo/dom-construct",
         "dojo/dom-class",
-        "dojo/dom-style"],function(
+        "dojo/dom-style",
+        "dojo/dom-geometry"],function(
         		declare,
         		lang,
         		domConstruct,
         		domClass,
-        		domStyle){
+        		domStyle,
+        		domGeom){
 	
 	return declare("drip.layer.Cursor",null,{
 		
