@@ -3,6 +3,7 @@ define(["dojo/_base/declare",
         "dojo/_base/event",
         "dijit/_WidgetBase",
         "dojo/on",
+        "dojo/sniff",
         "dojo/keys",
         "dojo/aspect",
         "dojo/dom-construct",
@@ -15,6 +16,7 @@ define(["dojo/_base/declare",
         		 event,
         		 _WidgetBase,
         		 on,
+        		 sniff,
         		 keys,
         		 aspect,
         		 domConstruct,
@@ -45,7 +47,7 @@ define(["dojo/_base/declare",
 	    
 		postCreate : function(){
 			domStyle.set(this.domNode, {position: "relative"});
-			var textarea = this.textarea = domConstruct.create("textarea",{style:{position:"absolute",top:"-10000px",left:'-10000px'}}, this.domNode);
+			var textarea = this.textarea = domConstruct.create("textarea",{style:{position:"absolute"/*,top:"-10000px",left:'-10000px'*/}}, this.domNode);
 			
 			var model = this.model = new Model();
 			this.view = new View({
@@ -65,12 +67,33 @@ define(["dojo/_base/declare",
 			    });
 			},true);
 			
-			// chrome
-			on(textarea, "textInput", lang.hitch(this,this._onTextInput));
-			// firefox
-			on(textarea, "input", function(e){
-				//console.log(e);
-			});
+			
+			if(sniff("chrome")){
+				// chrome
+				console.log("chrome");
+				on(textarea, "textInput", lang.hitch(this,function(e){
+					var inputData = e.data;
+					this._onTextInput(inputData);
+				}));
+			}else{
+				console.log("other browser");
+				var inCompostion = false;
+				// firefox
+				on(textarea, "input", lang.hitch(this,function(e){
+					if(inCompostion)return;
+					
+					inputData = textarea.value;
+					if(inputData == "")return;
+					
+					this._onTextInput(inputData);
+				}));
+				on(textarea, "compositionstart", lang.hitch(this,function(e){
+					inCompostion = true;
+				}));
+				on(textarea, "compositionend", lang.hitch(this,function(e){
+					inCompostion = false;
+				}));
+			}
 			
 			on(textarea, "blur", lang.hitch(this,function(e){
 				this.view.blur();
@@ -117,8 +140,7 @@ define(["dojo/_base/declare",
 			}));
 		},
 		
-		_onTextInput: function(e){
-			var inputData = e.data;
+		_onTextInput: function(inputData){
 			// TODO：如果用户新输入的值，不在推荐之中，则先执行一个应用操作。
 			
 			

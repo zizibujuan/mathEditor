@@ -66,6 +66,7 @@ define(["dojo/_base/declare",
 		},
 		
 		_onMouseDownHandler: function(e){
+			console.log("编辑器获取焦点");
 			this._focus();
 			event.stop(e);
 		},
