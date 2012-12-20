@@ -73,8 +73,12 @@
 
 .drip_line{
 	min-height: 15px;
+	font-family: "Menlo", "Consolas", "Vera Mono", "monospace"；
 }
 
+.drip_line span{
+	white-space: pre;
+}
 
 /***********************math icon*************************/
 .drip_equation_icon{
