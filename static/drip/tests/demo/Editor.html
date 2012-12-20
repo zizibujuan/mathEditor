@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>编辑器示例</title>
+<link type="text/css" rel="stylesheet" href="/dijit/themes/claro/claro.css" />
+<link type="text/css" rel="stylesheet" href="/dojo/resources/dojo.css" />
+<link type="text/css" rel="stylesheet" href="/resources/main.css" />
+
+<link type="text/css" rel="stylesheet" href="/drip/Editor.css" />
+
+<script type="text/javascript" 
+	data-dojo-config="
+		async:true,
+		parseOnLoad:true,
+		isDebug:true" 
+	src="/dojo/dojo.js"></script>
+<script type="text/javascript"
+   src="/mathjax/MathJax.js?config=MML_HTMLorMML">
+</script>
+
+<script type="text/javascript">
+require(["dojo/parser","drip/Editor"]);
+</script>
+</head>
+<body>
+<div style="margin-left: 10px; margin-top: 10px">
+<div data-dojo-type="drip/Editor" data-dojo-props="style:'width:500px;height:300px'">
+</div>
+</div>
+
+</body>
+</html>
