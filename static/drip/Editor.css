@@ -67,7 +67,7 @@
     opacity: 0.2;
 }
 
-.ace_editor.multiselect .ace_cursor {
+.drip_editor.multiselect .drip_cursor {
     border-left-width: 1px;
 }
 
@@ -112,4 +112,29 @@
 	color: #cccccc;
 	padding: 1px;
 	*/
+}
+
+/*输入框的样式*/
+.drip_text_input {
+    position: absolute;
+    z-index: 0;
+    width: 0.5em;
+    height: 1em;
+    opacity: 0;
+    background: transparent;
+    -moz-appearance: none;
+    appearance: none;
+    border: none;
+    resize: none;
+    outline: none;
+    overflow: hidden;
+}
+
+.drip_text-input .drip_composition {
+    background: #fff;
+    color: #000;
+    z-index: 1000;
+    opacity: 1;
+    border: solid lightgray 1px;
+    margin: -1px
 }

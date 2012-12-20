@@ -3,6 +3,7 @@ define(["dojo/_base/declare",
         "dojo/_base/array",
         "dojo/_base/event",
         "dojo/dom",
+        "dojo/dom-style",
         "dojo/dom-class",
         "dojo/dom-construct",
         "dojo/dom-geometry",
@@ -16,6 +17,7 @@ define(["dojo/_base/declare",
 		array,
 		event,
 		dom,
+		domStyle,
 		domClass,
 		domConstruct,
 		domGeom,
@@ -111,6 +113,10 @@ define(["dojo/_base/declare",
 			console.log(this.editorDiv);
 			var cursorConfig = this._getCursorConfig();
 			this.cursor.move(cursorConfig);
+			
+			// 每一次移动光标，都移动textarea
+			// TODO：一种优化方案是，只有切换到IME输入法时，才移动textarea
+			domStyle.set(this.textarea, {"top":cursorConfig.top+"px","left":cursorConfig.left+"px"});
 		},
 		
 		moveLeft: function(){
@@ -234,6 +240,9 @@ define(["dojo/_base/declare",
 		},
 		
 		getTextLayerPosition: function(){
+			// summary:
+			//		获取文本层相对于视窗左上角的left,top,height,width等信息。
+			
 			if(!this.textLayerPosition)
 				this.textLayerPosition = domGeom.position(this.textLayer);
 					

@@ -8,6 +8,7 @@ define(["dojo/_base/declare",
         "dojo/aspect",
         "dojo/dom-construct",
         "dojo/dom-style",
+        "dojo/dom-class",
         "drip/Model",
         "drip/View",
         "drip/ContentAssist"],function(
@@ -21,6 +22,7 @@ define(["dojo/_base/declare",
         		 aspect,
         		 domConstruct,
         		 domStyle,
+        		 domClass,
         		 Model,
         		 View,
         		 ContentAssist){
@@ -50,6 +52,23 @@ define(["dojo/_base/declare",
 			
 			domStyle.set(this.domNode, {position: "relative"});
 			var textarea = this.textarea = domConstruct.create("textarea",{style:{position:"absolute"/*,top:"-10000px",left:'-10000px'*/}}, this.domNode);
+			// 测试时的样式
+			/*
+			domStyle.set(textarea,{opacity:1,
+				background:"rgba(0, 250, 0, 0.3)",
+				outline:"rgba(0, 250, 0, 0.8) solid 1px",
+				"outline-offset":"3px",
+				width:"5em",
+				"z-index":500});
+			*/
+			
+			// 正式发布时的样式
+			domClass.add(textarea, "drip_text_input");
+			
+			textarea.wrap = "off";
+			textarea.autocorrect = "off";
+			textarea.autocapitalize = "off";
+			textarea.spellcheck = false;
 			
 			var model = this.model = new Model();
 			this.view = new View({
