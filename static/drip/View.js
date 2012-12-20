@@ -116,7 +116,12 @@ define(["dojo/_base/declare",
 			
 			// 每一次移动光标，都移动textarea
 			// TODO：一种优化方案是，只有切换到IME输入法时，才移动textarea
-			domStyle.set(this.textarea, {"top":cursorConfig.top+"px","left":cursorConfig.left+"px"});
+			if(this.textarea){
+				domStyle.set(this.textarea, {"top":cursorConfig.top+"px","left":cursorConfig.left+"px"});
+			}else{
+				console.warn(this.declaredClass,"this.textarea为null");
+			}
+			
 		},
 		
 		moveLeft: function(){
