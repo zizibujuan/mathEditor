@@ -103,7 +103,7 @@ define(["dojo/_base/declare",
 		blur: function(){
 			if(this.focused == true){
 				this.focused = false;
-				domClass.remove(this.textLayer,"drip_editor_focus");
+				domClass.remove(this.editorDiv,"drip_editor_focus");
 				this.cursor.hide();
 			}
 		},
