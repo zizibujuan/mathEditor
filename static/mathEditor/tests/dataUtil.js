@@ -1,4 +1,4 @@
-define([ "doh","dojox/xml/parser","drip/dataUtil" ], function(doh,domParser,dataUtil) {
+define([ "doh","dojox/xml/parser","mathEditor/dataUtil" ], function(doh,domParser,dataUtil) {
 	doh.register("dataUtil",[
 		function testXmlStringToHtml(t){
 			var xmlString = "<root><line><text>a</text><math><mn>1</mn></math></line></root>";

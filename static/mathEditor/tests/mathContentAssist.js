@@ -1,4 +1,4 @@
-define([ "doh", "drip/mathContentAssist" ], function(doh, mathContentAssist) {
+define([ "doh", "mathEditor/mathContentAssist" ], function(doh, mathContentAssist) {
 	doh.register("mathContentAssist",[{
 		name:"getProposals",
 		runTest: function(t){

@@ -14,7 +14,7 @@ define(["dojo/_base/declare",
         		domStyle,
         		domGeom){
 	
-	return declare("drip.layer.Cursor",null,{
+	return declare("mathEditor.layer.Cursor",null,{
 		
 		// parentEl: domNode
 		//		放置光标的容器节点

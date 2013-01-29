@@ -8,7 +8,7 @@ define(["dojo/_base/declare",
         "dijit/popup",
         "dijit/DropDownMenu",
         "dijit/MenuItem",
-        "drip/mathContentAssist"], function(
+        "mathEditor/mathContentAssist"], function(
 		declare,
 		array,
 		lang,
@@ -21,7 +21,7 @@ define(["dojo/_base/declare",
 		MenuItem,
 		mathContentAssist) {
 
-	return declare("drip.ContentAssist",DropDownMenu,{
+	return declare("mathEditor.ContentAssist",DropDownMenu,{
 		// summary:
 		//		弹出的建议输入列表提示框
 		// 提示框关闭的时机：

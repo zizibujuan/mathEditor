@@ -1,4 +1,4 @@
-define([ "doh", "drip/lang" ], function(doh, dripLang) {
+define([ "doh", "mathEditor/lang" ], function(doh, dripLang) {
 
 	doh.register("lang 工具类", [ {
 		name : "isNumber 校验输入的内容是不是数字",

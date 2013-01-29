@@ -9,9 +9,9 @@ define(["dojo/_base/declare",
         "dojo/dom-construct",
         "dojo/dom-style",
         "dojo/dom-class",
-        "drip/Model",
-        "drip/View",
-        "drip/ContentAssist"],function(
+        "mathEditor/Model",
+        "mathEditor/View",
+        "mathEditor/ContentAssist"],function(
         		 declare,
         		 lang,
         		 event,
@@ -27,7 +27,7 @@ define(["dojo/_base/declare",
         		 View,
         		 ContentAssist){
 
-	return declare("drip.Editor",[_WidgetBase],{
+	return declare("mathEditor.Editor",[_WidgetBase],{
 		model : null,
 		view : null,
 		textarea : null,

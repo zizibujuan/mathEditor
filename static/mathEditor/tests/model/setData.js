@@ -1,4 +1,4 @@
-define([ "doh","drip/Model" ], function(doh,Model) {
+define([ "doh","mathEditor/Model" ], function(doh,Model) {
 	
 	function getNodeByXPath(xpath, node){
 		var xpathResult = document.evaluate(xpath, node,null, XPathResult.ORDERED_NODE_ITERATOR_TYPE, null);

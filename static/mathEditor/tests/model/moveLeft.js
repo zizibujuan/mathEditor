@@ -1,4 +1,4 @@
-define([ "doh", "drip/Model" ], function(doh, Model) {
+define([ "doh", "mathEditor/Model" ], function(doh, Model) {
 	doh.register("Model.moveLeft", [ {
 		name:"model中没有任何内容时，什么也不做",
 		setUp: function(){

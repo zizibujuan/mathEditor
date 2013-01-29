@@ -9,9 +9,9 @@ define(["dojo/_base/declare",
         "dojo/dom-geometry",
         "dojo/on",
         "dojo/aspect",
-        "drip/Model",
-        "drip/layer/Cursor",
-        "drip/lang"],function(
+        "mathEditor/Model",
+        "mathEditor/layer/Cursor",
+        "mathEditor/lang"],function(
 		declare,
 		lang,
 		array,
@@ -31,7 +31,7 @@ define(["dojo/_base/declare",
 	
 	var ELEMENT = 1, TEXT = 3;
 	
-	return declare("drip.View",null,{
+	return declare("mathEditor.View",null,{
 		model : null,
 		editorDiv : null,
 		parentNode : null,

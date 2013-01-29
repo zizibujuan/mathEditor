@@ -1,4 +1,4 @@
-define([ "doh", "drip/string" ], function(doh, dripString) {
+define([ "doh", "mathEditor/string" ], function(doh, dripString) {
 
 	doh.register("string 工具类", [ {
 		name: "insertAtOffset 插入字符",
