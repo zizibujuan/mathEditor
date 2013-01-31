@@ -1,6 +1,6 @@
-define({
-	
-	splitData: function(data){
+define([],function(){
+	var string = {};
+	string.splitData = function(data){
 		// summary:
 		//		将传入的数据拆分为最小单元的html符号。
 		//		dataArray的每个元素都只能看作一个字符。
@@ -12,19 +12,19 @@ define({
 		var cache = "";
 		var span = 0; //&和;中字符的个数
 		for(var i = 0; i < len; i++){
-			var char = data.charAt(i);
-			if(char == "&"){
+			var c = data.charAt(i);
+			if(c == "&"){
 				span = 0;
 				append = true;
-				cache = char;
-			}else if(append && char == ";"){
+				cache = c;
+			}else if(append && c == ";"){
 				if(span == 0){
 					result[index] = cache;
 					index++;
-					result[index] = char;
+					result[index] = c;
 					index++;
 				}else{
-					cache += char;
+					cache += c;
 					result[index] = cache;
 					index++;
 				}
@@ -32,7 +32,7 @@ define({
 				cache = "";
 			}else{
 				if(append){
-					cache += char;
+					cache += c;
 					span++;
 				}else{
 					result[index] = data.charAt(i);
@@ -43,7 +43,7 @@ define({
 		return result;
 	},
 	
-	insertAtOffset : function(target, offset, source, removeCount){
+	string.insertAtOffset = function(target, offset, source, removeCount){
 		// summary:
 		//		在给定字符串的指定偏移量处插入字符串。注意：在文本中直接使用\t表示一个制表符。
 		// target: String
@@ -65,4 +65,6 @@ define({
 		var part2 = target.substring(offset)
 		return part1 + source + part2;
 	}
+	
+	return string;
 });

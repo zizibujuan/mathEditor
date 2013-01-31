@@ -169,10 +169,10 @@ define([ "dojo/_base/declare",
 			// 先循环字符，再判断当前要插入字符的环境。
 			// data中可能包含多个字符，通过循环，单独处理每个字符
 			array.forEach(dataArray,lang.hitch(this,function(eachData, index){
-				var char = eachData;
+				var c = eachData;
 				var node = this.cursorPosition.node;
 				
-				if(dripLang.isNumber(char)){
+				if(dripLang.isNumber(c)){
 					
 					// 按照以下思路重构。
 					// 添加一个数据，分以下几步：
@@ -221,7 +221,7 @@ define([ "dojo/_base/declare",
 						this.cursorPosition.node = mnNode;
 						this.cursorPosition.offset = 0;
 						
-						this._insertChar(char);
+						this._insertChar(c);
 						
 						this.path.push({nodeName:"math", offset:pathOffset});
 						this.path.push({nodeName:nodeName, offset:1});
@@ -246,9 +246,9 @@ define([ "dojo/_base/declare",
 							
 						}
 						
-						this._insertChar(char);
+						this._insertChar(c);
 					}
-				}else if(dripLang.isOperator(char)){
+				}else if(dripLang.isOperator(c)){
 					if(this._isLineNode(node)){
 						var mathNode = xmlDoc.createElement("math");
 						node.appendChild(mathNode);
@@ -257,7 +257,7 @@ define([ "dojo/_base/declare",
 						this.cursorPosition.node = mnNode;
 						this.cursorPosition.offset = 0;
 						
-						this._insertChar(char);
+						this._insertChar(c);
 						
 						this.path.push({nodeName:"math", offset:1});
 						this.path.push({nodeName:"mo", offset:1});
@@ -271,7 +271,7 @@ define([ "dojo/_base/declare",
 						this.cursorPosition.node = moNode;
 						this.cursorPosition.offset = 0;
 						
-						this._insertChar(char);
+						this._insertChar(c);
 						
 						var pos = this.path.pop();
 						this.path.push({nodeName:"mo", offset:pos.offset+1});
@@ -285,13 +285,13 @@ define([ "dojo/_base/declare",
 						this.cursorPosition.node = mnNode;
 						this.cursorPosition.offset = 0;
 						
-						this._insertChar(char);
+						this._insertChar(c);
 						
 						var pos = this.path.pop();
 						this.path.push({nodeName:"math", offset:pos.offset+1});
 						this.path.push({nodeName:"mo", offset:1});
 					}
-				}else if(dripLang.isNewLine(char)){
+				}else if(dripLang.isNewLine(c)){
 					// TODO:在指定位置新增一行
 					// 暂时只实现了在最后一行新增
 					var focusedLine = this._getFocusLine();
@@ -319,12 +319,12 @@ define([ "dojo/_base/declare",
 						this.cursorPosition.node = textSpanNode;
 						this.cursorPosition.offset = 0;
 						
-						this._insertChar(char);
+						this._insertChar(c);
 						
 						// 这里的offset是nodeName为text的节点在父节点中位置。
 						this.path.push({nodeName:"text",offset:1});
 					}else if(this._isTextNode(node)){
-						this._insertChar(char);
+						this._insertChar(c);
 					}else if(dripLang.isMathTokenNode(node)){
 						// 要往上移到math节点之外
 						var pos = null;
@@ -344,7 +344,7 @@ define([ "dojo/_base/declare",
 						this.cursorPosition.node = textSpanNode;
 						this.cursorPosition.offset = 0;
 						
-						this._insertChar(char);
+						this._insertChar(c);
 						
 						this.path.push({nodeName:"text", offset:pos.offset+1});
 					}
@@ -660,13 +660,13 @@ define([ "dojo/_base/declare",
 			return node.nodeName == "text";
 		},
 		
-		_insertChar: function(char){
+		_insertChar: function(charData){
 			// summary:
 			//		在聚焦的节点中，当前光标新的字符，并移动当前光标的位置。
 			
 			var offset = this.cursorPosition.offset;
 			var oldText = this.cursorPosition.node.textContent;
-			var newText = dripString.insertAtOffset(oldText, offset, char);
+			var newText = dripString.insertAtOffset(oldText, offset, charData);
 			this.cursorPosition.node.textContent = newText;
 			// 这里输入的char，不管几个字符都当作一个长度处理。
 			this.cursorPosition.offset += 1; // char.length
