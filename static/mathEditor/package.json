@@ -1,0 +1,16 @@
+{
+	"name": "mathEditor",
+	"version": "0.0.1",
+	"dependencies":{
+		"dojo": "1.9.0dev",
+		"dijit": "1.9.0dev",
+		"dojox": "1.9.0dev",
+		"util": "1.9.0dev"
+	},
+	"description": "rapid math editor",
+	"licenses": [],
+	"bugs": "",
+	"keywords": ["JavaScript", "math", "editor"],
+	"homepage": "http://zizibujuan.com",
+	"dojoBuild": "package.js"
+}
