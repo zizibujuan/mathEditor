@@ -36,23 +36,27 @@ require(["dojo",
 					input:"1",
 					map:"a",
 					nodeName:"text",
-					freq:1
+					freq:1,
+					label: "1",
+					iconClass: "a"
 				},{
 					input:"12",
 					map:"ab",
 					nodeName:"text",
-					freq:1
+					freq:1,
+					label: "1",
+					iconClass: "a"
 				}];
 			},
 			runTest: function(t){
 				var contentAssist = this.contentAssist;
 				t.is(null,contentAssist.show("a"));//不显示
 				t.f(contentAssist.opened);
-				
+				debugger;
 				t.is("a",contentAssist.show("1"));
 				t.t(contentAssist.proposals.length == 2);
 				t.is("1", contentAssist.cacheString);
-				
+				debugger;
 				// 追加输入的值
 				t.is("ab",contentAssist.show("2"));
 				t.t(contentAssist.proposals.length == 1);

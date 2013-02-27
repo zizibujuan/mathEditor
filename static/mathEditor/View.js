@@ -87,8 +87,12 @@ define(["dojo/_base/declare",
 				setTimeout(function() {
 					 textarea.focus();
 					 cursor.show();
-			    });
+			    },0);
 			}
+		},
+		
+		focus: function(){
+			this._focus();
 		},
 		
 		_onChange : function(){

@@ -71,7 +71,9 @@ define(["dojo/_base/declare",
 			var self = this;
 			if(!this._openTimer){
 				this._openTimer = this.defer(function(){
+					this._openTimer.remove();
 					delete this._openTimer;
+					
 					popup.open({
 						popup : target,
 						x : x,
@@ -107,6 +109,7 @@ define(["dojo/_base/declare",
 			var x = cursorPosition.x;
 			var y = cursorPosition.y;
 			this._scheduleOpen(this, x, y);
+			this.opened = true;
 		},
 		
 		_clear: function(){
@@ -144,14 +147,27 @@ define(["dojo/_base/declare",
 			
 			//1. 新输入的data，如何追加。
 			//2. 如果用户已经默认某些值，在这里调用应用方法，并关闭打开的提示框。
-			
+			console.log("ContentAssist.opened",this.opened);
 			if(this.opened==false){
 				this.cacheString = data;
 			}else{
-				this.cacheString+=data;
+				// 重新定义查询条件
+				// 如果提示框已打开，输入的值与前一次的值组合没有找到提示信息
+				// 则让前一次的值输入，然后根据新值重新查询。
+				var queryString = this.cacheString + data;
+				var proposals = mathContentAssist.getProposals(queryString);
+				if(proposals.length == 0){
+					this.cacheString = data;
+				}else{
+					this.cacheString += data;
+				}
 			}
 			
+			
+			
+			console.log("查询条件为：", this.cacheString);
 			var proposals = mathContentAssist.getProposals(this.cacheString);
+			console.log("查询到的提示信息：", proposals);
 			this._setProposals(proposals);
 			if(proposals.length > 0){
 				this._open();

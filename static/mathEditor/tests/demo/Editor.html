@@ -5,9 +5,9 @@
 <title>编辑器示例</title>
 <link type="text/css" rel="stylesheet" href="/dijit/themes/claro/claro.css" />
 <link type="text/css" rel="stylesheet" href="/dojo/resources/dojo.css" />
-<link type="text/css" rel="stylesheet" href="/resources/main.css" />
+<link type="text/css" rel="stylesheet" href="/drip/resources/main.css" />
 
-<link type="text/css" rel="stylesheet" href="/mathEditor/Editor.css" />
+<link type="text/css" rel="stylesheet" href="/mathEditor/resources/editor.css" />
 
 <script type="text/javascript" 
 	data-dojo-config="
@@ -16,14 +16,14 @@
 		isDebug:true" 
 	src="/dojo/dojo.js"></script>
 <script type="text/javascript"
-   src="/mathjax/MathJax.js?config=MML_HTMLorMML">
+   src="/mathJax/MathJax.js?config=MML_HTMLorMML">
 </script>
 
 <script type="text/javascript">
 require(["dojo/parser","mathEditor/Editor"]);
 </script>
 </head>
-<body>
+<body class="claro">
 <div style="margin-left: 10px; margin-top: 10px">
 <div data-dojo-type="mathEditor/Editor" data-dojo-props="style:'width:500px;height:300px'">
 </div>
