@@ -17,6 +17,7 @@ define([ "dojo/_base/array" ], function(array) {
 			iconClass: ""
 		},{
 			// <mfrac> numerator(分子) denominator(分母) </mfrac>
+			// 当是分数，需要推断出分子时，如果可能有多种情况，则给出一个列表，让用户去选择。
 			input: "/",
 			map: "",
 			nodeName: "mfrac",
@@ -37,6 +38,14 @@ define([ "dojo/_base/array" ], function(array) {
 			freq: 0,
 			label: "*",
 			iconClass: ""
+		},{
+			// 支持输入平方立方，或直接输入数字
+			input: "^",
+			map:"2",
+			nodeName: "msup",
+			freq: 0,
+			label: "平方",
+			iconClass: "drip_equation_icon drip_msup"
 		} ],
 
 		getProposals : function(prefix) {

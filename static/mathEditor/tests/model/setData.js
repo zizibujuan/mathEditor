@@ -467,6 +467,72 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   			tearDown: function(){
   				
   			}
+  		},
+  		{
+  			name: "在空的编辑器中输入分数，显示一个空的分数，分子获取焦点",
+  			setUp: function(){
+  				this.model = new Model({});
+  			},
+  			runTest: function(t){
+  				/**
+  				 * <pre>
+  				 * <math>
+  				 * 	<mfrac>
+  				 *    <mrow><mn>8</mn></mrow>
+  				 *    <mrow><mn></mn></mrow>
+  				 *  <mfrac>
+  				 * </math>
+  				 * </pre>
+  				 */
+  				var model = this.model;
+  				model.setData({data:"", nodeName:"mfrac"});
+  				t.is("/root/line[1]/math[1]/mfrac[1]/mrow[1]/mn[1]", model.getPath()); //创建完成后，让分子先获取焦点
+  				var node = model.getFocusNode();
+  				t.is("mn", node.nodeName);
+  				t.is("drip_placeholder_box", node.getAttribute("class"));
+  				t.is(0, model.getOffset());// 此时在mn中隐藏了一个字符8，光标应该先8前面显示。
+  			},
+  			tearDown: function(){
+  				
+  			}
+  		},{
+  			name: "在包含一个数字的编辑器中输入分数，之前的数字变为分子，分母获取焦点",
+  			setUp: function(){
+  				this.model = new Model({});
+  			},
+  			runTest: function(t){
+  				/**
+  				 * <pre>
+  				 * FROM
+  				 * <math>
+  				 * 	<mn>1</mn>
+  				 * </math>
+  				 *   TO
+  				 * <math>
+  				 * 	<mfrac>
+  				 *    <mrow><mn>1</mn></mrow>
+  				 *    <mrow><mn></mn></mrow>
+  				 *  <mfrac>
+  				 * </math>
+  				 * </pre>
+  				 */
+  				var model = this.model;
+  				model.setData({data:"1"});
+  				model.setData({data:"", nodeName:"mfrac"});
+  				t.is("/root/line[1]/math[1]/mfrac[1]/mrow[2]/mn[1]", model.getPath()); //创建完成后，让分母先获取焦点
+  				var node = model.getFocusNode();
+  				t.is("mn", node.nodeName);
+  				t.is("drip_placeholder_box", node.getAttribute("class"));
+  				t.is(0, model.getOffset());
+  				
+  				// 判断分子的值为1
+  				var numeratorNode = node.parentNode.previousSibling.firstChild;
+  				t.is("mn", numeratorNode.nodeName);
+  				t.is("1", numeratorNode.textContent);
+  			},
+  			tearDown: function(){
+  				
+  			}
   		}
   	]);
 });

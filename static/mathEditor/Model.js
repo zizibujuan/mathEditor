@@ -120,32 +120,69 @@ define([ "dojo/_base/declare",
 			
 			if(nodeName != ""){
 				if(nodeName == "mfrac"){
+					
 					this._splitNodeIfNeed();
 					var node = this.cursorPosition.node;
 					var offset = this.cursorPosition.offset;
 					var newOffset = 1;
 					var position = "last";
-					if(this._isLineNode(node)){
-						
-					}else if(this._isTextNode(node)){
+					
+					if(this._isTextNode(node)){
 						var _offset = this.path.pop().offset;
 						newOffset = _offset + 1;
 						position = "after";
 					}
 					
-					
-					this.path.push({nodeName:"math", offset:newOffset});
-					this.path.push({nodeName:"mfrac", offset:1});
-					this.path.push({nodeName:"mrow", offset:1});
-					this.path.push({nodeName:"mn", offset:1});
-					
-					var math = xmlDoc.createElement("math");
-					var fracData = xmlUtil.createEmptyFrac(xmlDoc);
-					math.appendChild(fracData.rootNode);
-					domConstruct.place(math, node, position);
-					
-					this.cursorPosition.node = fracData.focusNode;
-					this.cursorPosition.offset = 0;
+					if(this._isLineNode(node) || this._isTextNode(node)){
+						this.path.push({nodeName:"math", offset:newOffset});
+						this.path.push({nodeName:"mfrac", offset:1});
+						this.path.push({nodeName:"mrow", offset:1});
+						this.path.push({nodeName:"mn", offset:1});
+						
+						var math = xmlDoc.createElement("math");
+						var fracData = xmlUtil.createEmptyFrac(xmlDoc);
+						math.appendChild(fracData.rootNode);
+						domConstruct.place(math, node, position);
+						
+						this.cursorPosition.node = fracData.focusNode;
+						this.cursorPosition.offset = 0;
+						
+					}else{
+						// FIXME：需要推断，前面那些组合可以做分子
+						// 在数学公式中
+						//		1.将当前的math节点从原有的父节点中移除
+						//		2.创建一个mfrac
+						//		3.将刚才移除的节点作为mfrac的分子
+						//		4.将焦点放在分母上
+						/**
+		  				 * <pre>
+		  				 * FROM
+		  				 * <math>
+		  				 * 	<mn>1</mn>
+		  				 * </math>
+		  				 *   TO
+		  				 * <math>
+		  				 * 	<mfrac>
+		  				 *    <mrow><mn>1</mn></mrow>
+		  				 *    <mrow><mn></mn></mrow>
+		  				 *  <mfrac>
+		  				 * </math>
+		  				 * </pre>
+		  				 */
+						
+						this.path.pop();
+						this.path.push({nodeName:"mfrac", offset:newOffset});// 替换刚才节点的位置
+						this.path.push({nodeName:"mrow", offset:2});
+						this.path.push({nodeName:"mn", offset:1});
+						
+						var parent = node.parentNode;
+						position = newOffset - 1;
+						var fracData = xmlUtil.createFracWithNumerator(xmlDoc, node);
+						domConstruct.place(fracData.rootNode, parent, position);
+						
+						this.cursorPosition.node = fracData.focusNode;
+						this.cursorPosition.offset = 0;
+					}
 					
 					this.onChange();
 					return;
