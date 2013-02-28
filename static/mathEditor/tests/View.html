@@ -204,34 +204,6 @@ require([ "doh",
 			domConstruct.empty("container");
 		}
 	},{
-		name: "在空的分数中，输入分子后，去除掉之前的占位框",
-		setUp: function(){
-			this.model = new Model({});
-			var parentNode = dom.byId("container");
-			this.view = new View({model:this.model, parentNode:parentNode});
-		},
-		runTest: function(t){
-			/*
-			var view = this.view;
-			var model = view.model;
-			model.setData({data:"", nodeName:"mfrac"});
-			
-			var deferred = new doh.Deferred();
-		    setTimeout(deferred.getTestCallback(function(){
-		    	var focusNodeInfo = view._getFocusInfo();
-		    	var node = focusNodeInfo.node;
-		    	var offset = focusNodeInfo.offset;
-		    	t.t(domClass.contains(node,"mn"));
-		    	t.t(domClass.contains(node, "drip_placeholder_box"));
-		    	t.t(offset == 0);
-		    }), 1000);
-		    return deferred;
-		    */
-		},
-		tearDown: function(){
-			domConstruct.empty("container");
-		}
-	},{
 		name:"",
 		setUp: function(){
 			

@@ -533,6 +533,38 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   			tearDown: function(){
   				
   			}
+  		},{
+  			name: "在空的分数上的分子上输入第一个字符，清除占位符样式，并显示输入的字符",
+  			setUp: function(){
+  				this.model = new Model({});
+  			},
+  			runTest: function(t){
+  				/**
+  				 * <pre>
+  				 * <math>
+  				 * 	<mfrac>
+  				 *    <mrow><mn>1</mn></mrow>
+  				 *    <mrow><mn></mn></mrow>
+  				 *  <mfrac>
+  				 * </math>
+  				 * </pre>
+  				 */
+  				var model = this.model;
+  				model.setData({data:"", nodeName:"mfrac"});
+  				model.setData({data:"1"});
+  				t.is("/root/line[1]/math[1]/mfrac[1]/mrow[1]/mn[1]", model.getPath()); //创建完成后，让分母先获取焦点
+  				var node = model.getFocusNode();
+  				t.is("mn", node.nodeName);
+  				t.isNot("drip_placeholder_box", node.getAttribute("class"));
+  				t.is(1, model.getOffset());
+  				
+  				// 判断分子的值为1
+  				t.is("mn", node.nodeName);
+  				t.is("1", node.textContent);
+  			},
+  			tearDown: function(){
+  				
+  			}
   		}
   	]);
 });

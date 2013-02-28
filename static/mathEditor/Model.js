@@ -118,7 +118,7 @@ define([ "dojo/_base/declare",
 			
 			var xmlDoc = this.doc;
 			
-			if(nodeName != ""){
+			if(nodeName && nodeName != ""){
 				if(nodeName == "mfrac"){
 					
 					this._splitNodeIfNeed();
@@ -266,6 +266,10 @@ define([ "dojo/_base/declare",
 						// FIXME：重构，可抽象出一个逻辑，期望新建的节点与当前节点的类型不同。
 						//如果当前节点不是操作符节点，则新建一个操作符节点
 						var node = this.cursorPosition.node;
+						if(xmlUtil.isPlaceHolder(node)){
+							xmlUtil.removePlaceHolder(node);
+						}
+						
 						if(node.nodeName != nodeName){
 							var mnNode = xmlDoc.createElement(nodeName);
 							
@@ -274,8 +278,6 @@ define([ "dojo/_base/declare",
 							
 							this.cursorPosition.node = mnNode;
 							this.cursorPosition.offset = 0;
-							
-							
 							
 							var pos = this.path.pop();
 							this.path.push({nodeName:nodeName, offset:pos.offset+1});

@@ -48,6 +48,16 @@ define({
 		return {rootNode:mstyle,focusNode:mn2};
 	},
 	
+	isPlaceHolder: function(node){
+		return node.getAttribute("class") === "drip_placeholder_box";
+	},
+	
+	removePlaceHolder: function(node){
+		node.removeAttribute("class");
+		node.removeAttribute("style");
+		node.textContent = "";
+	},
+	
 	_getPlaceHolder: function(xmlDoc){
 		// summary:
 		//		在节点上加上占位框的样式，本想直接添加一个className，但是会被mathjax的样式覆盖，
