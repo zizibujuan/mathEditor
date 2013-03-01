@@ -166,7 +166,7 @@ define(["dojo/_base/declare",
 				}else{
 					// 假定在mathJax中math，mstyle和mfrac下面必有mrow
 					if(elementJax){
-						debugger;
+						
 						var hintNode = dom.byId("MathJax-Span-"+elementJax.spanID);
 						// 获取有效的elementJax
 						// FIXME:是否需要在path和xmldoc中补全mrow和mstyle等。

@@ -86,18 +86,21 @@
 	background-image: url("images/ee-palettes.gif");
 }
 
+/*分数*/
 .drip_frac{
 	width: 30px;
 	height: 45px;
 	background-position: -150px -90px;
 }
 
+/*乘号*/
 .drip_multiplication{
 	width: 18px;
 	height: 18px;
 	background-position: 0px -50px;
 }
 
+/*除号*/
 .drip_division{
 	width: 18px;
 	height: 18px;
@@ -105,6 +108,96 @@
 	
 }
 
+.drip_sub_sup {
+	width: 30px;
+	height: 54px;
+	-webkit-user-select: none;
+	background-position: -60px -90px;
+}
+
+.drip_sub{
+	width: 30px;
+	height: 54px;
+	-webkit-user-select: none;
+	background-position: 0px -90px;
+}
+
+.drip_sup{
+	width: 30px;
+	height: 54px;
+	-webkit-user-select: none;
+	background-position: -30px -90px;
+}
+
+/*根号*/
+.drip_msqrt{
+	width: 30px;
+	height: 54px;
+	-webkit-user-select: none;
+	background-position: -180px -90px;
+}
+
+/*平方根*/
+.drip_mroot{
+	width: 30px;
+	height: 54px;
+	-webkit-user-select: none;
+	background-position: -210px -90px;
+}
+
+/*小括号*/
+.drip_parentheses{
+	width: 30px;
+	height: 54px;
+	-webkit-user-select: none;
+	background-position: -360px -90px;
+}
+
+/*中括号*/
+.drip_brackets{
+	width: 30px;
+	height: 54px;
+	-webkit-user-select: none;
+	background-position: -390px -90px;
+}
+
+/*大括号*/
+.drip_brace{
+	width: 30px;
+	height: 54px;
+	-webkit-user-select: none;
+	background-position: -420px -90px;
+}
+
+/*绝对值 ||*/
+.drip_abs{
+	width: 30px;
+	height: 54px;
+	-webkit-user-select: none;
+	background-position: -450px -90px;
+}
+
+.drip_delta{
+	width: 18px;
+	height: 18px;
+	-webkit-user-select: none;
+	background-position: -558px -50px;
+}
+
+/*
+积分
+ <msubsup>
+    <mo> &#x222B;<!--INTEGRAL--> </mo>
+    <mn> 0 </mn>
+    <mn> 1 </mn>
+  </msubsup>
+  
+{
+width: 30px;
+height: 54px;
+-webkit-user-select: none;
+background-position: -480px -90px;
+}*/
 /***********************math icon*************************/
 
 .drip_placeholder_box {
