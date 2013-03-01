@@ -136,6 +136,7 @@ define(["dojo/_base/declare",
 		_getFocusInfo: function(){
 			// summary:
 			//		使用节点和节点中的值的偏移量来表示光标位置
+			//		FIXME:倒着遍历，是不是更容易找到光标位置呢？
 			
 			var pathes = this.model.path;// TODO:重构，想个更好的方法名，getPath已经被使用。
 			
@@ -160,28 +161,64 @@ define(["dojo/_base/declare",
 					if(path.nodeName == "math"){
 						var scriptNode = focusDomNode.nextSibling;
 						elementJax = scriptNode.MathJax.elementJax.root;
+						elementJax = elementJax.data[0];// 假定math下必有一个mrow
 					}
 				}else{
+					// 假定在mathJax中math，mstyle和mfrac下面必有mrow
 					if(elementJax){
-						if(dripLang.isMathTokenName(path.nodeName)){
-							elementJax = elementJax.data[0];
+						debugger;
+						var hintNode = dom.byId("MathJax-Span-"+elementJax.spanID);
+						// 获取有效的elementJax
+						// FIXME:是否需要在path和xmldoc中补全mrow和mstyle等。
+						// 如果不补全的话，如果查找。
+						
+						// 如果是style，则style下面必有一个mrow
+						/*if(domClass.contains(hintNode, "mstyle")){
+							if(path.nodeName != "mstyle"){
+								elementJax = elementJax.data[0];// 假定mstyle的父容器只有一个子节点，就是mstyle
+								// mstyle下面必有一个mrow
+								elementJax = elementJax.data[path.offset - 1];
+								hintNode = dom.byId("MathJax-Span-"+elementJax.spanID);
+							}
+						}else */
+						if(domClass.contains(hintNode, "mrow")){
+							if(path.nodeName != "mrow"){
+								var mstyleElementJax = elementJax.data[0];
+								var nextHintNode = dom.byId("MathJax-Span-"+mstyleElementJax.spanID);
+								if(domClass.contains(nextHintNode, "mstyle")){
+									if(path.nodeName != "mstyle"){
+										elementJax = elementJax.data[0];// 假定mstyle的父容器只有一个子节点，就是mstyle
+										// mstyle下面必有一个mrow
+										elementJax = elementJax.data[0];
+										
+										elementJax = elementJax.data[path.offset - 1];
+										hintNode = dom.byId("MathJax-Span-"+elementJax.spanID);
+									}
+								}else{
+									
+									// 出现mrow/mstyle/mrow的情况，或者仅仅是mrow的情况
+									// 如果是mrow，则下面直接对应放在path中的节点。
+									mrowNode = hintNode; // FIXME：位置判断错误
+									
+									elementJax = elementJax.data[path.offset - 1];// 假定mstyle的父容器只有一个子节点，就是mstyle
+									hintNode = dom.byId("MathJax-Span-"+elementJax.spanID);
+								}
+							}else{
+								debugger;
+								mrowNode = hintNode;
+								elementJax = elementJax.data[path.offset - 1];
+							}
 						}else{
-							elementJax = elementJax.data[path.offset - 1];
+							if(dripLang.isMathTokenName(path.nodeName)){
+								elementJax = elementJax.data[0];
+							}else{
+								elementJax = elementJax.data[path.offset - 1];
+							}
 						}
+						
 						focusDomNode = dom.byId("MathJax-Span-"+elementJax.spanID);
 						
-						if(domClass.contains(focusDomNode, "mstyle")){
-							if(path != "mstyle"){
-								elementJax = elementJax.data[path.offset - 1];
-								focusDomNode = dom.byId("MathJax-Span-"+elementJax.spanID);
-							}
-						}else if(domClass.contains(focusDomNode, "mrow")){
-							mrowNode = focusDomNode;
-							if(path != "mrow"){
-								elementJax = elementJax.data[path.offset - 1];
-								focusDomNode = dom.byId("MathJax-Span-"+elementJax.spanID);
-							}
-						}
+						
 					}
 				}
 			});
@@ -224,8 +261,11 @@ define(["dojo/_base/declare",
 						left += node.offsetWidth;
 					}else{
 						// 测宽度
+						var width = 0;
 						var text = node.textContent.substring(0, offset);
-						var width = dripLang.measureTextSize(node, text).width;
+						if(text != ""){
+							width = dripLang.measureTextSize(node, text).width;
+						}
 						left += width;
 					}
 				}else{

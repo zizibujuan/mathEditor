@@ -46,7 +46,6 @@ define(["dojo/_base/declare",
 		},
 		
 		move: function(cursorConfig){
-			if(this.isVisible == false)return;
 			this.cursorConfig = cursorConfig;
 			var top = cursorConfig.top;
 			var left = cursorConfig.left;
@@ -57,6 +56,7 @@ define(["dojo/_base/declare",
 			if(height && height > 0){
 				style.height = height+"px";
 			}
+			if(this.isVisible == false)return;
 			
 			this.caret.style.visibility = "";
 			this._restartTimer();
