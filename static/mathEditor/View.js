@@ -96,7 +96,9 @@ define(["dojo/_base/declare",
 		},
 		
 		_onChange : function(){
+			var html = this.model.getHTML();
 			this.textLayer.innerHTML = this.model.getHTML();
+			console.log("html:",html);
 			MathJax.Hub.Queue(["Typeset",MathJax.Hub, this.textLayer]);
 			// 因为是异步操作，需要把显示光标的方法放在MathJax的异步函数中。
 			MathJax.Hub.Queue(lang.hitch(this,this.showCursor));

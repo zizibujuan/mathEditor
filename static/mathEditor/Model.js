@@ -177,10 +177,56 @@ define([ "dojo/_base/declare",
 						
 						var parent = node.parentNode;
 						position = newOffset - 1;
+						// node为当前获取焦点的节点，该节点将作为mfrac的分子节点
 						var fracData = xmlUtil.createFracWithNumerator(xmlDoc, node);
 						domConstruct.place(fracData.rootNode, parent, position);
 						
 						this.cursorPosition.node = fracData.focusNode;
+						this.cursorPosition.offset = 0;
+					}
+					
+					this.onChange();
+					return;
+				}else if(nodeName == "msup"){
+					this._splitNodeIfNeed();
+					var node = this.cursorPosition.node;
+					var offset = this.cursorPosition.offset;
+					var newOffset = 1;
+					var position = "last";
+					
+					if(this._isTextNode(node)){
+						var _offset = this.path.pop().offset;
+						newOffset = _offset + 1;
+						position = "after";
+					}
+					
+					if(this._isLineNode(node) || this._isTextNode(node)){
+						this.path.push({nodeName:"math", offset:newOffset});
+						this.path.push({nodeName:"msup", offset:1});
+						this.path.push({nodeName:"mrow", offset:2});
+						this.path.push({nodeName:"mn", offset:1});
+						
+						var math = xmlDoc.createElement("math");
+						var supData = xmlUtil.createEmptyMsup(xmlDoc);
+						math.appendChild(supData.rootNode);
+						domConstruct.place(math, node, position);
+
+						this.cursorPosition.node = supData.focusNode;
+						this.cursorPosition.offset = 0;
+						
+					}else{
+						// TODO:总结是不是General Layout Schema 和 Script and Limit Schema的path处理逻辑都一样呢
+						this.path.pop();
+						this.path.push({nodeName:"msup", offset:1});// TODO:计算出offset
+						this.path.push({nodeName:"mrow", offset:2});
+						this.path.push({nodeName:"mn", offset:1});
+						
+						var parent = node.parentNode;
+						// node为将作为sup中的base节点
+						var supData = xmlUtil.createMsupWithBase(xmlDoc, node);
+						domConstruct.place(supData.rootNode, parent, 0);
+						
+						this.cursorPosition.node = supData.focusNode;
 						this.cursorPosition.offset = 0;
 					}
 					

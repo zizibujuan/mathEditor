@@ -48,6 +48,48 @@ define({
 		return {rootNode:mstyle,focusNode:mn2};
 	},
 	
+	createEmptyMsup: function(xmlDoc){
+		// summary:
+		//		创建一个上标，base值已存在，superscript为空节点
+		//<msup> base superscript </msup>
+		
+
+		var msup = xmlDoc.createElement("msup");
+		
+		var mrow1 = xmlDoc.createElement("mrow");
+		var mrow2 = xmlDoc.createElement("mrow");
+		var base = this._getPlaceHolder(xmlDoc);
+		var superscript = this._getPlaceHolder(xmlDoc);
+		
+		msup.appendChild(mrow1);
+		msup.appendChild(mrow2);
+		
+		mrow1.appendChild(base);
+		mrow2.appendChild(superscript);
+		return {rootNode:msup,focusNode:superscript};
+	},
+	
+	createMsupWithBase: function(xmlDoc, baseNode){
+		// summary:
+		//		创建一个上标，base值已存在，superscript为空节点
+		//<msup> base superscript </msup>
+		
+
+		var msup = xmlDoc.createElement("msup");
+		
+		var mrow1 = xmlDoc.createElement("mrow");
+		var mrow2 = xmlDoc.createElement("mrow");
+		
+		var superscript = this._getPlaceHolder(xmlDoc);
+		
+		msup.appendChild(mrow1);
+		msup.appendChild(mrow2);
+		
+		mrow1.appendChild(baseNode);
+		mrow2.appendChild(superscript);
+		return {rootNode:msup,focusNode:superscript};
+	},
+	
 	isPlaceHolder: function(node){
 		return node.getAttribute("class") === "drip_placeholder_box";
 	},

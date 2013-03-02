@@ -41,11 +41,19 @@ define([ "dojo/_base/array" ], function(array) {
 		},{
 			// 支持输入平方立方，或直接输入数字
 			input: "^",
-			map:"2",
+			map: "^",
+			nodeName: "text",
+			freq: 0,
+			label: "^",
+			iconClass: ""
+		},{
+			// 支持输入平方立方，或直接输入数字
+			input: "^",
+			map: "",
 			nodeName: "msup",
 			freq: 0,
-			label: "平方",
-			iconClass: "drip_equation_icon drip_msup"
+			label: "上标",
+			iconClass: "drip_equation_icon drip_sup"
 		} ],
 
 		getProposals : function(prefix) {
