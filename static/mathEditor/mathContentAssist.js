@@ -54,6 +54,22 @@ define([ "dojo/_base/array" ], function(array) {
 			freq: 0,
 			label: "上标",
 			iconClass: "drip_equation_icon drip_sup"
+		},{
+			// 支持输入平方根
+			input: "sqrt",
+			map: "",
+			nodeName: "msqrt",
+			freq: 0,
+			label: "平方根",
+			iconClass: "drip_equation_icon drip_sqrt"
+		},{
+			// 支持输入根数为任意数的根号
+			input: "sqrt",
+			map: "",
+			nodeName: "mroot",
+			freq: 0,
+			label: "开根号",
+			iconClass: "drip_equation_icon drip_root"
 		} ],
 
 		getProposals : function(prefix) {

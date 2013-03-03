@@ -119,20 +119,20 @@ define([ "dojo/_base/declare",
 			var xmlDoc = this.doc;
 			
 			if(nodeName && nodeName != ""){
+				
+				this._splitNodeIfNeed();
+				var node = this.cursorPosition.node;
+				var offset = this.cursorPosition.offset;
+				var newOffset = 1;
+				var position = "last";
+				
+				if(this._isTextNode(node)){
+					var _offset = this.path.pop().offset;
+					newOffset = _offset + 1;
+					position = "after";
+				}
+				
 				if(nodeName == "mfrac"){
-					
-					this._splitNodeIfNeed();
-					var node = this.cursorPosition.node;
-					var offset = this.cursorPosition.offset;
-					var newOffset = 1;
-					var position = "last";
-					
-					if(this._isTextNode(node)){
-						var _offset = this.path.pop().offset;
-						newOffset = _offset + 1;
-						position = "after";
-					}
-					
 					if(this._isLineNode(node) || this._isTextNode(node)){
 						this.path.push({nodeName:"math", offset:newOffset});
 						this.path.push({nodeName:"mfrac", offset:1});
@@ -185,20 +185,7 @@ define([ "dojo/_base/declare",
 						this.cursorPosition.offset = 0;
 					}
 					
-					this.onChange();
-					return;
 				}else if(nodeName == "msup"){
-					this._splitNodeIfNeed();
-					var node = this.cursorPosition.node;
-					var offset = this.cursorPosition.offset;
-					var newOffset = 1;
-					var position = "last";
-					
-					if(this._isTextNode(node)){
-						var _offset = this.path.pop().offset;
-						newOffset = _offset + 1;
-						position = "after";
-					}
 					
 					if(this._isLineNode(node) || this._isTextNode(node)){
 						this.path.push({nodeName:"math", offset:newOffset});
@@ -229,11 +216,64 @@ define([ "dojo/_base/declare",
 						this.cursorPosition.node = supData.focusNode;
 						this.cursorPosition.offset = 0;
 					}
-					
-					this.onChange();
-					return;
+				}else if(nodeName == "msqrt"){
+					if(this._isLineNode(node) || this._isTextNode(node)){
+						this.path.push({nodeName:"math", offset:newOffset});
+						this.path.push({nodeName:"msqrt", offset:1});
+						this.path.push({nodeName:"mrow", offset:1});
+						this.path.push({nodeName:"mn", offset:1});
+						
+						var math = xmlDoc.createElement("math");
+						var sqrtData = xmlUtil.createEmptyMsqrt(xmlDoc);
+						math.appendChild(sqrtData.rootNode);
+						domConstruct.place(math, node, position);
+
+						this.cursorPosition.node = sqrtData.focusNode;
+						this.cursorPosition.offset = 0;
+					}else{
+						this.path.pop();
+						this.path.push({nodeName:"msqrt", offset:offset+1});
+						this.path.push({nodeName:"mrow", offset:1});
+						this.path.push({nodeName:"mn", offset:1});
+						
+						var parent = node.parentNode;
+						var sqrtData = xmlUtil.createEmptyMsqrt(xmlDoc);
+						domConstruct.place(sqrtData.rootNode, parent, offset);
+						
+						this.cursorPosition.node = sqrtData.focusNode;
+						this.cursorPosition.offset = 0;
+					}
+				}else if(nodeName == "mroot"){
+					if(this._isLineNode(node) || this._isTextNode(node)){
+						this.path.push({nodeName:"math", offset:newOffset});
+						this.path.push({nodeName:"mroot", offset:1});
+						this.path.push({nodeName:"mrow", offset:2});
+						this.path.push({nodeName:"mn", offset:1});
+						
+						var math = xmlDoc.createElement("math");
+						var rootData = xmlUtil.createEmptyMroot(xmlDoc);
+						math.appendChild(rootData.rootNode);
+						domConstruct.place(math, node, position);
+
+						this.cursorPosition.node = rootData.focusNode;
+						this.cursorPosition.offset = 0;
+					}else{
+						this.path.pop();
+						this.path.push({nodeName:"mroot", offset:offset+1});
+						this.path.push({nodeName:"mrow", offset:2});
+						this.path.push({nodeName:"mn", offset:1});
+						
+						var parent = node.parentNode;
+						var rootData = xmlUtil.createEmptyMroot(xmlDoc);
+						domConstruct.place(rootData.rootNode, parent, offset);
+						
+						this.cursorPosition.node = rootData.focusNode;
+						this.cursorPosition.offset = 0;
+					}
 				}
 				
+				this.onChange();
+				return;
 			}
 			
 			// 这里需要对data做一个加工，&#xD7;只能看作一个字符。

@@ -90,6 +90,39 @@ define({
 		return {rootNode:msup,focusNode:superscript};
 	},
 	
+	createEmptyMsqrt: function(xmlDoc){
+		// summary:
+		//		创建一个平方根
+		// <msqrt> base </msqrt>
+		// <mroot> base index </mroot>
+
+		var msqrt = xmlDoc.createElement("msqrt");
+		var mrow1 = xmlDoc.createElement("mrow");
+		var base = this._getPlaceHolder(xmlDoc);
+		msqrt.appendChild(mrow1);
+		mrow1.appendChild(base);
+		return {rootNode:msqrt,focusNode:base};
+	},
+	
+	createEmptyMroot: function(xmlDoc){
+		// summary:
+		//		创建一个平方根
+		// <msqrt> base </msqrt>
+		// <mroot> base index </mroot>
+
+		var mroot = xmlDoc.createElement("mroot");
+		var mrow1 = xmlDoc.createElement("mrow");
+		var mrow2 = xmlDoc.createElement("mrow");
+		
+		var base = this._getPlaceHolder(xmlDoc);
+		var index = this._getPlaceHolder(xmlDoc);
+		mroot.appendChild(mrow1);
+		mroot.appendChild(mrow2);
+		mrow1.appendChild(base);
+		mrow2.appendChild(index);
+		return {rootNode:mroot,focusNode:index};
+	},
+	
 	isPlaceHolder: function(node){
 		return node.getAttribute("class") === "drip_placeholder_box";
 	},

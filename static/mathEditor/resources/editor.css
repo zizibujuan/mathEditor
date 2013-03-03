@@ -129,16 +129,16 @@
 	background-position: -30px -90px;
 }
 
-/*根号*/
-.drip_msqrt{
+/*平方根*/
+.drip_sqrt{
 	width: 30px;
 	height: 54px;
 	-webkit-user-select: none;
 	background-position: -180px -90px;
 }
 
-/*平方根*/
-.drip_mroot{
+/*根号*/
+.drip_root{
 	width: 30px;
 	height: 54px;
 	-webkit-user-select: none;
