@@ -57,6 +57,21 @@ define([ "dojo/_base/array" ], function(array) {
 			label: "上标",
 			iconClass: "drip_equation_icon drip_sup"
 		},{
+			input: "_",
+			map: "_",
+			nodeName: "text",
+			freq: 0,
+			label: "_",
+			iconClass: ""
+		},{
+			// 支持输入平方立方，或直接输入数字
+			input: "_",
+			map: "",
+			nodeName: "msub",
+			freq: 0,
+			label: "下标",
+			iconClass: "drip_equation_icon drip_sub"
+		},{
 			// 支持输入平方根
 			input: "sqrt",
 			map: "",

@@ -218,6 +218,37 @@ define([ "dojo/_base/declare",
 						this.cursorPosition.node = supData.focusNode;
 						this.cursorPosition.offset = 0;
 					}
+				}else if(nodeName == "msub"){
+					
+					if(this._isLineNode(node) || this._isTextNode(node)){
+						this.path.push({nodeName:"math", offset:newOffset});
+						this.path.push({nodeName:"msub", offset:1});
+						this.path.push({nodeName:"mrow", offset:2});
+						this.path.push({nodeName:"mn", offset:1});
+						
+						var math = xmlDoc.createElement("math");
+						var subData = xmlUtil.createEmptyMsub(xmlDoc);
+						math.appendChild(subData.rootNode);
+						domConstruct.place(math, node, position);
+
+						this.cursorPosition.node = subData.focusNode;
+						this.cursorPosition.offset = 0;
+						
+					}else{
+						// TODO:总结是不是General Layout Schema 和 Script and Limit Schema的path处理逻辑都一样呢
+						this.path.pop();
+						this.path.push({nodeName:"msub", offset:1});// TODO:计算出offset
+						this.path.push({nodeName:"mrow", offset:2});
+						this.path.push({nodeName:"mn", offset:1});
+						
+						var parent = node.parentNode;
+						// node为将作为sup中的base节点
+						var subData = xmlUtil.createMsubWithBase(xmlDoc, node);
+						domConstruct.place(subData.rootNode, parent, 0);
+						
+						this.cursorPosition.node = subData.focusNode;
+						this.cursorPosition.offset = 0;
+					}
 				}else if(nodeName == "msqrt"){
 					if(this._isLineNode(node) || this._isTextNode(node)){
 						this.path.push({nodeName:"math", offset:newOffset});

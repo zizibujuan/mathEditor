@@ -90,6 +90,48 @@ define({
 		return {rootNode:msup,focusNode:superscript};
 	},
 	
+	createEmptyMsub: function(xmlDoc){
+		// summary:
+		//		创建一个上标，base值已存在，superscript为空节点
+		//<msup> base superscript </msup>
+		
+
+		var msub = xmlDoc.createElement("msub");
+		
+		var mrow1 = xmlDoc.createElement("mrow");
+		var mrow2 = xmlDoc.createElement("mrow");
+		var base = this.getPlaceHolder(xmlDoc);
+		var subscript = this.getPlaceHolder(xmlDoc);
+		
+		msub.appendChild(mrow1);
+		msub.appendChild(mrow2);
+		
+		mrow1.appendChild(base);
+		mrow2.appendChild(subscript);
+		return {rootNode:msub,focusNode:subscript};
+	},
+	
+	createMsubWithBase: function(xmlDoc, baseNode){
+		// summary:
+		//		创建一个上标，base值已存在，superscript为空节点
+		//<msup> base superscript </msup>
+		
+
+		var msub = xmlDoc.createElement("msub");
+		
+		var mrow1 = xmlDoc.createElement("mrow");
+		var mrow2 = xmlDoc.createElement("mrow");
+		
+		var subscript = this.getPlaceHolder(xmlDoc);
+		
+		msub.appendChild(mrow1);
+		msub.appendChild(mrow2);
+		
+		mrow1.appendChild(baseNode);
+		mrow2.appendChild(subscript);
+		return {rootNode:msub,focusNode:subscript};
+	},
+	
 	createEmptyMsqrt: function(xmlDoc){
 		// summary:
 		//		创建一个平方根
