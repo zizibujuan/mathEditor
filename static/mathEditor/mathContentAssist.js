@@ -1,5 +1,7 @@
 define([ "dojo/_base/array" ], function(array) {
 
+	// 显示对应的快捷键,快捷键就是input中的值
+	
 	return {
 		keywords : [ {
 			input: "/", // 用户输入的值
@@ -70,6 +72,34 @@ define([ "dojo/_base/array" ], function(array) {
 			freq: 0,
 			label: "开根号",
 			iconClass: "drip_equation_icon drip_root"
+		},{
+			input: "sin",
+			map: "sin",
+			nodeName: "mi",
+			freq: 0,
+			label: "sin",
+			iconClass: ""
+		},{
+			input: "cos",
+			map: "cos",
+			nodeName: "mi",
+			freq: 0,
+			label: "cos",
+			iconClass: ""
+		},{
+			input: "tan",
+			map: "tan",
+			nodeName: "mi",
+			freq: 0,
+			label: "tan",
+			iconClass: ""
+		},{
+			input: "cot",
+			map: "cot",
+			nodeName: "mi",
+			freq: 0,
+			label: "cot",
+			iconClass: ""
 		} ],
 
 		getProposals : function(prefix) {

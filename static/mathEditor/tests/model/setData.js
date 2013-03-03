@@ -705,6 +705,39 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   			tearDown: function(){
   				
   			}
+  		},{
+  			name: "在空的数学编辑器上输入sin/cos/tan",
+  			setUp: function(){
+  				this.model = new Model({});
+  			},
+  			runTest: function(t){
+  				/*
+  				 * <mi>cos</mi>
+  				 * <mo>&#x2061;</mo> 函数应用
+  				 * <mrow>
+  				 * <mn></mn> 占位符统一使用mn表示
+  				 * </mrow>
+  				 */
+  				var model = this.model;
+  				model.setData({data:"cos", nodeName:"mi"});
+  				t.is("/root/line[1]/math[1]/mrow[3]/mn[1]", model.getPath());
+  				
+  				var node = model.getFocusNode();
+  				t.is("mn", node.nodeName);
+  				t.is("drip_placeholder_box", node.getAttribute("class"));
+  				t.is(0, model.getOffset());
+  				
+  				var funNode = node.parentNode.previousSibling;
+  				t.is("mo",funNode.nodeName);
+  				t.is("&#x2061;",funNode.textContent);
+  				
+  				var cosNode = funNode.previousSibling;
+  				t.is("mi", cosNode.nodeName);
+  				t.is("cos", cosNode.textContent);
+  			},
+  			tearDown: function(){
+  				
+  			}
   		}
   	]);
 });

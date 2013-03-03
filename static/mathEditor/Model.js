@@ -270,6 +270,45 @@ define([ "dojo/_base/declare",
 						this.cursorPosition.node = rootData.focusNode;
 						this.cursorPosition.offset = 0;
 					}
+				}else if(nodeName == "mi"){
+					// 对sin/cos等特殊字符的处理
+					
+					if(/sin|cos|tan|cot/.test(data)){
+						/*
+		  				 * <mi>cos</mi>
+		  				 * <mo>&#x2061;</mo> 函数应用
+		  				 * <mrow>
+		  				 * <mn></mn> 占位符统一使用mn表示
+		  				 * </mrow>
+		  				 */
+						if(this._isLineNode(node) || this._isTextNode(node)){
+							this.path.push({nodeName:"math", offset:offset+1});
+							this.path.push({nodeName:"mrow", offset:3});
+							this.path.push({nodeName:"mn", offset:1});
+							
+							var math = xmlDoc.createElement("math");
+							var mi = xmlDoc.createElement("mi");
+							var mo = xmlDoc.createElement("mo");
+							var mrow = xmlDoc.createElement("mrow");
+							var placeHolder = xmlUtil.getPlaceHolder(xmlDoc);
+							
+							mi.textContent = data;
+							mo.textContent = "&#x2061;";
+							
+							mrow.appendChild(placeHolder);
+							
+							math.appendChild(mi);
+							math.appendChild(mo);
+							math.appendChild(mrow);
+							domConstruct.place(math, node, offset);
+							
+							this.cursorPosition.node = placeHolder;
+							this.cursorPosition.offset = 0;
+							
+						}else{
+							
+						}
+					}
 				}
 				
 				this.onChange();
