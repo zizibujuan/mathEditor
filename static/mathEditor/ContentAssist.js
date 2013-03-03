@@ -128,7 +128,8 @@ define(["dojo/_base/declare",
 			
 			this.proposals = proposals;
 			array.forEach(proposals,lang.hitch(this,function(jsonObject,index){
-				var menuItem = new MenuItem({label:jsonObject.label, iconClass:jsonObject.iconClass});
+				// 显示出快捷键，input中存储的就是快捷键。
+				var menuItem = new MenuItem({label:jsonObject.label+" ( \\"+jsonObject.input+" )", iconClass:jsonObject.iconClass});
 				// jsonObject
 				menuItem.on("click", lang.hitch(this,this._onApplyProposal,jsonObject.map, jsonObject.nodeName));
 				this.addChild(menuItem);
