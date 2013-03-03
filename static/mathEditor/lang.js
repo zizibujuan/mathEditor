@@ -21,6 +21,10 @@ define(["dojo/_base/array"],function(array){
 		return obj === "\t";
 	},
 	
+	lang.isFenced = function(obj){
+		return /\(|\[|\{|\|/.test(obj);
+	},
+	
 	lang.insertNodeAfter = function(newNode, existingNode){
 		var parentNode = existingNode.parentNode;
 		if(parentNode.lastChild == existingNode){

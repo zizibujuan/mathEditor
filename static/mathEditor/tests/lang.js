@@ -14,7 +14,7 @@ define([ "doh", "mathEditor/lang" ], function(doh, dripLang) {
 			t.f(dripLang.isNumber(" "));
 			t.f(dripLang.isNumber("a"));
 			
-		},
+		}
 	},
 	{
 		name : "isOperator 校验输入的内容是不是有效的数学操作符",
@@ -22,7 +22,17 @@ define([ "doh", "mathEditor/lang" ], function(doh, dripLang) {
 		runTest : function(t) {
 			t.t(dripLang.isOperator("+"));
 			t.t(dripLang.isOperator("="));
-		},
+		}
+	},
+	{
+		name : "isFenced 对称的围栏符号",
+
+		runTest : function(t) {
+			t.t(dripLang.isFenced("("));
+			t.t(dripLang.isFenced("["));
+			t.t(dripLang.isFenced("{"));
+			t.t(dripLang.isFenced("|"));
+		}
 	}]);
 
 });

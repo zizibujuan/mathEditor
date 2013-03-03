@@ -118,11 +118,13 @@ define([ "dojo/_base/declare",
 			
 			var xmlDoc = this.doc;
 			
+			this._splitNodeIfNeed();
+			var node = this.cursorPosition.node;
+			var offset = this.cursorPosition.offset;
+			
 			if(nodeName && nodeName != ""){
 				
-				this._splitNodeIfNeed();
-				var node = this.cursorPosition.node;
-				var offset = this.cursorPosition.offset;
+				
 				var newOffset = 1;
 				var position = "last";
 				
@@ -314,6 +316,52 @@ define([ "dojo/_base/declare",
 				this.onChange();
 				return;
 			}
+			
+			
+			if(dripLang.isFenced(data)){
+				if(this._isLineNode(node) || this._isTextNode(node)){
+					/*
+					 * <mfenced open="[" close="}" separators="sep#1 sep#2 ... sep#(n-1)">
+	  				 * <mrow><mi>x</mi></mrow>
+	  				 * <mrow><mi>y</mi></mrow>
+	  				 * </mfenced>
+	  				 */
+					this.path.push({nodeName:"math", offset:offset+1});
+					this.path.push({nodeName:"mfenced", offset:1});
+					this.path.push({nodeName:"mrow", offset:1});
+					this.path.push({nodeName:"mn", offset:1});
+					
+					var math = xmlDoc.createElement("math");
+					var mfenced = xmlDoc.createElement("mfenced");
+					
+					var fenced = {
+						"{":{left:"{", right:"}"},
+						"[":{left:"[", right:"]"},
+						"|":{left:"|", right:"|"}
+					};
+					if(data != "("){
+						mfenced.setAttribute("open",fenced[data].left);
+						mfenced.setAttribute("close",fenced[data].right);
+					}
+					var mrow = xmlDoc.createElement("mrow");
+					var placeHolder = xmlUtil.getPlaceHolder(xmlDoc);
+					
+					math.appendChild(mfenced);
+					mfenced.appendChild(mrow);
+					mrow.appendChild(placeHolder);
+					
+					domConstruct.place(math, node, offset);
+					
+					this.cursorPosition.node = placeHolder;
+					this.cursorPosition.offset = 0;
+				}else{
+					
+				}
+				
+				this.onChange();
+				return;
+			}
+			
 			
 			// 这里需要对data做一个加工，&#xD7;只能看作一个字符。
 			// 走到这一步，dataArray的每个元素都只能看作一个字符
