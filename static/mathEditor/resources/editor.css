@@ -200,6 +200,335 @@
 	
 }
 
+/*希腊字母*/
+.drip_alpha{
+	width: 18px;
+	height: 18px;
+	-webkit-user-select: none;
+	background-position: 0px -30px;
+}
+
+.drip_beta{
+	width: 18px;
+	height: 18px;
+	-webkit-user-select: none;
+	background-position: -18px -30px;
+}
+
+.drip_gamma{
+	width: 18px;
+	height: 18px;
+	-webkit-user-select: none;
+	background-position: -36px -30px;
+}
+
+.drip_delta{
+	width: 18px;
+	height: 18px;
+	-webkit-user-select: none;
+	background-position: -54px -30px;
+}
+
+.drip_epsilon_lunate{
+	width: 18px;
+	height: 18px;
+	-webkit-user-select: none;
+	background-position: -72px -30px;
+}
+
+.drip_epsilon{
+	width: 18px;
+	height: 18px;
+	-webkit-user-select: none;
+	background-position: -90px -30px;
+}
+
+.drip_zeta{
+	width: 18px;
+	height: 18px;
+	-webkit-user-select: none;
+	background-position: -108px -30px;
+}
+
+.drip_eta{
+	width: 18px;
+	height: 18px;
+	-webkit-user-select: none;
+	background-position: -126px -30px;
+}
+
+.drip_theta{
+	width: 18px;
+	height: 18px;
+	-webkit-user-select: none;
+	background-position: -144px -30px;
+}
+
+.drip_theta_greek{
+	width: 18px;
+	height: 18px;
+	-webkit-user-select: none;
+	background-position: -162px -30px;
+}
+
+.drip_iota{
+	width: 18px;
+	height: 18px;
+	-webkit-user-select: none;
+	background-position: -180px -30px;
+}
+
+.drip_kappa{
+	width: 18px;
+	height: 18px;
+	-webkit-user-select: none;
+	background-position: -198px -30px;
+}
+
+.drip_lambda{
+	width: 18px;
+	height: 18px;
+	-webkit-user-select: none;
+	background-position: -216px -30px;
+}
+
+.drip_mu{
+	width: 18px;
+	height: 18px;
+	-webkit-user-select: none;
+	background-position: -234px -30px;
+}
+
+.drip_nu{
+	width: 18px;
+	height: 18px;
+	-webkit-user-select: none;
+	background-position: -252px -30px;
+}
+
+.drip_xi{
+	width: 18px;
+	height: 18px;
+	-webkit-user-select: none;
+	background-position: -270px -30px;
+}
+
+.drip_omicron{
+	
+}
+
+.drip_pi{
+	width: 18px;
+	height: 18px;
+	-webkit-user-select: none;
+	background-position: -288px -30px;
+}
+
+.drip_pi_greek{
+	width: 18px;
+	height: 18px;
+	-webkit-user-select: none;
+	background-position: -306px -30px;
+}
+
+.drip_rho{
+	width: 18px;
+	height: 18px;
+	-webkit-user-select: none;
+	background-position: -324px -30px;
+}
+
+.drip_sigma{
+	width: 18px;
+	height: 18px;
+	-webkit-user-select: none;
+	background-position: -360px -30px;
+}
+
+.drip_sigma_final{
+	width: 18px;
+	height: 18px;
+	-webkit-user-select: none;
+	background-position: -378px -30px;
+}
+
+.drip_tau{
+	width: 18px;
+	height: 18px;
+	-webkit-user-select: none;
+	background-position: -396px -30px;
+}
+
+.drip_upsilon{
+	width: 18px;
+	height: 18px;
+	-webkit-user-select: none;
+	background-position: -414px -30px;
+}
+
+.drip_phi{
+	width: 18px;
+	height: 18px;
+	-webkit-user-select: none;
+	background-position: -450px -30px;
+}
+
+.drip_phi_greek{
+	width: 18px;
+	height: 18px;
+	-webkit-user-select: none;
+	background-position: -432px -30px;
+}
+
+.drip_chi{
+	width: 18px;
+	height: 18px;
+	-webkit-user-select: none;
+	background-position: -468px -30px;
+}
+
+.drip_psi{
+	width: 18px;
+	height: 18px;
+	-webkit-user-select: none;
+	background-position: -486px -30px;
+}
+
+.drip_omega{
+	width: 18px;
+	height: 18px;
+	-webkit-user-select: none;
+	background-position: -504px -30px;
+}
+
+/*希腊字母大写*/
+.drip_alpha_upper{
+	
+}
+
+.drip_beta_upper{
+	
+}
+
+.drip_gamma_upper{
+	width: 18px;
+	height: 18px;
+	-webkit-user-select: none;
+	background-position: -522px -30px;
+}
+
+.drip_delta_upper{
+	width: 18px;
+	height: 18px;
+	-webkit-user-select: none;
+	background-position: -540px -30px;
+}
+
+.drip_epsilon_upper{
+	
+}
+
+.drip_zeta_upper{
+	
+}
+
+.drip_theta_upper{
+	width: 18px;
+	height: 18px;
+	-webkit-user-select: none;
+	background-position: -558px -30px;
+}
+
+.drip_iota_upper{
+	
+}
+
+.drip_kappa_upper{
+	
+}
+
+.drip_lambda_upper{
+	width: 18px;
+	height: 18px;
+	-webkit-user-select: none;
+	background-position: -576px -30px;
+}
+
+.drip_mu_upper{
+	
+}
+
+.drip_nu_upper{
+	
+}
+
+.drip_xi_upper{
+	width: 18px;
+	height: 18px;
+	-webkit-user-select: none;
+	background-position: -594px -30px;
+}
+
+.drip_omicron_upper{
+	
+}
+
+.drip_pi_upper{
+	width: 18px;
+	height: 18px;
+	-webkit-user-select: none;
+	background-position: -612px -30px;
+}
+
+.drip_rho_upper{
+	
+}
+
+.drip_sigma_upper{
+	width: 18px;
+	height: 18px;
+	-webkit-user-select: none;
+	background-position: -630px -30px;
+}
+
+.drip_tau_upper{
+	
+}
+
+.drip_upsilon_upper{
+	width: 18px;
+	height: 18px;
+	-webkit-user-select: none;
+	background-position: -648px -30px;
+}
+
+.drip_phi_upper{
+	width: 18px;
+	height: 18px;
+	-webkit-user-select: none;
+	background-position: -666px -30px;
+}
+
+.drip_chi_upper{
+	
+}
+
+.drip_psi_upper{
+	width: 18px;
+	height: 18px;
+	-webkit-user-select: none;
+	background-position: -684px -30px;
+}
+
+.drip_omega_upper{
+	width: 18px;
+	height: 18px;
+	-webkit-user-select: none;
+	background-position: -702px -30px;
+}
+
+
+
 /*
 积分
  <msubsup>
