@@ -104,7 +104,7 @@ define([ "dojo/_base/declare",
 			// 		nodeName：String
 			//			将data作为什么节点插入，这个通常由人工选择，如果没有值，则系统自动判断。
 			//		removeCount: Int
-			//			要移除的字符的数量，从当前聚焦位置往前删除removeCount个字符。
+			//			默认为0，要移除的字符的数量，在新增data钱，从当前聚焦位置往前删除removeCount个字符。
 			
 			var data = insertInfo.data;
 			var nodeName = insertInfo.nodeName;
