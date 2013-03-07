@@ -30,23 +30,13 @@ define([ "dojo/_base/declare",
 		
 		
 		// summary:
-		//		当前光标所在的位置。
-		//		lineIndex和nodeIndex只定位到text和math节点。FIXME：math中的内容不再跟踪？
-		//		还是使用xPath Axes(轴)来定位好一些。
-		//		在一个数组中pop或push每个节点的名称，然后形成一个xpath，然后根据xpath定位到该节点。
-		//		又能如何呢？还是无法将model与view中的位置相对应。
+		//		一个在文本内容间浮动的锚，用来定位当前的输入点。
 		// node:
 		//		光标所在的节点
 		// offset：
 		//		光标在node节点中的偏移量，主要是node的子节点或者文本节点内容的偏移量
-		// lineIndex：
-		//		附加信息，主要用于定位node。
-		//		node节点在doc中行数
-		// nodeIndex：
-		//		附加信息，主要用于定位node。
-		//		node在lineIndex指定的行中的索引
-		//node:null, offset : -1, lineIndex:0, nodeIndex:0
-		cursorPosition: null,
+		//node:null, offset : -1
+		anchor: null,
 		
 		// 当前节点在xml文件中的具体路径
 		
@@ -67,11 +57,11 @@ define([ "dojo/_base/declare",
 			// 注意：在类中列出的属性，都必须在这里进行初始化。
 			this.doc = xmlParser.parse(EMPTY_XML);
 			this.path = [];
-			this.cursorPosition = {};
+			this.anchor = {};
 			// FIXME:如何存储呢？
 			
-			this.cursorPosition.node = this.doc.documentElement.firstChild;
-			this.cursorPosition.offset = 0;
+			this.anchor.node = this.doc.documentElement.firstChild;
+			this.anchor.offset = 0;
 			
 			this.path.push({nodeName:"root"});
 			// offset 偏移量，从1开始
@@ -89,9 +79,12 @@ define([ "dojo/_base/declare",
 			
 		},
 		
-		
-		
-		// TODO：需要加入位置参数，指明在什么地方插入
+		// 如果是中文，则放在text节点中
+		// 注意，当调用setData的时候，所有数据都是已经处理好的。
+		// 两种判断数据类型的方法：1是系统自动判断；2是人工判断
+		// 所以setData应该再加一个参数，表示人工判断的结果，表明数据是什么类型。
+		// 如果没有这个参数，则系统自动判断
+		// TODO：需要加入位置参数，指明在什么地方插入, FIXME now!!
 		// TODO: 该方法需要重构，因为太多的针对不同类型的节点名称进行编程，而不是
 		//		 经过抽象后的逻辑。
 		setData: function(insertInfo){
@@ -118,9 +111,10 @@ define([ "dojo/_base/declare",
 			
 			var xmlDoc = this.doc;
 			
-			this._splitNodeIfNeed();
-			var node = this.cursorPosition.node;
-			var offset = this.cursorPosition.offset;
+			// FIXME:只有在节点不同时才需要拆分。
+			// this._splitNodeIfNeed();
+			var node = this.anchor.node;
+			var offset = this.anchor.offset;
 			
 			if(nodeName && nodeName != ""){
 				
@@ -146,8 +140,8 @@ define([ "dojo/_base/declare",
 						math.appendChild(fracData.rootNode);
 						domConstruct.place(math, node, position);
 						
-						this.cursorPosition.node = fracData.focusNode;
-						this.cursorPosition.offset = 0;
+						this.anchor.node = fracData.focusNode;
+						this.anchor.offset = 0;
 						
 					}else{
 						// FIXME：需要推断，前面那些组合可以做分子
@@ -183,8 +177,8 @@ define([ "dojo/_base/declare",
 						var fracData = xmlUtil.createFracWithNumerator(xmlDoc, node);
 						domConstruct.place(fracData.rootNode, parent, position);
 						
-						this.cursorPosition.node = fracData.focusNode;
-						this.cursorPosition.offset = 0;
+						this.anchor.node = fracData.focusNode;
+						this.anchor.offset = 0;
 					}
 					
 				}else if(nodeName == "msup"){
@@ -200,8 +194,8 @@ define([ "dojo/_base/declare",
 						math.appendChild(supData.rootNode);
 						domConstruct.place(math, node, position);
 
-						this.cursorPosition.node = supData.focusNode;
-						this.cursorPosition.offset = 0;
+						this.anchor.node = supData.focusNode;
+						this.anchor.offset = 0;
 						
 					}else{
 						// TODO:总结是不是General Layout Schema 和 Script and Limit Schema的path处理逻辑都一样呢
@@ -215,8 +209,8 @@ define([ "dojo/_base/declare",
 						var supData = xmlUtil.createMsupWithBase(xmlDoc, node);
 						domConstruct.place(supData.rootNode, parent, 0);
 						
-						this.cursorPosition.node = supData.focusNode;
-						this.cursorPosition.offset = 0;
+						this.anchor.node = supData.focusNode;
+						this.anchor.offset = 0;
 					}
 				}else if(nodeName == "msub"){
 					
@@ -231,8 +225,8 @@ define([ "dojo/_base/declare",
 						math.appendChild(subData.rootNode);
 						domConstruct.place(math, node, position);
 
-						this.cursorPosition.node = subData.focusNode;
-						this.cursorPosition.offset = 0;
+						this.anchor.node = subData.focusNode;
+						this.anchor.offset = 0;
 						
 					}else{
 						// TODO:总结是不是General Layout Schema 和 Script and Limit Schema的path处理逻辑都一样呢
@@ -246,8 +240,8 @@ define([ "dojo/_base/declare",
 						var subData = xmlUtil.createMsubWithBase(xmlDoc, node);
 						domConstruct.place(subData.rootNode, parent, 0);
 						
-						this.cursorPosition.node = subData.focusNode;
-						this.cursorPosition.offset = 0;
+						this.anchor.node = subData.focusNode;
+						this.anchor.offset = 0;
 					}
 				}else if(nodeName == "msqrt"){
 					if(this._isLineNode(node) || this._isTextNode(node)){
@@ -261,8 +255,8 @@ define([ "dojo/_base/declare",
 						math.appendChild(sqrtData.rootNode);
 						domConstruct.place(math, node, position);
 
-						this.cursorPosition.node = sqrtData.focusNode;
-						this.cursorPosition.offset = 0;
+						this.anchor.node = sqrtData.focusNode;
+						this.anchor.offset = 0;
 					}else{
 						this.path.pop();
 						this.path.push({nodeName:"msqrt", offset:offset+1});
@@ -273,8 +267,8 @@ define([ "dojo/_base/declare",
 						var sqrtData = xmlUtil.createEmptyMsqrt(xmlDoc);
 						domConstruct.place(sqrtData.rootNode, parent, offset);
 						
-						this.cursorPosition.node = sqrtData.focusNode;
-						this.cursorPosition.offset = 0;
+						this.anchor.node = sqrtData.focusNode;
+						this.anchor.offset = 0;
 					}
 				}else if(nodeName == "mroot"){
 					if(this._isLineNode(node) || this._isTextNode(node)){
@@ -288,8 +282,8 @@ define([ "dojo/_base/declare",
 						math.appendChild(rootData.rootNode);
 						domConstruct.place(math, node, position);
 
-						this.cursorPosition.node = rootData.focusNode;
-						this.cursorPosition.offset = 0;
+						this.anchor.node = rootData.focusNode;
+						this.anchor.offset = 0;
 					}else{
 						this.path.pop();
 						this.path.push({nodeName:"mroot", offset:offset+1});
@@ -300,8 +294,8 @@ define([ "dojo/_base/declare",
 						var rootData = xmlUtil.createEmptyMroot(xmlDoc);
 						domConstruct.place(rootData.rootNode, parent, offset);
 						
-						this.cursorPosition.node = rootData.focusNode;
-						this.cursorPosition.offset = 0;
+						this.anchor.node = rootData.focusNode;
+						this.anchor.offset = 0;
 					}
 				}else if(nodeName == "mi"){
 					// 对sin/cos等特殊字符的处理
@@ -335,8 +329,8 @@ define([ "dojo/_base/declare",
 							math.appendChild(mrow);
 							domConstruct.place(math, node, offset);
 							
-							this.cursorPosition.node = placeHolder;
-							this.cursorPosition.offset = 0;
+							this.anchor.node = placeHolder;
+							this.anchor.offset = 0;
 							
 						}else{
 							
@@ -383,8 +377,8 @@ define([ "dojo/_base/declare",
 					
 					domConstruct.place(math, node, offset);
 					
-					this.cursorPosition.node = placeHolder;
-					this.cursorPosition.offset = 0;
+					this.anchor.node = placeHolder;
+					this.anchor.offset = 0;
 				}else{
 					
 				}
@@ -411,7 +405,7 @@ define([ "dojo/_base/declare",
 			// data中可能包含多个字符，通过循环，单独处理每个字符
 			array.forEach(dataArray,lang.hitch(this,function(eachData, index){
 				var c = eachData;
-				var node = this.cursorPosition.node;
+				var node = this.anchor.node;
 				
 				if(dripLang.isNumber(c)){
 					
@@ -421,9 +415,10 @@ define([ "dojo/_base/declare",
 					//		比较要输入的值和当前输入的环境
 					//		确定可以执行哪些动作
 					//		新建节点
-					//		设置当前节点，将cursorPosition改为context
+					//		设置当前节点，将anchor改为context
 					//		在新节点中插入内容
 					//		修正当前的path值
+					
 					nodeName = "mn";
 					
 					function isLineOrText(node){
@@ -432,7 +427,7 @@ define([ "dojo/_base/declare",
 					}
 					
 					if(isLineOrText(node)){
-						var offset = this.cursorPosition.offset;
+						var offset = this.anchor.offset;
 						// 这两个默认的值，是根据lineNode的值设置的，所以可以删除对lineNode的判断。
 						var position = "last";
 						var pathOffset = 1;
@@ -454,22 +449,24 @@ define([ "dojo/_base/declare",
 						}
 						
 						var mathNode = xmlDoc.createElement("math");
-						var mnNode = xmlDoc.createElement(nodeName);
-						mathNode.appendChild(mnNode);
+						var newNode = xmlDoc.createElement(nodeName);
+						mathNode.appendChild(newNode);
+						
 						domConstruct.place(mathNode, node, position);
 						
 						
-						this.cursorPosition.node = mnNode;
-						this.cursorPosition.offset = 0;
+						this.anchor.node = newNode;
+						this.anchor.offset = 0;
 						
 						this._insertChar(c);
 						
 						this.path.push({nodeName:"math", offset:pathOffset});
 						this.path.push({nodeName:nodeName, offset:1});
+						
 					}else if(dripLang.isMathTokenNode(node)){
 						// FIXME：重构，可抽象出一个逻辑，期望新建的节点与当前节点的类型不同。
 						//如果当前节点不是操作符节点，则新建一个操作符节点
-						var node = this.cursorPosition.node;
+						var node = this.anchor.node;
 						if(xmlUtil.isPlaceHolder(node)){
 							xmlUtil.removePlaceHolder(node);
 						}
@@ -480,8 +477,8 @@ define([ "dojo/_base/declare",
 							// 需要判断是否需要拆分节点。
 							dripLang.insertNodeAfter(mnNode,node);
 							
-							this.cursorPosition.node = mnNode;
-							this.cursorPosition.offset = 0;
+							this.anchor.node = mnNode;
+							this.anchor.offset = 0;
 							
 							var pos = this.path.pop();
 							this.path.push({nodeName:nodeName, offset:pos.offset+1});
@@ -497,8 +494,8 @@ define([ "dojo/_base/declare",
 						node.appendChild(mathNode);
 						var mnNode = xmlDoc.createElement("mo");
 						mathNode.appendChild(mnNode);
-						this.cursorPosition.node = mnNode;
-						this.cursorPosition.offset = 0;
+						this.anchor.node = mnNode;
+						this.anchor.offset = 0;
 						
 						this._insertChar(c);
 						
@@ -506,13 +503,13 @@ define([ "dojo/_base/declare",
 						this.path.push({nodeName:"mo", offset:1});
 					}else if(dripLang.isMathTokenNode(node)){
 						//如果当前节点不是操作符节点，则新建一个操作符节点
-						var node = this.cursorPosition.node;
+						var node = this.anchor.node;
 						// 不论是不是mo节点，都单独新建，因此处理逻辑一样，就不再分开。
 						var moNode = xmlDoc.createElement("mo");
 						dripLang.insertNodeAfter(moNode,node);
 						
-						this.cursorPosition.node = moNode;
-						this.cursorPosition.offset = 0;
+						this.anchor.node = moNode;
+						this.anchor.offset = 0;
 						
 						this._insertChar(c);
 						
@@ -525,8 +522,8 @@ define([ "dojo/_base/declare",
 						dripLang.insertNodeAfter(mathNode, node);
 						var mnNode = xmlDoc.createElement("mo");
 						mathNode.appendChild(mnNode);
-						this.cursorPosition.node = mnNode;
-						this.cursorPosition.offset = 0;
+						this.anchor.node = mnNode;
+						this.anchor.offset = 0;
 						
 						this._insertChar(c);
 						
@@ -542,8 +539,8 @@ define([ "dojo/_base/declare",
 					var newLineNode = this.doc.createElement("line");
 					dripLang.insertNodeAfter(newLineNode, focusedLine);
 					
-					this.cursorPosition.node = newLineNode;
-					this.cursorPosition.offset = 0;
+					this.anchor.node = newLineNode;
+					this.anchor.offset = 0;
 					
 					// 将之前缓存的上一行的信息都清除
 					var pos = this.path.pop();
@@ -555,18 +552,25 @@ define([ "dojo/_base/declare",
 					this.path.push({nodeName:"line", offset:pos.offset+1});
 					
 				}else{
+					// FIXME：可提取，容器部件，子节点的tagName
 					if(this._isLineNode(node)){
-						var textSpanNode = xmlDoc.createElement("text");
-						node.appendChild(textSpanNode);
+						// 这里的逻辑是往父节点中插入一个新的子节点
+						var parentNode = node;
+						var position = offset;
 						
-						this.cursorPosition.node = textSpanNode;
-						this.cursorPosition.offset = 0;
-						
+						var nodeName = "text";
+						// 这里有一个假定，只要是line,则必是一个空行。
+						var newNode = xmlDoc.createElement(nodeName);
+						this._updateAnchor(newNode, 0);
+						// 这里的offset是nodeName为text的节点在父节点中位置。
+						this.path.push({nodeName:nodeName,offset:1});
+						// insertChar中自动调整focusNode中的偏移量，即在该方法中focusNode不会改变。
 						this._insertChar(c);
 						
-						// 这里的offset是nodeName为text的节点在父节点中位置。
-						this.path.push({nodeName:"text",offset:1});
+						// 最后添加到界面上，从性能的角度考虑。
+						domConstruct.place(newNode, parentNode, position);
 					}else if(this._isTextNode(node)){
+						// 这里的逻辑是修改当前焦点的值
 						this._insertChar(c);
 					}else if(dripLang.isMathTokenNode(node)){
 						// 要往上移到math节点之外
@@ -584,8 +588,8 @@ define([ "dojo/_base/declare",
 						}
 						dripLang.insertNodeAfter(textSpanNode, mathNode);
 						
-						this.cursorPosition.node = textSpanNode;
-						this.cursorPosition.offset = 0;
+						this.anchor.node = textSpanNode;
+						this.anchor.offset = 0;
 						
 						this._insertChar(c);
 						
@@ -596,6 +600,13 @@ define([ "dojo/_base/declare",
 			}));
 			
 			this.onChange(data);
+		},
+		
+		_updateAnchor: function(focusNode, offset){
+			// 判断focusNode与node是否相等，是不是判断引用呢？
+			// 如果是的话，两者相等，就无需重新赋值。
+			this.anchor.node = focusNode;
+			this.anchor.offset = offset;
 		},
 		
 		doDelete: function(){
@@ -612,8 +623,8 @@ define([ "dojo/_base/declare",
 			// return:String
 			//		删除的字符
 			
-			var offset = this.cursorPosition.offset;
-			var node = this.cursorPosition.node;
+			var offset = this.anchor.offset;
+			var node = this.anchor.node;
 			var oldText = node.textContent;
 			
 			console.log("removeLeft", node, offset);
@@ -640,11 +651,11 @@ define([ "dojo/_base/declare",
 							this.path.pop();
 						}else{
 							previousNode.textContent = newText;
-							this.cursorPosition.node = previousNode;
-							this.cursorPosition.offset = newLength;
+							this.anchor.node = previousNode;
+							this.anchor.offset = newLength;
 						}
 						var removed = textContent.charAt(newLength);
-						// 注意这里不设置cursorPosition，因为要与之前的值保持一致。
+						// 注意这里不设置anchor，因为要与之前的值保持一致。
 						return removed;
 					}
 				}else if(node.nodeName == "line"){
@@ -655,8 +666,8 @@ define([ "dojo/_base/declare",
 						var childCount = previousNode.childNodes.length;
 						//如果前一行也是空行
 						if(childCount == 0){
-							this.cursorPosition.node = previousNode;
-							this.cursorPosition.offset = 0;
+							this.anchor.node = previousNode;
+							this.anchor.offset = 0;
 							var lastPath = this.path.pop();
 							lastPath.offset--;
 							this.path.push(lastPath);
@@ -667,8 +678,8 @@ define([ "dojo/_base/declare",
 							previousNode = previousNode.lastChild;
 							
 							if(previousNode.nodeName == "text"){
-								this.cursorPosition.node = previousNode;
-								this.cursorPosition.offset = previousNode.textContent.length;
+								this.anchor.node = previousNode;
+								this.anchor.offset = previousNode.textContent.length;
 								
 								var lastPath = this.path.pop();
 								lastPath.offset--;
@@ -680,8 +691,8 @@ define([ "dojo/_base/declare",
 								var mathChildCount = previousNode.childNodes.length;
 								previousNode = previousNode.lastChild;
 								
-								this.cursorPosition.node = previousNode;
-								this.cursorPosition.offset = previousNode.textContent.length;
+								this.anchor.node = previousNode;
+								this.anchor.offset = previousNode.textContent.length;
 								
 								var lastPath = this.path.pop();
 								lastPath.offset--;
@@ -721,8 +732,8 @@ define([ "dojo/_base/declare",
 							var mathChildCount = previousNode.childNodes.length;
 							previousNode = previousNode.lastChild;
 							
-							this.cursorPosition.node = previousNode;
-							this.cursorPosition.offset = previousNode.textContent.length;
+							this.anchor.node = previousNode;
+							this.anchor.offset = previousNode.textContent.length;
 							
 							var lastPath = this.path.pop();
 							var lastOffset = lastPath.offset - 1;
@@ -730,11 +741,11 @@ define([ "dojo/_base/declare",
 							this.path.push({nodeName:previousNode.nodeName, offset: mathChildCount});
 							node.parentNode.removeChild(node);
 						}else{
-							this.cursorPosition.node = previousNode;
-							this.cursorPosition.offset = previousNode.textContent.length;
+							this.anchor.node = previousNode;
+							this.anchor.offset = previousNode.textContent.length;
 							node.parentNode.removeChild(node);
 							var old = this.path.pop();
-							this.path.push({nodeName:this.cursorPosition.node.nodeName, offset:old.offset-1});
+							this.path.push({nodeName:this.anchor.node.nodeName, offset:old.offset-1});
 						}
 						
 					}else{
@@ -756,17 +767,17 @@ define([ "dojo/_base/declare",
 						var oldOffset = this.path.pop().offset;
 						
 						if(previousNode){
-							this.cursorPosition.node = previousNode;
-							this.cursorPosition.offset = previousNode.textContent.length;
-							this.path.push({nodeName:this.cursorPosition.node.nodeName, offset:oldOffset-1});
+							this.anchor.node = previousNode;
+							this.anchor.offset = previousNode.textContent.length;
+							this.path.push({nodeName:this.anchor.node.nodeName, offset:oldOffset-1});
 						}else{
-							this.cursorPosition.node = p;
-							this.cursorPosition.offset = p.childElementCount;
+							this.anchor.node = p;
+							this.anchor.offset = p.childElementCount;
 						}
 					}
 				}else{
-					this.cursorPosition.node.textContent = newText;
-					this.cursorPosition.offset -= 1;
+					this.anchor.node.textContent = newText;
+					this.anchor.offset -= 1;
 				}
 				
 				return removed;
@@ -774,8 +785,8 @@ define([ "dojo/_base/declare",
 		},
 		
 		moveLeft: function(){
-			var node = this.cursorPosition.node;
-			var offset = this.cursorPosition.offset;
+			var node = this.anchor.node;
+			var offset = this.anchor.offset;
 			
 			var nodeName = node.nodeName;
 			if(nodeName == "line"){
@@ -790,13 +801,13 @@ define([ "dojo/_base/declare",
 				}
 				var textContent = previousNode.textContent;
 				
-				this.cursorPosition.node = previousNode;
-				this.cursorPosition.offset = textContent.length;
+				this.anchor.node = previousNode;
+				this.anchor.offset = textContent.length;
 				return;
 			}
 			
 			if(offset > 0){
-				this.cursorPosition.offset--;
+				this.anchor.offset--;
 				return;
 			}
 			
@@ -809,8 +820,8 @@ define([ "dojo/_base/declare",
 					}
 					var textContent = previousNode.textContent;
 					
-					this.cursorPosition.node = previousNode;
-					this.cursorPosition.offset = textContent.length - 1;
+					this.anchor.node = previousNode;
+					this.anchor.offset = textContent.length - 1;
 					return;
 				}
 				// 如果找不到兄弟节点，则寻找父节点
@@ -824,13 +835,13 @@ define([ "dojo/_base/declare",
 						}
 						var textContent = previousNode.textContent;
 						
-						this.cursorPosition.node = previousNode;
-						this.cursorPosition.offset = textContent.length;
+						this.anchor.node = previousNode;
+						this.anchor.offset = textContent.length;
 					}else{
 						var textContent = previousNode.textContent;
 						
-						this.cursorPosition.node = previousNode;
-						this.cursorPosition.offset = textContent.length - 1;
+						this.anchor.node = previousNode;
+						this.anchor.offset = textContent.length - 1;
 					}
 					
 				}
@@ -858,8 +869,8 @@ define([ "dojo/_base/declare",
 			// summary:
 			//		如果节点满足被拆分的条件，则将节点拆分为两个。
 			//		只能用在放置文本节点的节点中，如text节点和mathml的token节点。
-			var offset = this.cursorPosition.offset;
-			var node = this.cursorPosition.node;
+			var offset = this.anchor.offset;
+			var node = this.anchor.node;
 			var textContent = node.textContent;
 			var textLength = textContent.length;
 			if(0< offset && offset < textLength){
@@ -907,12 +918,16 @@ define([ "dojo/_base/declare",
 			// summary:
 			//		在聚焦的节点中，当前光标新的字符，并移动当前光标的位置。
 			
-			var offset = this.cursorPosition.offset;
-			var oldText = this.cursorPosition.node.textContent;
+			var focusNode = this.anchor.node;
+			var offset = this.anchor.offset;
+			
+			var oldText = focusNode.textContent;
 			var newText = dripString.insertAtOffset(oldText, offset, charData);
-			this.cursorPosition.node.textContent = newText;
-			// 这里输入的char，不管几个字符都当作一个长度处理。
-			this.cursorPosition.offset += 1; // char.length
+			focusNode.textContent = newText;
+			// 注意，这里输入的char，不管几个字符都当作一个长度处理，如&123;也当作一个字符处理。
+			offset += 1;
+			
+			this._updateAnchor(focusNode, offset);
 		},
 		
 		// 获取xml文件的字符串值。没有没有输入任何内容则返回空字符串。
@@ -923,6 +938,13 @@ define([ "dojo/_base/declare",
 			}
 			
 			return xmlParser.innerXML(this.doc);
+		},
+		
+		isEmpty: function(){
+			// summary:
+			//		判断model中是否有内容，如果没有值则返回true，否则返回false。
+			
+			return this.getXML() == "";
 		},
 		
 		// summary:
@@ -942,11 +964,11 @@ define([ "dojo/_base/declare",
 		},
 		
 		getFocusNode: function(){
-			return this.cursorPosition.node;
+			return this.anchor.node;
 		},
 		
 		getOffset: function(){
-			return this.cursorPosition.offset;
+			return this.anchor.offset;
 		},
 		
 		getLineAt: function(lineIndex){

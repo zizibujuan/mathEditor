@@ -156,6 +156,10 @@ define(["dojo/_base/declare",
 					
 					// 回车换行。
 					event.stop(e);
+				}else if(e.keyCode == keys.TAB){
+					this.model.setData({data:"\t"});
+					
+					event.stop(e);
 				}
 				
 			}));

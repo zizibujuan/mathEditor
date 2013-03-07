@@ -20,6 +20,8 @@
     line-height: 15px;
     
     padding-top: 1px;
+    
+    tab-size:4;/*很多浏览器不支持，默认值为8*/
 }
 
 .drip_editor_focus {
