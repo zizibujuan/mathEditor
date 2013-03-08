@@ -21,7 +21,22 @@ define([ "doh", "mathEditor/lang" ], function(doh, dripLang) {
 
 		runTest : function(t) {
 			t.t(dripLang.isOperator("+"));
+			t.t(dripLang.isOperator("-"));
 			t.t(dripLang.isOperator("="));
+			t.t(dripLang.isOperator("=="));
+			t.t(dripLang.isOperator("&#xD7;"));// 乘号
+			t.t(dripLang.isOperator("&#xF7;"));// 除号
+			t.t(dripLang.isOperator(">"));
+			t.t(dripLang.isOperator("<"));
+			t.t(dripLang.isOperator("!="));
+			
+			t.t(dripLang.isOperator("&#x2A7E;"));// 大于等于
+			t.t(dripLang.isOperator("&#x226B;"));// 远大于
+			t.t(dripLang.isOperator("&#x2A7D;"));// 小于等于
+			t.t(dripLang.isOperator("&#x226A;"));// 远小于
+			t.t(dripLang.isOperator("&#x2260;"));// 不等于
+			t.t(dripLang.isOperator("&#x2248;"));// 约等于
+			 
 		}
 	},
 	{

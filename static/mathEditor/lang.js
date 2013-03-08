@@ -7,9 +7,7 @@ define(["dojo/_base/array"],function(array){
 	},
 	
 	lang.isOperator = function(obj){
-		if(obj == "+" || obj == "=" || obj == "-" || obj == "&#xD7;"/*乘*/ || obj == "&#xF7;"/*除*/){
-			return true;
-		}
+		if(/\+|-|=|==|<|>|!|!=|&#xD7;|&#xF7;|&#x2A7E;|&#x226B;|&#x2A7D;|&#x226A;|&#x2260;|&#x2248;/.test(obj))return true;
 		return false;
 	},
 	

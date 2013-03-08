@@ -7,6 +7,8 @@ define([ "mathEditor/tests/layer/Cursor",
          "mathEditor/tests/model/setData/CJK",
          "mathEditor/tests/model/setData/newLine",
          "mathEditor/tests/model/setData/tab",
+         "mathEditor/tests/model/setData/operator",
+         
          
          "mathEditor/tests/model/moveLeft",
          "mathEditor/tests/model/removeLeft",

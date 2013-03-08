@@ -31,12 +31,23 @@ define([ "doh", "mathEditor/string" ], function(doh, dripString) {
 			t.is(";",dataArray[1]);
 			t.t(dataArray.length == 2);
 			
-			
 			dataArray = dripString.splitData("1&#xD7;2");
 			t.is("1",dataArray[0]);
 			t.is("&#xD7;",dataArray[1]);
 			t.is("2",dataArray[2]);
 			t.t(dataArray.length == 3);
+			
+			dataArray = dripString.splitData("==");
+			t.is("==", dataArray[0]);
+			t.t(dataArray.length == 1);
+			
+			dataArray = dripString.splitData("!=");
+			t.is("!=", dataArray[0]);
+			t.t(dataArray.length == 1);
+			
+			dataArray = dripString.splitData("=");
+			t.is("=", dataArray[0]);
+			t.t(dataArray.length == 1);
 		}
 	},
 	{

@@ -1,5 +1,10 @@
 define([],function(){
 	var string = {};
+	
+	// 1.以&开始，以;结束
+	// 2.操作符 ==
+	// 3.操作符 !=
+	var operators = ["==","!="];
 	string.splitData = function(data){
 		// summary:
 		//		将传入的数据拆分为最小单元的html符号。
@@ -10,9 +15,27 @@ define([],function(){
 		var index = 0;
 		var append = false;
 		var cache = "";
-		var span = 0; //&和;中字符的个数
+		var span = 0; //&和;之间字符的个数
 		for(var i = 0; i < len; i++){
 			var c = data.charAt(i);
+			
+			// 解析出“==”
+			if(c == "=" && "="==data.charAt(i+1)){
+				result[index] = "==";
+				index++;
+				i++;
+				continue;
+			}
+			
+			// 解析出“!=”
+			if(c == "!" && "="==data.charAt(i+1)){
+				result[index] = "!=";
+				index++;
+				i++;
+				continue;
+			}
+			
+			// 解析出unicode码
 			if(c == "&"){
 				span = 0;
 				append = true;

@@ -18,7 +18,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				t.is(model.getFocusNode().nodeName,"text");
 				t.is(1,model.getOffset()); // 在model中任何用转移符号表示的字符的长度都为1
 				// 判断插入的值
-				// 如果浏览器支持css3的tab-size，则值为\\tab,否则插入四个&nbsp;
+				// 如果浏览器支持css3的tab-size，则值为\\tab,(否则插入四个&nbsp;暂不实现这个功能)
 				t.is("\t",model.getFocusNode().textContent);
 			},
 			tearDown: function(){
@@ -26,7 +26,6 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 			}
 		},
 		{
-			// 注意\\t算一个字符
 			name: "在空的model中输入字母，然后输入tab键，再输入字母",
 			setUp: function(){
 				this.model = new Model({});
@@ -35,16 +34,11 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				var model = this.model;
 				model.setData({data:"a"});
 				model.setData({data:"\t"});
-				// 制表符在model中用什么节点表示呢， 制表符用4个空格表示，还是8个空格？
-				// 在model中直接用\t表示，但是在界面上进行绘制的时候，需要使用span节点封装。
-				// 并在其中放置指定个数的空格。
-				
 				// 暂不支持在math模式下输入制表符号
 				t.is("/root/line[1]/text[1]", model.getPath());
 				t.is(model.getFocusNode().nodeName,"text");
-				t.is(2,model.getOffset()); // 在model中任何用转移符号表示的字符的长度都为1
+				t.is(2,model.getOffset());
 				// 判断插入的值
-				// 如果浏览器支持css3的tab-size，则值为\\tab,否则插入四个&nbsp;
 				t.is("a\t",model.getFocusNode().textContent);
 			},
 			tearDown: function(){

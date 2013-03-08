@@ -52,26 +52,6 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   			}
   		},
   		{
-  			name: "在已有一个中文字符的model中添加操作符号",
-  			setUp: function(){
-  				this.model = new Model({});
-  			},
-  			runTest: function(t){
-  				// 结果是在line中先加一个text节点，然后再加一个math节点
-  				var model = this.model;
-  				// 如果是中文，则放在text节点中
-  				model.setData({data:"中"});
-  				model.setData({data:"="});
-  				t.is("/root/line[1]/math[2]/mo[1]", model.getPath());
-  				t.is(model.getFocusNode().nodeName, "mo");
-  				t.is(1, model.getOffset());
-  				t.is(2, model.getLineAt(0).childNodes.length);
-  			},
-  			tearDown: function(){
-  				
-  			}
-  		},
-  		{
   			name: "在已有一个数字的model中添加中文",
   			setUp: function(){
   				this.model = new Model({});
@@ -120,47 +100,6 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				model.setData({data:"2"});
   				t.is("/root/line[1]/math[1]/mn[5]", model.getPath());
   				t.is(model.getFocusNode().nodeName, "mn");
-  				t.is(1, model.getOffset());
-  			},
-  			tearDown: function(){
-  				
-  			}
-  		},
-  		{
-  			name: "允许多个操作符放在一起,即使符号相同，也用多个mo封装",
-  			setUp: function(){
-  				this.model = new Model({});
-  			},
-  			runTest: function(t){
-  				var model = this.model;
-  				model.setData({data:"+"});
-  				t.is("/root/line[1]/math[1]/mo[1]", model.getPath());
-  				t.is(model.getFocusNode().nodeName, "mo");
-  				t.is(1, model.getOffset());
-  				// 确认text没有被放在math节点中
-  				t.is(1, model.getLineAt(0).childNodes[0].childNodes.length);
-  				
-  				model.setData({data:"+"});
-  				t.is("/root/line[1]/math[1]/mo[2]", model.getPath());
-  				t.is(model.getFocusNode().nodeName, "mo");
-  				t.is(1, model.getOffset());
-  				// 确认text没有被放在math节点中
-  				t.is(2, model.getLineAt(0).childNodes[0].childNodes.length);
-  			},
-  			tearDown: function(){
-  				
-  			}
-  		},
-  		{
-  			name: "输入Unicode符号表示的操作符",
-  			setUp: function(){
-  				this.model = new Model({});
-  			},
-  			runTest: function(t){
-  				var model = this.model;
-  				model.setData({data:"&#xD7;"});
-  				t.is("/root/line[1]/math[1]/mo[1]", model.getPath());
-  				t.is(model.getFocusNode().nodeName, "mo");
   				t.is(1, model.getOffset());
   			},
   			tearDown: function(){

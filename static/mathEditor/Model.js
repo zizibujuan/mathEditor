@@ -489,47 +489,53 @@ define([ "dojo/_base/declare",
 						this._insertChar(c);
 					}
 				}else if(dripLang.isOperator(c)){
+					var nodeName = "mo";
 					if(this._isLineNode(node)){
 						var mathNode = xmlDoc.createElement("math");
-						node.appendChild(mathNode);
-						var mnNode = xmlDoc.createElement("mo");
-						mathNode.appendChild(mnNode);
-						this.anchor.node = mnNode;
-						this.anchor.offset = 0;
 						
+						var newNode = xmlDoc.createElement(nodeName);
+						mathNode.appendChild(newNode);
+						
+						this._updateAnchor(newNode, 0);
 						this._insertChar(c);
 						
 						this.path.push({nodeName:"math", offset:1});
-						this.path.push({nodeName:"mo", offset:1});
+						this.path.push({nodeName:nodeName, offset:1});
+						// 既然约定只要遇到line，则其中必然为空的，则直接使用appendChild方法。暂不修改。
+						domConstruct.place(mathNode, node, offset);
+						
 					}else if(dripLang.isMathTokenNode(node)){
-						//如果当前节点不是操作符节点，则新建一个操作符节点
-						var node = this.anchor.node;
-						// 不论是不是mo节点，都单独新建，因此处理逻辑一样，就不再分开。
-						var moNode = xmlDoc.createElement("mo");
-						dripLang.insertNodeAfter(moNode,node);
-						
-						this.anchor.node = moNode;
-						this.anchor.offset = 0;
-						
-						this._insertChar(c);
-						
-						var pos = this.path.pop();
-						this.path.push({nodeName:"mo", offset:pos.offset+1});
+						// 所有的操作符，都是一个单独的符号，用一个mo封装。
+						if(c == "=" && node.nodeName == "mo" && node.textContent == "="){
+							node.textContent += "=";
+						}else if(c == "=" && node.nodeName == "mo" && node.textContent == "!"){
+							node.textContent += "=";
+						}else{
+							var newNode = xmlDoc.createElement(nodeName);
+							this._updateAnchor(newNode, 0);
+							this._insertChar(c);
+							
+							var pos = this.path.pop();
+							this.path.push({nodeName:nodeName, offset:pos.offset+1});
+							
+							dripLang.insertNodeAfter(newNode,node);
+						}
 					}else if(this._isTextNode(node)){
 						// FIXME：重构出一个方法
 						var mathNode = xmlDoc.createElement("math");
 						// math应该放在textNode之后
-						dripLang.insertNodeAfter(mathNode, node);
-						var mnNode = xmlDoc.createElement("mo");
-						mathNode.appendChild(mnNode);
-						this.anchor.node = mnNode;
-						this.anchor.offset = 0;
+						
+						var newNode = xmlDoc.createElement(nodeName);
+						mathNode.appendChild(newNode);
+						this._updateAnchor(newNode, 0);
 						
 						this._insertChar(c);
 						
 						var pos = this.path.pop();
 						this.path.push({nodeName:"math", offset:pos.offset+1});
-						this.path.push({nodeName:"mo", offset:1});
+						this.path.push({nodeName:nodeName, offset:1});
+						
+						dripLang.insertNodeAfter(mathNode, node);
 					}
 				}else if(dripLang.isNewLine(c)){
 					// TODO:在指定位置新增一行
