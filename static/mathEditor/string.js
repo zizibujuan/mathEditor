@@ -5,6 +5,39 @@ define([],function(){
 	// 2.操作符 ==
 	// 3.操作符 !=
 	var operators = ["==","!="];
+	
+	function matchOperator(data, index){
+		// summary:
+		//		从operators中匹配操作符。
+		//		解析出普通字符组成的操作符(支持长度>=2的操作符)
+		// data: String
+		//		需要拆分的字符
+		// index: Integer
+		//		当前查询的字符所在的索引
+		// returns:
+		//		返回匹配到的字符，如果没有匹配到，则返回null
+
+		var c = data.charAt(index);
+		for(var i = 0; i < operators.length; i++){
+			var op = operators[i];
+			var opLen = op.length;
+			if(opLen == 2){
+				var firstChar = op.charAt(0);
+				var secondChar = op.charAt(1);
+				if(c == firstChar && secondChar == data.charAt(index+1)){
+					return op;
+				}
+			}else{
+				throw "没有为长度为"+op+"的操作符定义处理逻辑";
+			}
+		}
+		return null;
+	}
+	
+	function matchUnicode(data, index){
+		// TODO:重构split中的获取unicode码的方法
+	}
+	
 	string.splitData = function(data){
 		// summary:
 		//		将传入的数据拆分为最小单元的html符号。
@@ -17,24 +50,16 @@ define([],function(){
 		var cache = "";
 		var span = 0; //&和;之间字符的个数
 		for(var i = 0; i < len; i++){
+			
+			var matched = matchOperator(data, i);
+			if(matched){
+				result[index] = matched;
+				index++;
+				i += matched.length;
+				continue;
+			}
+			
 			var c = data.charAt(i);
-			
-			// 解析出“==”
-			if(c == "=" && "="==data.charAt(i+1)){
-				result[index] = "==";
-				index++;
-				i++;
-				continue;
-			}
-			
-			// 解析出“!=”
-			if(c == "!" && "="==data.charAt(i+1)){
-				result[index] = "!=";
-				index++;
-				i++;
-				continue;
-			}
-			
 			// 解析出unicode码
 			if(c == "&"){
 				span = 0;

@@ -37,6 +37,11 @@ define([ "doh", "mathEditor/string" ], function(doh, dripString) {
 			t.is("2",dataArray[2]);
 			t.t(dataArray.length == 3);
 			
+			dataArray = dripString.splitData("=");
+			t.is("=", dataArray[0]);
+			t.t(dataArray.length == 1);
+			
+			// 测试操作符的长度为2时
 			dataArray = dripString.splitData("==");
 			t.is("==", dataArray[0]);
 			t.t(dataArray.length == 1);
@@ -45,9 +50,10 @@ define([ "doh", "mathEditor/string" ], function(doh, dripString) {
 			t.is("!=", dataArray[0]);
 			t.t(dataArray.length == 1);
 			
-			dataArray = dripString.splitData("=");
-			t.is("=", dataArray[0]);
-			t.t(dataArray.length == 1);
+			// 测试操作符的长度为>=2时, 只发现一个不常用的|||, 
+			// 因此暂不支持。
+			
+			
 		}
 	},
 	{
