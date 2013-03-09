@@ -6,6 +6,10 @@ define(["dojo/_base/array"],function(array){
 		return !isNaN(parseFloat(obj)) && isFinite(obj);
 	},
 	
+	lang.isLetter = function(obj){
+		return obj.length == 1 && /[a-zA-Z]/.test(obj);
+	},
+	
 	lang.isOperator = function(obj){
 		if(/\+|-|=|==|<|>|!|!=|&#xD7;|&#xF7;|&#x2A7E;|&#x226B;|&#x2A7D;|&#x226A;|&#x2260;|&#x2248;/.test(obj))return true;
 		return false;

@@ -64,7 +64,6 @@ define([ "dojo/_base/declare",
 			lang.mixin(this, options);
 		},
 		
-		
 		_isTextMode: function(){
 			return this.mode === "text";
 		},
@@ -153,6 +152,39 @@ define([ "dojo/_base/declare",
 			return {node:node, offset:offset};
 		},
 		
+		insertMi: function(anchor, miContext){
+			// 这里只处理单个英文字母的情况
+			var nodeName = "mi";
+			var node = anchor.node;
+			var offset = anchor.offset;
+			var xmlDoc = this.doc;
+			
+			if(this._isLineNode(node)){
+				this.path.push({nodeName:"math", offset:1});
+				this.path.push({nodeName:nodeName, offset:1});
+				
+				var math = xmlDoc.createElement("math");
+				var newNode = xmlDoc.createElement(nodeName);
+				newNode.textContent = miContext;
+				
+				math.appendChild(newNode);
+				node.appendChild(math);
+				
+				node = newNode;
+			}else{
+				var pos = this.path.pop();
+				this.path.push({nodeName:nodeName, offset:pos.offset+1});
+				
+				var newNode = xmlDoc.createElement(nodeName);
+				newNode.textContent = miContext;
+				dripLang.insertNodeAfter(newNode,node);
+				
+				node = newNode;
+			}
+			offset = miContext.length;
+			return {node:node, offset:offset};
+		},
+		
 		// 如果是中文，则放在text节点中
 		// 注意，当调用setData的时候，所有数据都是已经处理好的。
 		// 两种判断数据类型的方法：1是系统自动判断；2是人工判断
@@ -188,7 +220,14 @@ define([ "dojo/_base/declare",
 			//	然后将mathml和text各自的操作拆分开
 			if(this._isTextMode()){
 				this.anchor = this.insertText(this.anchor, data);
+				this.onChange(data);
 				return;
+			}else if(this._isMathMLMode()){
+				if(dripLang.isLetter(data)){
+					this.anchor = this.insertMi(this.anchor, data);
+					this.onChange(data);
+					return;
+				}
 			}
 			
 			var xmlDoc = this.doc;
