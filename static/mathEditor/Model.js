@@ -140,9 +140,7 @@ define([ "dojo/_base/declare",
 						math.appendChild(fracData.rootNode);
 						domConstruct.place(math, node, position);
 						
-						this.anchor.node = fracData.focusNode;
-						this.anchor.offset = 0;
-						
+						this._updateAnchor(fracData.focusNode, 0);
 					}else{
 						// FIXME：需要推断，前面那些组合可以做分子
 						// 在数学公式中
@@ -177,8 +175,7 @@ define([ "dojo/_base/declare",
 						var fracData = xmlUtil.createFracWithNumerator(xmlDoc, node);
 						domConstruct.place(fracData.rootNode, parent, position);
 						
-						this.anchor.node = fracData.focusNode;
-						this.anchor.offset = 0;
+						this._updateAnchor(fracData.focusNode, 0);
 					}
 					
 				}else if(nodeName == "msup"){
@@ -194,9 +191,7 @@ define([ "dojo/_base/declare",
 						math.appendChild(supData.rootNode);
 						domConstruct.place(math, node, position);
 
-						this.anchor.node = supData.focusNode;
-						this.anchor.offset = 0;
-						
+						this._updateAnchor(supData.focusNode, 0);
 					}else{
 						// TODO:总结是不是General Layout Schema 和 Script and Limit Schema的path处理逻辑都一样呢
 						this.path.pop();
@@ -209,8 +204,7 @@ define([ "dojo/_base/declare",
 						var supData = xmlUtil.createMsupWithBase(xmlDoc, node);
 						domConstruct.place(supData.rootNode, parent, 0);
 						
-						this.anchor.node = supData.focusNode;
-						this.anchor.offset = 0;
+						this._updateAnchor(supData.focusNode, 0);
 					}
 				}else if(nodeName == "msub"){
 					
@@ -224,10 +218,8 @@ define([ "dojo/_base/declare",
 						var subData = xmlUtil.createEmptyMsub(xmlDoc);
 						math.appendChild(subData.rootNode);
 						domConstruct.place(math, node, position);
-
-						this.anchor.node = subData.focusNode;
-						this.anchor.offset = 0;
-						
+						// FIXME:将重复代码往上提一级。
+						this._updateAnchor(subData.focusNode, 0);
 					}else{
 						// TODO:总结是不是General Layout Schema 和 Script and Limit Schema的path处理逻辑都一样呢
 						this.path.pop();
@@ -240,8 +232,7 @@ define([ "dojo/_base/declare",
 						var subData = xmlUtil.createMsubWithBase(xmlDoc, node);
 						domConstruct.place(subData.rootNode, parent, 0);
 						
-						this.anchor.node = subData.focusNode;
-						this.anchor.offset = 0;
+						this._updateAnchor(subData.focusNode, 0);
 					}
 				}else if(nodeName == "msqrt"){
 					if(this._isLineNode(node) || this._isTextNode(node)){
@@ -255,8 +246,7 @@ define([ "dojo/_base/declare",
 						math.appendChild(sqrtData.rootNode);
 						domConstruct.place(math, node, position);
 
-						this.anchor.node = sqrtData.focusNode;
-						this.anchor.offset = 0;
+						this._updateAnchor(sqrtData.focusNode, 0);
 					}else{
 						this.path.pop();
 						this.path.push({nodeName:"msqrt", offset:offset+1});
@@ -267,8 +257,7 @@ define([ "dojo/_base/declare",
 						var sqrtData = xmlUtil.createEmptyMsqrt(xmlDoc);
 						domConstruct.place(sqrtData.rootNode, parent, offset);
 						
-						this.anchor.node = sqrtData.focusNode;
-						this.anchor.offset = 0;
+						this._updateAnchor(sqrtData.focusNode, 0);
 					}
 				}else if(nodeName == "mroot"){
 					if(this._isLineNode(node) || this._isTextNode(node)){
@@ -282,8 +271,7 @@ define([ "dojo/_base/declare",
 						math.appendChild(rootData.rootNode);
 						domConstruct.place(math, node, position);
 
-						this.anchor.node = rootData.focusNode;
-						this.anchor.offset = 0;
+						this._updateAnchor(rootData.focusNode, 0);
 					}else{
 						this.path.pop();
 						this.path.push({nodeName:"mroot", offset:offset+1});
@@ -294,13 +282,12 @@ define([ "dojo/_base/declare",
 						var rootData = xmlUtil.createEmptyMroot(xmlDoc);
 						domConstruct.place(rootData.rootNode, parent, offset);
 						
-						this.anchor.node = rootData.focusNode;
-						this.anchor.offset = 0;
+						this._updateAnchor(rootData.focusNode, 0);
 					}
 				}else if(nodeName == "mi"){
 					// 对sin/cos等特殊字符的处理
 					
-					if(/sin|cos|tan|cot/.test(data)){
+					if(dripLang.isTrigonometric(data)){
 						/*
 		  				 * <mi>cos</mi>
 		  				 * <mo>&#x2061;</mo> 函数应用
@@ -329,8 +316,7 @@ define([ "dojo/_base/declare",
 							math.appendChild(mrow);
 							domConstruct.place(math, node, offset);
 							
-							this.anchor.node = placeHolder;
-							this.anchor.offset = 0;
+							this._updateAnchor(placeHolder, 0);
 							
 						}else{
 							

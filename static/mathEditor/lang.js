@@ -11,6 +11,15 @@ define(["dojo/_base/array"],function(array){
 		return false;
 	},
 	
+	lang.isTrigonometric = function(obj){
+		// summary:
+		//		判断是不是三角函数
+		//	obj: String
+		//		输入的字符
+	
+		return /sin|cos|tan|cot|sec|csc/.test(obj);
+	},
+	
 	lang.isNewLine = function(obj){
 		return obj === "\n";
 	},
