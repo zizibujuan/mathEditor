@@ -109,6 +109,50 @@ define([ "dojo/_base/declare",
 			
 		},
 		
+		insertText: function(anchor, text){
+			// summary:
+			//		插入普通文本，用于text模式下。
+			// anchor: Object {node:node, offset:offset}
+			//		光标的位置
+			// text: String
+			//		插入的文本
+			// returns：
+			//		返回新的anchor
+			
+			if(!text || text.length == 0){
+				return anchor;
+			}
+			
+			var node = anchor.node;
+			var offset = anchor.offset;
+			
+			if(this._isLineNode(node)){
+				var xmlDoc = this.doc;
+				// 这里的逻辑是往父节点中插入一个新的子节点
+				var nodeName = "text";
+				// 这里有一个假定，只要是line,则必是一个空行。
+				var newNode = xmlDoc.createElement(nodeName);
+				// 这里的offset是nodeName为text的节点在父节点中位置。
+				this.path.push({nodeName:nodeName,offset:1});
+				// insertChar中自动调整focusNode中的偏移量，即在该方法中focusNode不会改变。
+				newNode.textContent = text;
+				
+				// 最后添加到界面上，从性能的角度考虑。
+				node.appendChild(newNode);
+				
+				node = newNode;
+				offset = text.length;
+			}else if(this._isTextNode(node)){
+				// 这里的逻辑是修改当前焦点的值
+				var oldText = node.textContent;
+				var newText = dripString.insertAtOffset(oldText, offset, text);
+				node.textContent = newText;
+				offset += text.length;
+			}
+			
+			return {node:node, offset:offset};
+		},
+		
 		// 如果是中文，则放在text节点中
 		// 注意，当调用setData的时候，所有数据都是已经处理好的。
 		// 两种判断数据类型的方法：1是系统自动判断；2是人工判断
@@ -117,7 +161,6 @@ define([ "dojo/_base/declare",
 		// TODO：需要加入位置参数，指明在什么地方插入, FIXME now!!
 		// TODO: 该方法需要重构，因为太多的针对不同类型的节点名称进行编程，而不是
 		//		 经过抽象后的逻辑。
-		
 		// FIXME：拆开两种模式之后，就要准确显示哪些字符可以在哪种模式下输入。
 		setData: function(insertInfo){
 			// summary:
@@ -140,6 +183,13 @@ define([ "dojo/_base/declare",
 					this.removeLeft();
 				}
 			}
+
+			// TODO:提取一个document作为总的model
+			//	然后将mathml和text各自的操作拆分开
+			if(this._isTextMode()){
+				this.anchor = this.insertText(this.anchor, data);
+				return;
+			}
 			
 			var xmlDoc = this.doc;
 			
@@ -147,36 +197,6 @@ define([ "dojo/_base/declare",
 			// this._splitNodeIfNeed();
 			var node = this.anchor.node;
 			var offset = this.anchor.offset;
-			
-			// TODO:提取一个document作为总的model
-			//	然后将mathml和text各自的操作拆分开
-			if(this._isTextMode()){
-				// FIXME：可提取，容器部件，子节点的tagName
-				if(this._isLineNode(node)){
-					// 这里的逻辑是往父节点中插入一个新的子节点
-					var parentNode = node;
-					var position = offset;
-					
-					var nodeName = "text";
-					// 这里有一个假定，只要是line,则必是一个空行。
-					var newNode = xmlDoc.createElement(nodeName);
-					var dataLen = data.length;
-					this._updateAnchor(newNode, dataLen);
-					// 这里的offset是nodeName为text的节点在父节点中位置。
-					this.path.push({nodeName:nodeName,offset:1});
-					// insertChar中自动调整focusNode中的偏移量，即在该方法中focusNode不会改变。
-					newNode.textContent = data;
-					
-					// 最后添加到界面上，从性能的角度考虑。
-					domConstruct.place(newNode, parentNode, position);
-				}else if(this._isTextNode(node)){
-					// 这里的逻辑是修改当前焦点的值
-					this._insertString(data);
-				}
-				return;
-			}
-			
-			
 			
 			if(nodeName && nodeName != ""){
 				
@@ -981,17 +1001,6 @@ define([ "dojo/_base/declare",
 			// 注意，这里输入的char，不管几个字符都当作一个长度处理，如&123;也当作一个字符处理。
 			offset += 1;
 			
-			this._updateAnchor(focusNode, offset);
-		},
-		
-		_insertString: function(str){
-			var focusNode = this.anchor.node;
-			var offset = this.anchor.offset;
-			
-			var oldText = focusNode.textContent;
-			var newText = dripString.insertAtOffset(oldText, offset, str);
-			focusNode.textContent = newText;
-			offset += str.length;
 			this._updateAnchor(focusNode, offset);
 		},
 		

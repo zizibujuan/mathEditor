@@ -139,6 +139,9 @@ define(["dojo/_base/declare",
 			// summary:
 			//		使用节点和节点中的值的偏移量来表示光标位置
 			//		FIXME:倒着遍历，是不是更容易找到光标位置呢？
+			// TODO:在支持mathml的浏览器上，或者就在这个view中，
+			//	为当前节点添加一个id或者其他标识，就可以快速定位到获取焦点的节点，
+			//	而不是下面这样需要各种循环遍历。
 			
 			var pathes = this.model.path;// TODO:重构，想个更好的方法名，getPath已经被使用。
 			
