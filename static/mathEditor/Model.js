@@ -28,6 +28,17 @@ define([ "dojo/_base/declare",
 		xmlString: null,
 		doc: null,
 		
+		// mode： 输入模式
+		//		表示编辑器的输入模式，默认是“text”，输入公式的模式是"mathml",
+		//		目前支持这两种模式。
+		//		模式之间的切换：
+		//		text-->mathml 
+		//			使用Alt+"="
+		//			如果用户输入的字符是公式专用的，则智能切换到mathml模式
+		//		mathml --> text 强制使用Alt+"="，则光标跳到公式外面
+		//						或者用户移动光标，移到公式外面。
+		mode: "text",
+		
 		
 		// summary:
 		//		一个在文本内容间浮动的锚，用来定位当前的输入点。
@@ -52,6 +63,24 @@ define([ "dojo/_base/declare",
 			this._init();
 			lang.mixin(this, options);
 		},
+		
+		
+		_isTextMode: function(){
+			return this.mode === "text";
+		},
+		
+		_isMathMLMode: function(){
+			return this.mode === "mathml";
+		},
+		
+		_toTextMode: function(){
+			this.mode = "text";
+		},
+		
+		_toMathMLMode: function(){
+			this.mode = "mathml";
+		},
+		
 		
 		_init: function(){
 			// 注意：在类中列出的属性，都必须在这里进行初始化。
