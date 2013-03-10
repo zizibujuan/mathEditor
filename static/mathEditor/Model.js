@@ -256,6 +256,49 @@ define([ "dojo/_base/declare",
 			return {node:node, offset:offset};
 		},
 		
+		insertMn: function(anchor, mnContent){
+
+			
+			// 按照以下思路重构。
+			// 添加一个数据，分以下几步：
+			//		如果指定了nodeName，则直接使用；如果没有指定，则先推导
+			//		比较要输入的值和当前输入的环境
+			//		确定可以执行哪些动作
+			//		新建节点
+			//		设置当前节点，将anchor改为context
+			//		在新节点中插入内容
+			//		修正当前的path值
+			
+			var nodeName = "mn";
+			var node = anchor.node;
+			var offset = anchor.offset;
+			var xmlDoc = this.doc;
+			
+			// FIXME:在进入mathml模式时，应该不再在line和text节点中。
+			// 暂时先放在这里处理，但是这里的逻辑还是添加一个math节点。
+			if(this._isLineNode(node)){
+				var mathNode = xmlDoc.createElement("math");
+				var newNode = xmlDoc.createElement(nodeName);
+				newNode.textContent = mnContent;
+				mathNode.appendChild(newNode);
+				node.appendChild(mathNode);
+				
+				this.path.push({nodeName:"math", offset:1});
+				this.path.push({nodeName:nodeName, offset:1});
+				
+				node = newNode;
+				offset = mnContent.length;
+			}else if(this._isTextNode(node)){
+				
+			}else{
+				var oldText = node.textContent;
+				node.textContent = dripString.insertAtOffset(oldText, offset, mnContent);
+				offset += mnContent.length;
+			}
+			
+			return {node:node, offset:offset};
+		},
+		
 		// 如果是中文，则放在text节点中
 		// 注意，当调用setData的时候，所有数据都是已经处理好的。
 		// 两种判断数据类型的方法：1是系统自动判断；2是人工判断
@@ -295,10 +338,16 @@ define([ "dojo/_base/declare",
 				return;
 			}else if(this._isMathMLMode()){
 				if(dripLang.isLetter(data)){
+					// 因为letter只是一个字符，所以不需要循环处理
 					this.anchor = this.insertMi(this.anchor, data);
 					this.onChange(data);
 					return;
+				}else if(dripLang.isNumber(data)){
+					this.anchor = this.insertMn(this.anchor, data);
+					this.onChange(data);
+					return;
 				}
+				
 			}
 			
 			var xmlDoc = this.doc;
@@ -586,6 +635,8 @@ define([ "dojo/_base/declare",
 				var node = this.anchor.node;
 				
 				if(dripLang.isNumber(c)){
+					
+					// TODO: 删除
 					
 					// 按照以下思路重构。
 					// 添加一个数据，分以下几步：

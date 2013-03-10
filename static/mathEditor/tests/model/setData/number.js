@@ -1,10 +1,44 @@
 define([ "doh","mathEditor/Model" ], function(doh,Model) {
 
 	doh.register("Model.setData number-输入数字",[
+	    // TODO:增加text模式下输入数字的测试用例
 	    {
-	    	name: "在空的model中输入一个数字",
+	    	name: "text模式下,数字数字。text模式下，对数字和字母的处理逻辑是一样的。",
   			setUp: function(){
   				this.model = new Model({});
+  			},
+  			runTest: function(t){
+  				var model = this.model;
+  				model.setData({data:"1"});
+  				var focusNode = model.getFocusNode();
+  				t.is("/root/line[1]/text[1]", model.getPath());
+  				t.is("text", focusNode.nodeName);
+  				t.is(1, model.getOffset());
+  				t.is("1", focusNode.textContent);
+  				
+  				model.setData({data:"2"});
+  				focusNode = model.getFocusNode();
+  				t.is("/root/line[1]/text[1]", model.getPath());
+  				t.is("text", focusNode.nodeName);
+  				t.is(2, model.getOffset());
+  				t.is("12", focusNode.textContent);
+  				
+  				model.anchor.offset--;
+  				model.setData({data:"3"});
+  				focusNode = model.getFocusNode();
+  				t.is("/root/line[1]/text[1]", model.getPath());
+  				t.is("text", focusNode.nodeName);
+  				t.is(2, model.getOffset());
+  				t.is("132", focusNode.textContent);
+  			},
+  			tearDown: function(){
+  				
+  			}
+	    },{
+	    	name: "mathml模式下,在空的model中输入一个数字",
+  			setUp: function(){
+  				this.model = new Model({});
+  				this.model._toMathMLMode();
   			},
   			runTest: function(t){
   				var model = this.model;
@@ -13,7 +47,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				var focusNode = model.getFocusNode();
   				
   				t.is("/root/line[1]/math[1]/mn[1]", model.getPath());
-  				t.is(model.getFocusNode().nodeName, "mn");
+  				t.is("mn", model.getFocusNode().nodeName);
   				t.is(1, model.getOffset());
   				t.is("1", focusNode.textContent);
   			},
@@ -21,9 +55,10 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				
   			}
 	    },{
-	    	name: "在空的model中输入一个数字，然后再输入一个数字",
+	    	name: "mathml模式,在空的model中输入一个数字，然后再输入一个数字",
   			setUp: function(){
   				this.model = new Model({});
+  				this.model._toMathMLMode();
   			},
   			runTest: function(t){
   				var model = this.model;
@@ -33,7 +68,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				var focusNode = model.getFocusNode();
   				
   				t.is("/root/line[1]/math[1]/mn[1]", model.getPath());
-  				t.is(focusNode.nodeName, "mn");
+  				t.is("mn", focusNode.nodeName);
   				t.is(2, model.getOffset());
   				t.is("12", focusNode.textContent);
   			},
@@ -41,9 +76,10 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				
   			}
 	    },{
-	    	name: "在空的model中一次性输入两个数字",
+	    	name: "mathml模式,在空的model中一次性输入两个数字",
   			setUp: function(){
   				this.model = new Model({});
+  				this.model._toMathMLMode();
   			},
   			runTest: function(t){
   				var model = this.model;
@@ -52,7 +88,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				var focusNode = model.getFocusNode();
   				
   				t.is("/root/line[1]/math[1]/mn[1]", model.getPath());
-  				t.is(focusNode.nodeName, "mn");
+  				t.is("mn", focusNode.nodeName);
   				t.is(2, model.getOffset());
   				t.is("12", focusNode.textContent);
   			},
@@ -60,9 +96,10 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				
   			}
 	    },{
-	    	name: "在两个数字的中间输入数字",
+	    	name: "mathml模式,在两个数字的中间输入数字",
 	    	setUp: function(){
 	    		this.model = new Model({});
+	    		this.model._toMathMLMode();
 	    	},
 	    	runTest: function(t){
 	    		var model = this.model;
@@ -75,7 +112,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 	    		model.setData({data:"3"});// 虽然是数字，但是data类型只能传入字符串。
 	    		t.is("/root/line[1]/math[1]/mn[1]", model.getPath());
 	    		var focusNode = model.getFocusNode();
-  				t.is(focusNode.nodeName, "mn");
+  				t.is("mn", focusNode.nodeName);
   				t.is(2, model.getOffset());
   				t.is("132", focusNode.textContent);
 	    	},
@@ -83,9 +120,10 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 	    		
 	    	}
 	    },{
-	    	name: "在一个数字前面输入数字",
+	    	name: "mathml模式,在一个数字前面输入数字",
 	    	setUp: function(){
 	    		this.model = new Model({});
+	    		this.model._toMathMLMode();
 	    	},
 	    	runTest: function(t){
 	    		var model = this.model;
@@ -95,7 +133,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 	    		model.setData({data:"2"});
 	    		t.is("/root/line[1]/math[1]/mn[1]", model.getPath());
 	    		var focusNode = model.getFocusNode();
-  				t.is(focusNode.nodeName, "mn");
+  				t.is("mn", focusNode.nodeName);
   				t.is(1, model.getOffset());
   				t.is("21", focusNode.textContent);
 	    	},
