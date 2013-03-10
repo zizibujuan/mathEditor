@@ -2,38 +2,38 @@ define(["dojo/_base/array"],function(array){
 
 	var lang = {};
 	
-	lang.isNumber = function(obj) {
-		return !isNaN(parseFloat(obj)) && isFinite(obj);
+	lang.isNumber = function(text) {
+		return !isNaN(parseFloat(text)) && isFinite(text);
 	},
 	
-	lang.isLetter = function(obj){
-		return obj.length == 1 && /[a-zA-Z]/.test(obj);
+	lang.isLetter = function(text){
+		return text.length == 1 && /[a-zA-Z]/.test(text);
 	},
 	
-	lang.isOperator = function(obj){
-		if(/\+|-|=|==|<|>|!|!=|&#xD7;|&#xF7;|&#x2A7E;|&#x226B;|&#x2A7D;|&#x226A;|&#x2260;|&#x2248;/.test(obj))return true;
+	lang.isOperator = function(text){
+		if(/\+|-|=|==|<|>|!|!=|&#xD7;|&#xF7;|&#x2A7E;|&#x226B;|&#x2A7D;|&#x226A;|&#x2260;|&#x2248;/.test(text))return true;
 		return false;
 	},
 	
-	lang.isTrigonometric = function(obj){
+	lang.isTrigonometric = function(text){
 		// summary:
 		//		判断是不是三角函数
 		//	obj: String
 		//		输入的字符
 	
-		return /sin|cos|tan|cot|sec|csc/.test(obj);
+		return /sin|cos|tan|cot|sec|csc/.test(text);
 	},
 	
-	lang.isNewLine = function(obj){
-		return obj === "\n";
+	lang.isNewLine = function(text){
+		return text == "\r\n" || text == "\r" || text == "\n"
 	},
 	
-	lang.isTab = function(obj){
-		return obj === "\t";
+	lang.isTab = function(text){
+		return text === "\t";
 	},
 	
-	lang.isFenced = function(obj){
-		return /\(|\[|\{|\|/.test(obj);
+	lang.isFenced = function(text){
+		return /\(|\[|\{|\|/.test(text);
 	},
 	
 	lang.insertNodeAfter = function(newNode, existingNode){
@@ -43,6 +43,11 @@ define(["dojo/_base/array"],function(array){
 		}else{
 			parentNode.insertBefore(newNode, existingNode.nextSibling);
 		}
+	},
+	
+	lang.insertNodeBefore = function(newNode, existingNode){
+		var parentNode = existingNode.parentNode;
+		parentNode.insertBefore(newNode, existingNode);
 	},
 	
 	lang._fontStyles = {

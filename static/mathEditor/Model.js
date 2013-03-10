@@ -108,6 +108,10 @@ define([ "dojo/_base/declare",
 			
 		},
 		
+		_split: function(text){
+			return text.split(/\r\n|\r|\n/);
+		},
+		
 		insertText: function(anchor, text){
 			// summary:
 			//		插入普通文本，用于text模式下。
@@ -117,6 +121,7 @@ define([ "dojo/_base/declare",
 			//		插入的文本
 			// returns：
 			//		返回新的anchor
+			// TODO:逐步重构这个方法，先实现添加单个字符，然后再实现添加多行字符，然后重构
 			
 			if(!text || text.length == 0){
 				return anchor;
@@ -125,35 +130,88 @@ define([ "dojo/_base/declare",
 			var node = anchor.node;
 			var offset = anchor.offset;
 			
+			// 第一行和最后一行需要特殊处理，中间的行数全部使用line节点添加在两者中间即可，没有其他处理逻辑。
+			var lines = this._split(text);
+			// 从lines中移除第一行，第一行代码需要与光标前面的代码对接
+			var firstLine = lines.splice(0,1)[0];
+			// 从lines中移除最后一行，最后一行代码需要与光标后面的代码对接
+			var lastLine = lines.splice(lines.length-1, lines.length)[0];
+			
+			
+			var xmlDoc = this.doc;
+			
 			if(this._isLineNode(node)){
-				var xmlDoc = this.doc;
-				// 这里的逻辑是往父节点中插入一个新的子节点
 				var nodeName = "text";
 				// 这里有一个假定，只要是line,则必是一个空行。
 				var newNode = xmlDoc.createElement(nodeName);
-				// 这里的offset是nodeName为text的节点在父节点中位置。
-				this.path.push({nodeName:nodeName,offset:1});
-				// insertChar中自动调整focusNode中的偏移量，即在该方法中focusNode不会改变。
-				newNode.textContent = text;
-				
-				// 最后添加到界面上，从性能的角度考虑。
 				node.appendChild(newNode);
 				
+				// FIXME：如何避免多次设置path呢？
 				node = newNode;
-				offset = text.length;
-			}else if(this._isTextNode(node)){
-				// 这里的逻辑是修改当前焦点的值
-				var oldText = node.textContent;
-				var newText = dripString.insertAtOffset(oldText, offset, text);
-				node.textContent = newText;
-				offset += text.length;
+				offset = 0;
+				this.path.push({nodeName:nodeName,offset:0});
 			}
 			
+			// 如果第一行中有内容，则添加第一行
+			if(firstLine.length > 0){
+				var oldText = node.textContent;
+				node.textContent = dripString.insertAtOffset(oldText, offset, firstLine);
+				offset = firstLine.length;
+				var pos = this.path.pop();
+				this.path.push({nodeName:nodeName,offset:pos.offset+1});
+			}
+			if(lastLine != null){
+				var nodeName = "line";
+				var focusedLine = this._getFocusLine();
+				
+				// 插入中间行
+				var traceLine = focusedLine;
+				if(lines.length > 0){
+					array.forEach(lines, function(line){
+						var newLineNode = xmlDoc.createElement(nodeName);
+						newLineNode.textContent = line;
+						dripLang.insertNodeAfter(newLineNode, traceLine);
+						traceLine = newLineNode;
+					});
+				}
+				
+				// 插入最后一行
+				var nodeName = "line";
+				var newLineNode = xmlDoc.createElement(nodeName);
+				dripLang.insertNodeAfter(newLineNode, traceLine);
+				if(lastLine.length == 0){
+					node = newLineNode;
+					offset = 0;
+					this.path.pop();
+					var pos = this.path.pop();
+					this.path.push({nodeName:nodeName, offset:pos.offset+1});
+				}else{
+					var nodeName = "text";
+					// 这里有一个假定，只要是line,则必是一个空行。
+					var newNode = xmlDoc.createElement(nodeName);
+					newNode.textContent = lastLine;
+					
+					newLineNode.appendChild(newNode);
+					
+					node = newNode;
+					offset = lastLine.length;
+					// 剔除text
+					this.path.pop();
+					// 将line追加
+					var pos = this.path.pop();
+					pos.offset++;
+					this.path.push(pos);
+					this.path.push({nodeName:nodeName,offset:1});
+				}
+			}
 			return {node:node, offset:offset};
 		},
 		
 		insertMi: function(anchor, miContext){
 			// 这里只处理单个英文字母的情况
+			// 注意如果获取焦点的节点是mi节点，则offset的值要么是0， 要么是1，
+			// 分别代表在mi的前或后
+			
 			var nodeName = "mi";
 			var node = anchor.node;
 			var offset = anchor.offset;
@@ -172,14 +230,23 @@ define([ "dojo/_base/declare",
 				
 				node = newNode;
 			}else{
-				var pos = this.path.pop();
-				this.path.push({nodeName:nodeName, offset:pos.offset+1});
-				
+				// 以下只处理node也为mi节点的情况，FIXME：等需要的时候加上这个条件约束
 				var newNode = xmlDoc.createElement(nodeName);
 				newNode.textContent = miContext;
-				dripLang.insertNodeAfter(newNode,node);
+				if(offset == 0){
+					var pos = this.path.pop();
+					// 也就是没有改变，可以不做这一步操作
+					this.path.push({nodeName:nodeName, offset:pos.offset});
+					dripLang.insertNodeBefore(newNode,node);
+				}else if(offset == 1){
+					var pos = this.path.pop();
+					this.path.push({nodeName:nodeName, offset:pos.offset+1});
+					dripLang.insertNodeAfter(newNode,node);
+				}
+				
 				
 				node = newNode;
+				offset = 1;
 			}
 			offset = miContext.length;
 			return {node:node, offset:offset};
@@ -644,26 +711,6 @@ define([ "dojo/_base/declare",
 						
 						dripLang.insertNodeAfter(mathNode, node);
 					}
-				}else if(dripLang.isNewLine(c)){
-					// TODO:在指定位置新增一行
-					// 暂时只实现了在最后一行新增
-					var focusedLine = this._getFocusLine();
-					// 新建一个空的line节点
-					var newLineNode = this.doc.createElement("line");
-					dripLang.insertNodeAfter(newLineNode, focusedLine);
-					
-					this.anchor.node = newLineNode;
-					this.anchor.offset = 0;
-					
-					// 将之前缓存的上一行的信息都清除
-					var pos = this.path.pop();
-					while(pos.nodeName != "line"){
-						pos = this.path.pop();
-					}
-					// 然后加入新行
-					// FIXME：这里需要重构
-					this.path.push({nodeName:"line", offset:pos.offset+1});
-					
 				}else{
 					// FIXME：可提取，容器部件，子节点的tagName
 					if(this._isLineNode(node)){
@@ -1090,7 +1137,11 @@ define([ "dojo/_base/declare",
 			// lineIndex: Number
 			//		行节点的索引，从0开始
 			
-			return this.doc.documentElement.childNodes[lineIndex];
+			return this.getLines()[lineIndex];
+		},
+		
+		getLines: function(){
+			return this.doc.documentElement.childNodes;
 		},
 		
 		// 习题 line 获取html格式的数据

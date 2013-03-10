@@ -48,6 +48,12 @@ define([ "doh", "mathEditor/lang" ], function(doh, dripLang) {
 			t.t(dripLang.isFenced("{"));
 			t.t(dripLang.isFenced("|"));
 		}
+	},{
+		name: "isNewLine 输入的值是一个换行符",
+		runTest: function(t){
+			t.t(dripLang.isNewLine("\n"));
+			t.t(dripLang.isNewLine("\r\n"));
+		}
 	}]);
 
 });
