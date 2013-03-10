@@ -156,9 +156,13 @@ define([ "dojo/_base/declare",
 			if(firstLine.length > 0){
 				var oldText = node.textContent;
 				node.textContent = dripString.insertAtOffset(oldText, offset, firstLine);
-				offset = firstLine.length;
+				offset += firstLine.length;
+				// 注意只是在行中增加内容，不改变路径
 				var pos = this.path.pop();
-				this.path.push({nodeName:nodeName,offset:pos.offset+1});
+				if(pos.offset == 0){
+					pos.offset = 1;
+				}
+				this.path.push(pos);
 			}
 			if(lastLine != null){
 				var nodeName = "line";
