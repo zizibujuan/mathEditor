@@ -41,21 +41,27 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				// 其实下面这些都属于一类，一个测试用例足够。
   				// 但是在单个输入字符时，需要对每个三角函数进行判断，所以这里全部测试，
   				// 防止在代码实现时，遗漏处理的情况。
+  				model._toMathMLMode();
   				testSupport(t,model,"sin");
   				model.clear();
   				
+  				model._toMathMLMode();
   				testSupport(t,model,"cos");
   				model.clear();
   				
+  				model._toMathMLMode();
   				testSupport(t,model,"tan");
   				model.clear();
   				
+  				model._toMathMLMode();
   				testSupport(t,model,"cot");
   				model.clear();
   				
+  				model._toMathMLMode();
   				testSupport(t,model,"sec");
   				model.clear();
   				
+  				model._toMathMLMode();
   				testSupport(t,model,"csc");
   				model.clear();
   			},
@@ -70,10 +76,11 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   			name: "逐个字母的输入每个三角函数",
   			setUp: function(){
   				this.model = new Model({});
+  				this.model._toMathMLMode();
   			},
   			runTest: function(t){
   				var model = this.model;
-  				model.setData({data:"s", nodeName:"mi"});
+  				model.setData({data:"s"});
   				t.is("/root/line[1]/math[1]/mi[1]", model.getPath());
   				
   				var node = model.getFocusNode();
@@ -81,14 +88,14 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				t.is("s", node.textContent);
   				t.is(1, model.getOffset());
   				
-  				model.setData({data:"i", nodeName:"mi"});
+  				model.setData({data:"i"});
   				node = model.getFocusNode();
   				t.is("/root/line[1]/math[1]/mi[1]", model.getPath());
   				t.is("mi", node.nodeName);
   				t.is("si", node.textContent);
   				t.is(2, model.getOffset());
   				
-  				model.setData({data:"n", nodeName:"mi"});
+  				model.setData({data:"n"});
   				isTri(t, model, "sin");
   			},
   			tearDown: function(){

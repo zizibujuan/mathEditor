@@ -257,8 +257,6 @@ define([ "dojo/_base/declare",
 		},
 		
 		insertMn: function(anchor, mnContent){
-
-			
 			// 按照以下思路重构。
 			// 添加一个数据，分以下几步：
 			//		如果指定了nodeName，则直接使用；如果没有指定，则先推导
@@ -277,6 +275,7 @@ define([ "dojo/_base/declare",
 			// FIXME:在进入mathml模式时，应该不再在line和text节点中。
 			// 暂时先放在这里处理，但是这里的逻辑还是添加一个math节点。
 			if(this._isLineNode(node)){
+				// 如果在line节点下，则先切换到math节点下。
 				var mathNode = xmlDoc.createElement("math");
 				var newNode = xmlDoc.createElement(nodeName);
 				newNode.textContent = mnContent;
@@ -294,6 +293,60 @@ define([ "dojo/_base/declare",
 				var oldText = node.textContent;
 				node.textContent = dripString.insertAtOffset(oldText, offset, mnContent);
 				offset += mnContent.length;
+			}
+			
+			return {node:node, offset:offset};
+		},
+		
+		insertMo: function(anchor, moContent){
+			var nodeName = "mo";
+			var node = anchor.node;
+			var offset = anchor.offset;
+			var xmlDoc = this.doc;
+
+			if(this._isLineNode(node)){
+				var mathNode = xmlDoc.createElement("math");
+				var newNode = xmlDoc.createElement(nodeName);
+				newNode.textContent = moContent;
+				mathNode.appendChild(newNode);
+				node.appendChild(mathNode);
+				
+				node = newNode;
+				offset = 1; // 操作符号的offset要么是1，要么是0
+				
+				this.path.push({nodeName:"math", offset:1});
+				this.path.push({nodeName:nodeName, offset:1});
+			}else if(this._isTextNode(node)){
+				// math应该放在textNode之后
+				var mathNode = xmlDoc.createElement("math");
+				var newNode = xmlDoc.createElement(nodeName);
+				newNode.textContent = moContent;
+				mathNode.appendChild(newNode);
+				dripLang.insertNodeAfter(mathNode, node);
+								
+				node = newNode;
+				offset = 1;
+
+				var pos = this.path.pop();
+				this.path.push({nodeName:"math", offset:pos.offset+1});
+				this.path.push({nodeName:nodeName, offset:1});
+			}else{
+				// 所有的操作符，都是一个单独的符号，用一个mo封装。
+				if(moContent == "=" && node.nodeName == "mo" && node.textContent == "="){
+					node.textContent += "=";
+				}else if(moContent == "=" && node.nodeName == "mo" && node.textContent == "!"){
+					node.textContent += "=";
+				}else{
+					var newNode = xmlDoc.createElement(nodeName);
+					newNode.textContent = moContent;
+					dripLang.insertNodeAfter(newNode,node);
+					
+					node = newNode;
+					offset = 1;
+					
+					var pos = this.path.pop();
+					this.path.push({nodeName:nodeName, offset:pos.offset+1});
+				}
 			}
 			
 			return {node:node, offset:offset};
@@ -344,6 +397,10 @@ define([ "dojo/_base/declare",
 					return;
 				}else if(dripLang.isNumber(data)){
 					this.anchor = this.insertMn(this.anchor, data);
+					this.onChange(data);
+					return;
+				}else if(dripLang.isOperator(data)){
+					this.anchor = this.insertMo(this.anchor, data);
 					this.onChange(data);
 					return;
 				}
@@ -718,6 +775,7 @@ define([ "dojo/_base/declare",
 						this._insertChar(c);
 					}
 				}else if(dripLang.isOperator(c)){
+					// TODO: 删除
 					var nodeName = "mo";
 					if(this._isLineNode(node)){
 						var mathNode = xmlDoc.createElement("math");
