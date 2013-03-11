@@ -100,15 +100,17 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 	    // 分为一次性输入，和单个字符串的输入，
 	    // 注意，删除的时候，敲一次删除键，删除整个操作符
   		{
-  			name: "逐个字母的输入每个三角函数",
+  			name: "逐个字母的连续输入一个三角函数sin",
   			setUp: function(){
   				this.model = new Model({});
   				this.model._toMathMLMode();
   			},
   			runTest: function(t){
   				var model = this.model;
+  				model.setData({data:"1"});
+  				
   				model.setData({data:"s"});
-  				t.is("/root/line[1]/math[1]/mi[1]", model.getPath());
+  				t.is("/root/line[1]/math[1]/mi[2]", model.getPath());
   				
   				var node = model.getFocusNode();
   				t.is("mi", node.nodeName);
@@ -117,13 +119,134 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				
   				model.setData({data:"i"});
   				node = model.getFocusNode();
-  				t.is("/root/line[1]/math[1]/mi[1]", model.getPath());
+  				t.is("/root/line[1]/math[1]/mi[3]", model.getPath());
   				t.is("mi", node.nodeName);
-  				t.is("si", node.textContent);
-  				t.is(2, model.getOffset());
+  				t.is("i", node.textContent);
+  				t.is(1, model.getOffset());
   				
   				model.setData({data:"n"});
-  				isTri(t, model, "sin");
+  				t.is("/root/line[1]/math[1]/mrow[4]/mn[1]", model.getPath());
+  				var node = model.getFocusNode();
+  				t.is("mn", node.nodeName);
+  				t.is("drip_placeholder_box", node.getAttribute("class"));
+  				t.is(0, model.getOffset());
+  				
+  				var funNode = node.parentNode.previousSibling;
+  				t.is("mo",funNode.nodeName);
+  				t.is("&#x2061;",funNode.textContent);
+  				
+  				var triNode = funNode.previousSibling;
+  				t.is("mi", triNode.nodeName);
+  				t.is("sin", triNode.textContent);
+  			},
+  			tearDown: function(){
+  				
+  			}
+  		},{
+  			name: "mathml下，输入s，接着输入n，然后在n前面输入i，则组合成sin",
+  			setUp: function(){
+  				this.model = new Model({});
+  				this.model._toMathMLMode();
+  			},
+  			runTest: function(t){
+  				var model = this.model;
+  				model.setData({data:"1"});
+  				
+  				model.setData({data:"s"});
+  				t.is("/root/line[1]/math[1]/mi[2]", model.getPath());
+  				
+  				var node = model.getFocusNode();
+  				t.is("mi", node.nodeName);
+  				t.is("s", node.textContent);
+  				t.is(1, model.getOffset());
+  				
+  				model.setData({data:"n"});
+  				node = model.getFocusNode();
+  				t.is("/root/line[1]/math[1]/mi[3]", model.getPath());
+  				t.is("mi", node.nodeName);
+  				t.is("n", node.textContent);
+  				t.is(1, model.getOffset());
+  				
+  				// 在mi之间往前移动的逻辑是offset不变，node改变
+  				// 如果移动offset的话，则offset的值为0，表示在node的左边，
+  				// 这个时候的处理逻辑是不一样的。
+  				// FIXME：如果统一这个逻辑呢？是都在右边定位呢，还是允许在左边定位呢，只能选择其中一种
+  				// 如果只能在右边定位，则往左移动到最前面时，则往上找父节点。
+  				// 目前使用在右边定位
+  				model.anchor.node = model.anchor.node.previousSibling;
+  				// 注意，移动时，如果节点发生了变化，则也要调整model.path
+  				var pos = model.path.pop();
+  				pos.offset--;
+  				model.path.push(pos);
+  				
+  				model.setData({data:"i"});
+  				t.is("/root/line[1]/math[1]/mrow[4]/mn[1]", model.getPath());
+  				var node = model.getFocusNode();
+  				t.is("mn", node.nodeName);
+  				t.is("drip_placeholder_box", node.getAttribute("class"));
+  				t.is(0, model.getOffset());
+  				
+  				var funNode = node.parentNode.previousSibling;
+  				t.is("mo",funNode.nodeName);
+  				t.is("&#x2061;",funNode.textContent);
+  				
+  				var triNode = funNode.previousSibling;
+  				t.is("mi", triNode.nodeName);
+  				t.is("sin", triNode.textContent);
+  			},
+  			tearDown: function(){
+  				
+  			}
+  		},{
+  			name: "mathml下，输入i，接着输入n，然后在i前面输入s，则组合成sin",
+  			setUp: function(){
+  				this.model = new Model({});
+  				this.model._toMathMLMode();
+  			},
+  			runTest: function(t){
+  				var model = this.model;
+  				model.setData({data:"1"});
+  				
+  				model.setData({data:"i"});
+  				t.is("/root/line[1]/math[1]/mi[2]", model.getPath());
+  				
+  				var node = model.getFocusNode();
+  				t.is("mi", node.nodeName);
+  				t.is("i", node.textContent);
+  				t.is(1, model.getOffset());
+  				
+  				model.setData({data:"n"});
+  				node = model.getFocusNode();
+  				t.is("/root/line[1]/math[1]/mi[3]", model.getPath());
+  				t.is("mi", node.nodeName);
+  				t.is("n", node.textContent);
+  				t.is(1, model.getOffset());
+  				
+  				model.anchor.node = model.anchor.node.previousSibling;
+  				var pos = model.path.pop();
+  				pos.offset--;
+  				model.path.push(pos);
+  				
+  				model.anchor.node = model.anchor.node.previousSibling;
+  				var pos = model.path.pop();
+  				pos.offset--;
+  				pos.nodeName = model.anchor.node.nodeName;
+  				model.path.push(pos);
+  				
+  				model.setData({data:"s"});
+  				t.is("/root/line[1]/math[1]/mrow[4]/mn[1]", model.getPath());
+  				var node = model.getFocusNode();
+  				t.is("mn", node.nodeName);
+  				t.is("drip_placeholder_box", node.getAttribute("class"));
+  				t.is(0, model.getOffset());
+  				
+  				var funNode = node.parentNode.previousSibling;
+  				t.is("mo",funNode.nodeName);
+  				t.is("&#x2061;",funNode.textContent);
+  				
+  				var triNode = funNode.previousSibling;
+  				t.is("mi", triNode.nodeName);
+  				t.is("sin", triNode.textContent);
   			},
   			tearDown: function(){
   				
