@@ -35,7 +35,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				
   			}
 	    },{
-  			name: "判断是否支持输入以下符号，包括Unicode操作符",
+  			name: "mathml模式，在空的model中，判断是否支持输入以下符号，包括Unicode操作符",
   			setUp: function(){
   				this.model = new Model({});
   			},

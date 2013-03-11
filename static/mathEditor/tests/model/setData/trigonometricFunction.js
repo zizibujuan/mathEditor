@@ -68,8 +68,35 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   			tearDown: function(){
   				
   			}
+  		},{
+  			name: "mathml模式下，在已输入数字的model中输入三角函数",
+  			setUp: function(){
+  				this.model = new Model({});
+  				this.model._toMathMLMode();
+  			},
+  			runTest: function(t){
+  				var model = this.model;
+  				model.setData({data:"1"});
+  				model.setData({data:"sin", nodeName:"mi"});
+  				
+  				t.is("/root/line[1]/math[1]/mrow[4]/mn[1]", model.getPath());
+  				var node = model.getFocusNode();
+  				t.is("mn", node.nodeName);
+  				t.is("drip_placeholder_box", node.getAttribute("class"));
+  				t.is(0, model.getOffset());
+  				
+  				var funNode = node.parentNode.previousSibling;
+  				t.is("mo",funNode.nodeName);
+  				t.is("&#x2061;",funNode.textContent);
+  				
+  				var triNode = funNode.previousSibling;
+  				t.is("mi", triNode.nodeName);
+  				t.is("sin", triNode.textContent);
+  			},
+  			tearDown: function(){
+  				
+  			}
   		},
-	    
 	    // 分为一次性输入，和单个字符串的输入，
 	    // 注意，删除的时候，敲一次删除键，删除整个操作符
   		{

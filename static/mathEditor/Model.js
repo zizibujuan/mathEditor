@@ -349,8 +349,60 @@ define([ "dojo/_base/declare",
 				}
 			}
 			
-			return {node:node, offset:offset};
+			return {node: node, offset: offset};
 		},
+		
+		insertTrigonometric: function(anchor, data, nodeName){
+			var node = anchor.node;
+			var offset = anchor.offset;
+			var xmlDoc = this.doc;
+			
+			if(this._isLineNode(node) || this._isTextNode(node)){
+				this.path.push({nodeName:"math", offset:offset+1});
+				this.path.push({nodeName:"mrow", offset:3});
+				this.path.push({nodeName:"mn", offset:1});
+				
+				var math = xmlDoc.createElement("math");
+				var mi = xmlDoc.createElement(nodeName);
+				var mo = xmlDoc.createElement("mo");
+				var mrow = xmlDoc.createElement("mrow");
+				var placeHolder = xmlUtil.getPlaceHolder(xmlDoc);
+				
+				mi.textContent = data;
+				mo.textContent = "&#x2061;";
+				
+				mrow.appendChild(placeHolder);
+				
+				math.appendChild(mi);
+				math.appendChild(mo);
+				math.appendChild(mrow);
+				domConstruct.place(math, node, offset);
+				
+				node = placeHolder;
+				offset = 0;
+			}else{
+				var pos = this.path.pop();
+				this.path.push({nodeName:"mrow", offset:pos.offset + 3});
+				this.path.push({nodeName:"mn", offset:1});
+				
+				var mi = xmlDoc.createElement(nodeName);
+				var mo = xmlDoc.createElement("mo");
+				var mrow = xmlDoc.createElement("mrow");
+				var placeHolder = xmlUtil.getPlaceHolder(xmlDoc);
+				
+				mi.textContent = data;
+				mo.textContent = "&#x2061;";
+				mrow.appendChild(placeHolder);
+
+				dripLang.insertNodeAfter(mi, node);
+				dripLang.insertNodeAfter(mo, mi);
+				dripLang.insertNodeAfter(mrow, mo);
+				
+				node = placeHolder;
+				offset = 0;
+			}
+			return {node: node, offset:offset};
+		},	
 		
 		// 如果是中文，则放在text节点中
 		// 注意，当调用setData的时候，所有数据都是已经处理好的。
@@ -401,6 +453,10 @@ define([ "dojo/_base/declare",
 					return;
 				}else if(dripLang.isOperator(data)){
 					this.anchor = this.insertMo(this.anchor, data);
+					this.onChange(data);
+					return;
+				}else if(dripLang.isTrigonometric(data)){
+					this.anchor = this.insertTrigonometric(this.anchor, data, nodeName);
 					this.onChange(data);
 					return;
 				}
@@ -584,7 +640,7 @@ define([ "dojo/_base/declare",
 					}
 				}else if(nodeName == "mi"){
 					// 对sin/cos等特殊字符的处理
-					
+					// TODO：删除
 					if(dripLang.isTrigonometric(data)){
 						/*
 		  				 * <mi>cos</mi>
