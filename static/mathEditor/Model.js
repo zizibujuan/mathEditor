@@ -211,22 +211,17 @@ define([ "dojo/_base/declare",
 			return {node:node, offset:offset};
 		},
 		
-		insertMi: function(anchor, miContext){
-			// 这里只处理单个英文字母的情况
-			// 注意如果获取焦点的节点是mi节点，则offset的值要么是0， 要么是1，
-			// 分别代表在mi的前或后
+		findTrigonometric: function(anchor, miContext){
+			// summary:
+			//		如果preMis的长度为1，则再往后找一位,往前找一位，往后找一位,往后找两位.
 			
-			// 通常一个完整的mi类型的字符占用一个mi
-			
-			var nodeName = "mi";
-			var node = anchor.node;
-			var offset = anchor.offset;
-			var xmlDoc = this.doc;
-			
-			// 从周围寻找mi，看能不能凑齐一个由三个字母组成的三角函数
-			// TODO：下面的方法需要重构
 			var preMis = [];
+			var nextMis = [];
+			var functionName = null;
+			
+			var node = anchor.node;
 			var preNode = node;
+			var nodeName = "mi";
 			
 			// 往前找两位
 			while(preNode && preNode.nodeName == nodeName && preNode.textContent.length == 1){
@@ -237,48 +232,17 @@ define([ "dojo/_base/declare",
 				}
 			}
 			if(preMis.length == 2){
-				var groupText = preMis.join("")+miContext;
-				if(dripLang.isTrigonometric(groupText)){
-					// 删除前面的字符
-					var willFocusNode = node.previousSibling.previousSibling;
-					node.parentNode.removeChild(node.previousSibling);
-					node.parentNode.removeChild(node);
-					
-					var pos = this.path.pop();
-					pos.offset-=2;
-					this.path.push(pos);
-					
-					node = willFocusNode;
-					if(node.nodeName == "mi" || node.nodeName == "mo"){
-						offset = 1;
-					}else{
-						offset = node.textContent.length;
-					}
-					return this.insertTrigonometric({node:node, offset:offset}, groupText, "mi");
+				var text = preMis.join("")+miContext;
+				if(dripLang.isTrigonometric(text)){
+					return {functionName: text, preMis: preMis, nextMis: nextMis};
 				}
 			}else if(preMis.length == 1){
 				var nextNode = node.nextSibling;
-				if(nextNode && nextNode.nodeName == "mi" && nextNode.textContent.length == 1){
+				if(nextNode && nextNode.nodeName == nodeName && nextNode.textContent.length == 1){
 					var nextMi = nextNode.textContent;
-					var groupText = preMis[0]+miContext+nextMi;
-					
-					if(dripLang.isTrigonometric(groupText)){
-						// 删除前面的字符
-						var willFocusNode = node.previousSibling
-						node.parentNode.removeChild(node.nextSibling);
-						node.parentNode.removeChild(node);
-						
-						var pos = this.path.pop();
-						pos.offset--;
-						this.path.push(pos);
-						
-						node = willFocusNode;
-						if(node.nodeName == "mi" || node.nodeName == "mo"){
-							offset = 1;
-						}else{
-							offset = node.textContent.length;
-						}
-						return this.insertTrigonometric({node:node, offset:offset}, groupText, "mi");
+					var text = preMis[0]+miContext+nextMi;
+					if(dripLang.isTrigonometric(text)){
+						return {functionName: text, preMis: preMis, nextMis: nextMis};
 					}
 				}
 			}else if(preMis.length == 0){
@@ -292,31 +256,78 @@ define([ "dojo/_base/declare",
 					}
 				}
 				if(nextMis.length == 2){
-					var groupText = miContext + nextMis.join("");
-					if(dripLang.isTrigonometric(groupText)){
-						// 删除前面的字符
-						node.parentNode.removeChild(node.nextSibling);
-						node.parentNode.removeChild(node.nextSibling);
-						
-						// 不对path做任何处理
-						
-						if(node.nodeName == "mi" || node.nodeName == "mo"){
-							offset = 1;
-						}else{
-							offset = node.textContent.length;
-						}
-						return this.insertTrigonometric({node:node, offset:offset}, groupText, "mi");
+					var text = miContext + nextMis.join("");
+					if(dripLang.isTrigonometric(text)){
+						return {functionName: text, preMis: preMis, nextMis: nextMis};
 					}
 				}
 			}
+			return null;
+		},
+		
+		removeExistTrigonometricPart: function(anchor, tri){
+			var node = anchor.node;
+			var offset = anchor.offset;
+			var preLength = tri.preMis.length;
+			if(preLength == 2){
+				var willFocusNode = node.previousSibling.previousSibling;
+				node.parentNode.removeChild(node.previousSibling);
+				node.parentNode.removeChild(node);
+				
+				var pos = this.path.pop();
+				pos.offset-=2;
+				this.path.push(pos);
+				
+				node = willFocusNode;
+				if(node.nodeName == "mi" || node.nodeName == "mo"){
+					offset = 1;
+				}else{
+					offset = node.textContent.length;
+				}
+			}else if(preLength == 1){
+				// 此时，nextMis.length == 2
+				var willFocusNode = node.previousSibling
+				node.parentNode.removeChild(node.nextSibling);
+				node.parentNode.removeChild(node);
+				
+				var pos = this.path.pop();
+				pos.offset--;
+				this.path.push(pos);
+				
+				node = willFocusNode;
+				if(node.nodeName == "mi" || node.nodeName == "mo"){
+					offset = 1;
+				}else{
+					offset = node.textContent.length;
+				}
+			}else if(preLength == 0){
+				// 删除前面的字符
+				node.parentNode.removeChild(node.nextSibling);
+				node.parentNode.removeChild(node.nextSibling);
+				
+				// 不对path做任何处理
+				
+				if(node.nodeName == "mi" || node.nodeName == "mo"){
+					offset = 1;
+				}else{
+					offset = node.textContent.length;
+				}
+			}
 			
+			return {node:node, offset:offset};
+		},
+		
+		insertMi: function(anchor, miContext){
+			// 这里只处理单个英文字母的情况
+			// 注意如果获取焦点的节点是mi节点，则offset的值要么是0， 要么是1，
+			// 分别代表在mi的前或后
 			
-			// 如果preMis的长度为1，则再往后找一位
+			// 通常一个完整的mi类型的字符占用一个mi
 			
-			// 往前找一位，往后找一位
-			// 往后找两位
-			
-			
+			var nodeName = "mi";
+			var node = anchor.node;
+			var offset = anchor.offset;
+			var xmlDoc = this.doc;
 			
 			// 以下是处理mi的正常逻辑
 			if(this._isLineNode(node)){
@@ -540,9 +551,16 @@ define([ "dojo/_base/declare",
 				this.onChange(data);
 				return;
 			}else if(this._isMathMLMode()){
+				// 因为letter只是一个字符，所以不需要循环处理
 				if(dripLang.isLetter(data)){
-					// 因为letter只是一个字符，所以不需要循环处理
-					this.anchor = this.insertMi(this.anchor, data);
+					// 推断周围的字符，如果能够拼够一个三角函数，则插入三角函数
+					var tri = this.findTrigonometric(this.anchor, data);
+					if(tri){
+						this.anchor = this.removeExistTrigonometricPart(this.anchor, tri);
+						this.anchor = this.insertTrigonometric(this.anchor, tri.functionName, nodeName||"mi");
+					}else{
+						this.anchor = this.insertMi(this.anchor, data);
+					}
 					this.onChange(data);
 					return;
 				}else if(dripLang.isNumber(data)){
