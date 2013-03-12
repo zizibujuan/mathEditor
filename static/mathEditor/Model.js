@@ -342,6 +342,7 @@ define([ "dojo/_base/declare",
 				node.appendChild(math);
 				
 				node = newNode;
+				offset = 1;
 			}else{
 				// 以下只处理node也为mi节点的情况，FIXME：等需要的时候加上这个条件约束
 				var newNode = xmlDoc.createElement(nodeName);
@@ -356,12 +357,9 @@ define([ "dojo/_base/declare",
 					this.path.push({nodeName:nodeName, offset:pos.offset+1});
 					dripLang.insertNodeAfter(newNode,node);
 				}
-				
-				
 				node = newNode;
 				offset = 1;
 			}
-			offset = miContext.length;
 			return {node:node, offset:offset};
 		},
 		
@@ -573,6 +571,10 @@ define([ "dojo/_base/declare",
 					return;
 				}else if(dripLang.isTrigonometric(data)){
 					this.anchor = this.insertTrigonometric(this.anchor, data, nodeName);
+					this.onChange(data);
+					return;
+				}else if(dripLang.isGreekLetter(data)){
+					this.anchor = this.insertMi(this.anchor, data);
 					this.onChange(data);
 					return;
 				}
