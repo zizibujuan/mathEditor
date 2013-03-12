@@ -54,6 +54,15 @@ define([ "doh", "mathEditor/lang" ], function(doh, dripLang) {
 			t.t(dripLang.isNewLine("\n"));
 			t.t(dripLang.isNewLine("\r\n"));
 		}
+	},{
+		name: "isGreekLetter 判断输入的值是不是希腊字母，包括大写和小写",
+		runTest: function(t){
+			t.t(dripLang.isGreekLetter("&#x3B1;"));
+			t.t(dripLang.isGreekLetter("&#x3B5;"));
+			t.t(dripLang.isGreekLetter("&#x39F;"));
+			
+			t.f(dripLang.isGreekLetter("&#x3CA;"));
+		}
 	}]);
 
 });

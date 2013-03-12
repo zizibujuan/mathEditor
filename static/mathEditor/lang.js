@@ -24,6 +24,21 @@ define(["dojo/_base/array"],function(array){
 		return /sin|cos|tan|cot|sec|csc/.test(text);
 	},
 	
+	lang.isGreekLetter = function(numericCharacter){
+		// summary:
+		//		判断传入的字符是不是希腊字母
+		// numericCharacter:
+		//		numeric character, 这里只假定传入的是16进制的,格式为&#x1;
+		
+		var numString = "0"+numericCharacter.substring(2, numericCharacter.length-1);
+		var num = parseInt(numString);
+		//parseInt("0x391") = 913
+		//parseInt("0x3A9") = 937
+		//parseInt("0x3B1") = 945
+		//parseInt("0x3C9") = 969
+		return ( 913 <= num && num <= 937) || (945 <= num && num <= 969);
+	},
+	
 	lang.isNewLine = function(text){
 		return text == "\r\n" || text == "\r" || text == "\n"
 	},
