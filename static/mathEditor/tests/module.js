@@ -11,6 +11,7 @@ define([ "mathEditor/tests/layer/Cursor",
          "mathEditor/tests/model/setData/trigonometricFunction",
          "mathEditor/tests/model/setData/greekLetter",
          "mathEditor/tests/model/setData/frac",
+         "mathEditor/tests/model/setData/sqrt",
          
          "mathEditor/tests/model/moveLeft",
          "mathEditor/tests/model/removeLeft",

@@ -515,6 +515,7 @@ define([ "dojo/_base/declare",
 			var node = anchor.node;
 			var offset = anchor.offset;
 			
+			// FIXME: 重构，这段代码有重复的地方
 			var xmlDoc = this.doc;
 			var newOffset = 1;
 			var position = "last";
@@ -575,6 +576,51 @@ define([ "dojo/_base/declare",
 				node = fracData.focusNode;
 				offset = 0;
 			}
+			return {node: node, offset: offset};
+		},
+		
+		insertMsqrt: function(anchor, data, nodeName){
+			var node = anchor.node;
+			var offset = anchor.offset;
+			
+			var xmlDoc = this.doc;
+			
+			var newOffset = 1;
+			var position = "last";
+			
+			if(this._isTextNode(node)){
+				var _offset = this.path.pop().offset;
+				newOffset = _offset + 1;
+				position = "after";
+			}
+
+			if(this._isLineNode(node) || this._isTextNode(node)){
+				this.path.push({nodeName:"math", offset:newOffset});
+				this.path.push({nodeName:"msqrt", offset:1});
+				this.path.push({nodeName:"mrow", offset:1});
+				this.path.push({nodeName:"mn", offset:1});
+				
+				var math = xmlDoc.createElement("math");
+				var sqrtData = xmlUtil.createEmptyMsqrt(xmlDoc);
+				math.appendChild(sqrtData.rootNode);
+				domConstruct.place(math, node, position);
+
+				node = sqrtData.focusNode;
+				offset = 0;
+			}else{
+				this.path.pop();
+				this.path.push({nodeName:"msqrt", offset:offset+1});
+				this.path.push({nodeName:"mrow", offset:1});
+				this.path.push({nodeName:"mn", offset:1});
+				
+				var parent = node.parentNode;
+				var sqrtData = xmlUtil.createEmptyMsqrt(xmlDoc);
+				domConstruct.place(sqrtData.rootNode, parent, offset);
+				
+				node = sqrtData.focusNode;
+				offset = 0;
+			}
+			
 			return {node: node, offset: offset};
 		},
 		
@@ -687,6 +733,11 @@ define([ "dojo/_base/declare",
 					this.anchor = this.insertMfrac(this.anchor, data, nodeName);
 					this.onChange(data);
 					return;
+				}else if(nodeName == "msqrt"){
+					this._splitNodeIfNeed(nodeName);
+					this.anchor = this.insertMsqrt(this.anchor, data, nodeName);
+					this.onChange(data);
+					return;
 				}
 				
 			}
@@ -769,30 +820,7 @@ define([ "dojo/_base/declare",
 						this._updateAnchor(subData.focusNode, 0);
 					}
 				}else if(nodeName == "msqrt"){
-					if(this._isLineNode(node) || this._isTextNode(node)){
-						this.path.push({nodeName:"math", offset:newOffset});
-						this.path.push({nodeName:"msqrt", offset:1});
-						this.path.push({nodeName:"mrow", offset:1});
-						this.path.push({nodeName:"mn", offset:1});
-						
-						var math = xmlDoc.createElement("math");
-						var sqrtData = xmlUtil.createEmptyMsqrt(xmlDoc);
-						math.appendChild(sqrtData.rootNode);
-						domConstruct.place(math, node, position);
-
-						this._updateAnchor(sqrtData.focusNode, 0);
-					}else{
-						this.path.pop();
-						this.path.push({nodeName:"msqrt", offset:offset+1});
-						this.path.push({nodeName:"mrow", offset:1});
-						this.path.push({nodeName:"mn", offset:1});
-						
-						var parent = node.parentNode;
-						var sqrtData = xmlUtil.createEmptyMsqrt(xmlDoc);
-						domConstruct.place(sqrtData.rootNode, parent, offset);
-						
-						this._updateAnchor(sqrtData.focusNode, 0);
-					}
+					
 				}else if(nodeName == "mroot"){
 					if(this._isLineNode(node) || this._isTextNode(node)){
 						this.path.push({nodeName:"math", offset:newOffset});
