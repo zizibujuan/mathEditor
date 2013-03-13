@@ -509,7 +509,106 @@ define([ "dojo/_base/declare",
 				offset = 0;
 			}
 			return {node: node, offset:offset};
-		},	
+		},
+		
+		insertMfrac: function(anchor, data, nodeName){
+			var node = anchor.node;
+			var offset = anchor.offset;
+			
+			var xmlDoc = this.doc;
+			var newOffset = 1;
+			var position = "last";
+			
+			if(this._isTextNode(node)){
+				var _offset = this.path.pop().offset;
+				newOffset = _offset + 1;
+				position = "after";
+			}
+			
+			if(this._isLineNode(node) || this._isTextNode(node)){
+				this.path.push({nodeName:"math", offset:newOffset});
+				this.path.push({nodeName:"mfrac", offset:1});
+				this.path.push({nodeName:"mrow", offset:1});
+				this.path.push({nodeName:"mn", offset:1});
+				
+				var math = xmlDoc.createElement("math");
+				var fracData = xmlUtil.createEmptyFrac(xmlDoc);
+				math.appendChild(fracData.rootNode);
+				domConstruct.place(math, node, position);
+				
+				node = fracData.focusNode;
+				offset = 0;
+			}else{
+				// FIXME：需要推断，前面那些组合可以做分子
+				// 在数学公式中
+				//		1.将当前的math节点从原有的父节点中移除
+				//		2.创建一个mfrac
+				//		3.将刚才移除的节点作为mfrac的分子
+				//		4.将焦点放在分母上
+				/**
+  				 * <pre>
+  				 * FROM
+  				 * <math>
+  				 * 	<mn>1</mn>
+  				 * </math>
+  				 *   TO
+  				 * <math>
+  				 * 	<mfrac>
+  				 *    <mrow><mn>1</mn></mrow>
+  				 *    <mrow><mn></mn></mrow>
+  				 *  <mfrac>
+  				 * </math>
+  				 * </pre>
+  				 */
+				
+				this.path.pop();
+				this.path.push({nodeName:"mfrac", offset:newOffset});// 替换刚才节点的位置
+				this.path.push({nodeName:"mrow", offset:2});
+				this.path.push({nodeName:"mn", offset:1});
+				
+				var parent = node.parentNode;
+				position = newOffset - 1;
+				// node为当前获取焦点的节点，该节点将作为mfrac的分子节点
+				var fracData = xmlUtil.createFracWithNumerator(xmlDoc, node);
+				domConstruct.place(fracData.rootNode, parent, position);
+				
+				node = fracData.focusNode;
+				offset = 0;
+			}
+			return {node: node, offset: offset};
+		},
+		
+		_splitNodeIfNeed: function(nodeName){
+			// summary:
+			//		如果节点满足被拆分的条件，则将节点拆分为两个。
+			//		只能用在放置文本节点的节点中，如text节点和mathml的token节点。
+			//		FIXME:名字还不够具体
+			// 注意：这里只是split，anchor的值并不改变。
+			
+			var offset = this.anchor.offset;
+			var node = this.anchor.node;
+			
+			// 如果当前的nodeName与传入的值相同，则不拆分。
+			if(node.nodeName == nodeName){
+				return;
+			}
+			
+			var textContent = node.textContent;
+			var textLength = textContent.length;
+			
+			if(0 < offset && offset < textLength){
+				// 拆分
+				var part1 = textContent.substring(0, offset);
+				var part2 = textContent.substring(offset);
+				
+				var node2 = this.doc.createElement(node.nodeName);//因为是拆分
+				
+				node.textContent = part1;
+				node2.textContent = part2;
+				
+				dripLang.insertNodeAfter(node2, node);
+			}
+		},
 		
 		// 如果是中文，则放在text节点中
 		// 注意，当调用setData的时候，所有数据都是已经处理好的。
@@ -562,6 +661,12 @@ define([ "dojo/_base/declare",
 					this.onChange(data);
 					return;
 				}else if(dripLang.isNumber(data)){
+					// 目前只支持输入数字时，剔除占位符。
+					var node = this.anchor.node;
+					if(xmlUtil.isPlaceHolder(node)){
+						xmlUtil.removePlaceHolder(node);
+					}
+					
 					this.anchor = this.insertMn(this.anchor, data);
 					this.onChange(data);
 					return;
@@ -575,6 +680,11 @@ define([ "dojo/_base/declare",
 					return;
 				}else if(dripLang.isGreekLetter(data)){
 					this.anchor = this.insertMi(this.anchor, data);
+					this.onChange(data);
+					return;
+				}else if(nodeName == "mfrac"){
+					this._splitNodeIfNeed(nodeName);
+					this.anchor = this.insertMfrac(this.anchor, data, nodeName);
 					this.onChange(data);
 					return;
 				}
@@ -601,54 +711,6 @@ define([ "dojo/_base/declare",
 				}
 				
 				if(nodeName == "mfrac"){
-					if(this._isLineNode(node) || this._isTextNode(node)){
-						this.path.push({nodeName:"math", offset:newOffset});
-						this.path.push({nodeName:"mfrac", offset:1});
-						this.path.push({nodeName:"mrow", offset:1});
-						this.path.push({nodeName:"mn", offset:1});
-						
-						var math = xmlDoc.createElement("math");
-						var fracData = xmlUtil.createEmptyFrac(xmlDoc);
-						math.appendChild(fracData.rootNode);
-						domConstruct.place(math, node, position);
-						
-						this._updateAnchor(fracData.focusNode, 0);
-					}else{
-						// FIXME：需要推断，前面那些组合可以做分子
-						// 在数学公式中
-						//		1.将当前的math节点从原有的父节点中移除
-						//		2.创建一个mfrac
-						//		3.将刚才移除的节点作为mfrac的分子
-						//		4.将焦点放在分母上
-						/**
-		  				 * <pre>
-		  				 * FROM
-		  				 * <math>
-		  				 * 	<mn>1</mn>
-		  				 * </math>
-		  				 *   TO
-		  				 * <math>
-		  				 * 	<mfrac>
-		  				 *    <mrow><mn>1</mn></mrow>
-		  				 *    <mrow><mn></mn></mrow>
-		  				 *  <mfrac>
-		  				 * </math>
-		  				 * </pre>
-		  				 */
-						
-						this.path.pop();
-						this.path.push({nodeName:"mfrac", offset:newOffset});// 替换刚才节点的位置
-						this.path.push({nodeName:"mrow", offset:2});
-						this.path.push({nodeName:"mn", offset:1});
-						
-						var parent = node.parentNode;
-						position = newOffset - 1;
-						// node为当前获取焦点的节点，该节点将作为mfrac的分子节点
-						var fracData = xmlUtil.createFracWithNumerator(xmlDoc, node);
-						domConstruct.place(fracData.rootNode, parent, position);
-						
-						this._updateAnchor(fracData.focusNode, 0);
-					}
 					
 				}else if(nodeName == "msup"){
 					
@@ -1310,28 +1372,6 @@ define([ "dojo/_base/declare",
 		
 		getLineCount: function(){
 			return this.doc.documentElement.childNodes.length;
-		},
-		
-		_splitNodeIfNeed: function(){
-			// summary:
-			//		如果节点满足被拆分的条件，则将节点拆分为两个。
-			//		只能用在放置文本节点的节点中，如text节点和mathml的token节点。
-			var offset = this.anchor.offset;
-			var node = this.anchor.node;
-			var textContent = node.textContent;
-			var textLength = textContent.length;
-			if(0< offset && offset < textLength){
-				// 拆分
-				var part1 = textContent.substring(0, offset);
-				var part2 = textContent.substring(offset);
-				
-				var node2 = this.doc.createElement(node.nodeName);//因为是拆分
-				
-				node.textContent = part1;
-				node2.textContent = part2;
-				
-				dripLang.insertNodeAfter(node2, node);
-			}
 		},
 		
 		_getFocusLine: function(){

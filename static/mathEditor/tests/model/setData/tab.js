@@ -1,6 +1,6 @@
 define([ "doh","mathEditor/Model" ], function(doh,Model) {
 
-	doh.register("Model.setData newLine创建新行",[
+	doh.register("Model.setData 插入制表符",[
 		{
 			name: "在空的model中，敲击tab键盘之后插入制表符号，使用\\t表示制表符，keyCode为9",
 			setUp: function(){
