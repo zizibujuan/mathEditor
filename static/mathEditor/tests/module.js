@@ -13,6 +13,8 @@ define([ "mathEditor/tests/layer/Cursor",
          "mathEditor/tests/model/setData/frac",
          "mathEditor/tests/model/setData/sqrt",
          "mathEditor/tests/model/setData/root",
+         "mathEditor/tests/model/setData/sub",
+         "mathEditor/tests/model/setData/sup",
          
          "mathEditor/tests/model/moveLeft",
          "mathEditor/tests/model/removeLeft",

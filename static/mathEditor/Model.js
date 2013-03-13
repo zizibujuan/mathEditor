@@ -668,6 +668,53 @@ define([ "dojo/_base/declare",
 			return {node: node, offset: offset};
 		},
 		
+		insertScripting: function(anchor, data, nodeName){
+			// summary:
+			//		插入上下标
+			var node = anchor.node;
+			var offset = anchor.offset;
+			
+			var xmlDoc = this.doc;
+			
+			var newOffset = 1;
+			var position = "last";
+			
+			if(this._isTextNode(node)){
+				var _offset = this.path.pop().offset;
+				newOffset = _offset + 1;
+				position = "after";
+			}
+			
+			if(this._isLineNode(node) || this._isTextNode(node)){
+				this.path.push({nodeName: "math", offset: newOffset});
+				this.path.push({nodeName: nodeName, offset: 1});
+				this.path.push({nodeName: "mrow", offset: 2});
+				this.path.push({nodeName: "mn", offset: 1});
+				
+				var math = xmlDoc.createElement("math");
+				var scriptingData = xmlUtil.createEmptyScripting(xmlDoc, nodeName);
+				math.appendChild(scriptingData.rootNode);
+				domConstruct.place(math, node, position);
+				node = scriptingData.focusNode;
+				offset = 0;
+			}else{
+				// TODO:总结是不是General Layout Schema 和 Script and Limit Schema的path处理逻辑都一样呢
+				this.path.pop();
+				this.path.push({nodeName: nodeName, offset: 1});// TODO:计算出offset
+				this.path.push({nodeName: "mrow", offset: 2});
+				this.path.push({nodeName: "mn", offset: 1});
+				
+				var parent = node.parentNode;
+				// node为将作为sup中的base节点
+				var scriptingData = xmlUtil.createScriptingWithBase(xmlDoc, node, nodeName);
+				domConstruct.place(scriptingData.rootNode, parent, 0);
+				
+				node = scriptingData.focusNode;
+				offset = 0;
+			}
+			return {node: node, offset: offset};
+		},
+		
 		_splitNodeIfNeed: function(nodeName){
 			// summary:
 			//		如果节点满足被拆分的条件，则将节点拆分为两个。
@@ -787,6 +834,11 @@ define([ "dojo/_base/declare",
 					this.anchor = this.insertMroot(this.anchor, data, nodeName);
 					this.onChange(data);
 					return;
+				}else if(nodeName === "msub" || nodeName == "msup"){
+					this._splitNodeIfNeed(nodeName);
+					this.anchor = this.insertScripting(this.anchor, data, nodeName);
+					this.onChange(data);
+					return;
 				}
 				
 			}
@@ -814,60 +866,8 @@ define([ "dojo/_base/declare",
 					
 				}else if(nodeName == "msup"){
 					
-					if(this._isLineNode(node) || this._isTextNode(node)){
-						this.path.push({nodeName:"math", offset:newOffset});
-						this.path.push({nodeName:"msup", offset:1});
-						this.path.push({nodeName:"mrow", offset:2});
-						this.path.push({nodeName:"mn", offset:1});
-						
-						var math = xmlDoc.createElement("math");
-						var supData = xmlUtil.createEmptyMsup(xmlDoc);
-						math.appendChild(supData.rootNode);
-						domConstruct.place(math, node, position);
-
-						this._updateAnchor(supData.focusNode, 0);
-					}else{
-						// TODO:总结是不是General Layout Schema 和 Script and Limit Schema的path处理逻辑都一样呢
-						this.path.pop();
-						this.path.push({nodeName:"msup", offset:1});// TODO:计算出offset
-						this.path.push({nodeName:"mrow", offset:2});
-						this.path.push({nodeName:"mn", offset:1});
-						
-						var parent = node.parentNode;
-						// node为将作为sup中的base节点
-						var supData = xmlUtil.createMsupWithBase(xmlDoc, node);
-						domConstruct.place(supData.rootNode, parent, 0);
-						
-						this._updateAnchor(supData.focusNode, 0);
-					}
 				}else if(nodeName == "msub"){
 					
-					if(this._isLineNode(node) || this._isTextNode(node)){
-						this.path.push({nodeName:"math", offset:newOffset});
-						this.path.push({nodeName:"msub", offset:1});
-						this.path.push({nodeName:"mrow", offset:2});
-						this.path.push({nodeName:"mn", offset:1});
-						
-						var math = xmlDoc.createElement("math");
-						var subData = xmlUtil.createEmptyMsub(xmlDoc);
-						math.appendChild(subData.rootNode);
-						domConstruct.place(math, node, position);
-						// FIXME:将重复代码往上提一级。
-						this._updateAnchor(subData.focusNode, 0);
-					}else{
-						// TODO:总结是不是General Layout Schema 和 Script and Limit Schema的path处理逻辑都一样呢
-						this.path.pop();
-						this.path.push({nodeName:"msub", offset:1});// TODO:计算出offset
-						this.path.push({nodeName:"mrow", offset:2});
-						this.path.push({nodeName:"mn", offset:1});
-						
-						var parent = node.parentNode;
-						// node为将作为sup中的base节点
-						var subData = xmlUtil.createMsubWithBase(xmlDoc, node);
-						domConstruct.place(subData.rootNode, parent, 0);
-						
-						this._updateAnchor(subData.focusNode, 0);
-					}
 				}else if(nodeName == "msqrt"){
 					
 				}else if(nodeName == "mroot"){

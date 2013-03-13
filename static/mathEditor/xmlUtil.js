@@ -48,88 +48,52 @@ define({
 		return {rootNode:mstyle,focusNode:mn2};
 	},
 	
-	createEmptyMsup: function(xmlDoc){
+	createScriptingWithBase: function(xmlDoc, baseNode, nodeName){
 		// summary:
 		//		创建一个上标，base值已存在，superscript为空节点
 		//<msup> base superscript </msup>
 		
+		// summary:
+		//		创建一个上标，base值已存在，superscript为空节点
+		//<msup> base superscript </msup>
 
-		var msup = xmlDoc.createElement("msup");
+		var container = xmlDoc.createElement(nodeName);
+		
+		var mrow1 = xmlDoc.createElement("mrow");
+		var mrow2 = xmlDoc.createElement("mrow");
+		
+		var script = this.getPlaceHolder(xmlDoc);
+		
+		container.appendChild(mrow1);
+		container.appendChild(mrow2);
+		
+		mrow1.appendChild(baseNode);
+		mrow2.appendChild(script);
+		return {rootNode:container,focusNode:script};
+	},
+	
+	createEmptyScripting: function(xmlDoc, nodeName){
+		// summary:
+		//		创建一个上标，base值已存在，superscript为空节点
+		//<msup> base superscript </msup>
+		
+		// summary:
+		//		创建一个上标，base值已存在，subcript为空节点
+		//<msub> base superscript </msub>
+
+		var container = xmlDoc.createElement(nodeName);
 		
 		var mrow1 = xmlDoc.createElement("mrow");
 		var mrow2 = xmlDoc.createElement("mrow");
 		var base = this.getPlaceHolder(xmlDoc);
-		var superscript = this.getPlaceHolder(xmlDoc);
+		var script = this.getPlaceHolder(xmlDoc);
 		
-		msup.appendChild(mrow1);
-		msup.appendChild(mrow2);
-		
-		mrow1.appendChild(base);
-		mrow2.appendChild(superscript);
-		return {rootNode:msup,focusNode:superscript};
-	},
-	
-	createMsupWithBase: function(xmlDoc, baseNode){
-		// summary:
-		//		创建一个上标，base值已存在，superscript为空节点
-		//<msup> base superscript </msup>
-		
-
-		var msup = xmlDoc.createElement("msup");
-		
-		var mrow1 = xmlDoc.createElement("mrow");
-		var mrow2 = xmlDoc.createElement("mrow");
-		
-		var superscript = this.getPlaceHolder(xmlDoc);
-		
-		msup.appendChild(mrow1);
-		msup.appendChild(mrow2);
-		
-		mrow1.appendChild(baseNode);
-		mrow2.appendChild(superscript);
-		return {rootNode:msup,focusNode:superscript};
-	},
-	
-	createEmptyMsub: function(xmlDoc){
-		// summary:
-		//		创建一个上标，base值已存在，superscript为空节点
-		//<msup> base superscript </msup>
-		
-
-		var msub = xmlDoc.createElement("msub");
-		
-		var mrow1 = xmlDoc.createElement("mrow");
-		var mrow2 = xmlDoc.createElement("mrow");
-		var base = this.getPlaceHolder(xmlDoc);
-		var subscript = this.getPlaceHolder(xmlDoc);
-		
-		msub.appendChild(mrow1);
-		msub.appendChild(mrow2);
+		container.appendChild(mrow1);
+		container.appendChild(mrow2);
 		
 		mrow1.appendChild(base);
-		mrow2.appendChild(subscript);
-		return {rootNode:msub,focusNode:subscript};
-	},
-	
-	createMsubWithBase: function(xmlDoc, baseNode){
-		// summary:
-		//		创建一个上标，base值已存在，superscript为空节点
-		//<msup> base superscript </msup>
-		
-
-		var msub = xmlDoc.createElement("msub");
-		
-		var mrow1 = xmlDoc.createElement("mrow");
-		var mrow2 = xmlDoc.createElement("mrow");
-		
-		var subscript = this.getPlaceHolder(xmlDoc);
-		
-		msub.appendChild(mrow1);
-		msub.appendChild(mrow2);
-		
-		mrow1.appendChild(baseNode);
-		mrow2.appendChild(subscript);
-		return {rootNode:msub,focusNode:subscript};
+		mrow2.appendChild(script);
+		return {rootNode:container,focusNode:script};
 	},
 	
 	createEmptyMsqrt: function(xmlDoc){
