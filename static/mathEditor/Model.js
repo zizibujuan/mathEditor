@@ -624,6 +624,50 @@ define([ "dojo/_base/declare",
 			return {node: node, offset: offset};
 		},
 		
+		insertMroot: function(anchor, data, nodeName){
+			var node = anchor.node;
+			var offset = anchor.offset;
+			
+			var xmlDoc = this.doc;
+			
+			var newOffset = 1;
+			var position = "last";
+			
+			if(this._isTextNode(node)){
+				var _offset = this.path.pop().offset;
+				newOffset = _offset + 1;
+				position = "after";
+			}
+			
+			if(this._isLineNode(node) || this._isTextNode(node)){
+				this.path.push({nodeName:"math", offset:newOffset});
+				this.path.push({nodeName:"mroot", offset:1});
+				this.path.push({nodeName:"mrow", offset:2});
+				this.path.push({nodeName:"mn", offset:1});
+				
+				var math = xmlDoc.createElement("math");
+				var rootData = xmlUtil.createEmptyMroot(xmlDoc);
+				math.appendChild(rootData.rootNode);
+				domConstruct.place(math, node, position);
+
+				node = rootData.focusNode;
+				offset = 0;
+			}else{
+				this.path.pop();
+				this.path.push({nodeName:"mroot", offset:offset+1});
+				this.path.push({nodeName:"mrow", offset:2});
+				this.path.push({nodeName:"mn", offset:1});
+				
+				var parent = node.parentNode;
+				var rootData = xmlUtil.createEmptyMroot(xmlDoc);
+				domConstruct.place(rootData.rootNode, parent, offset);
+				
+				node = rootData.focusNode;
+				offset = 0;
+			}
+			return {node: node, offset: offset};
+		},
+		
 		_splitNodeIfNeed: function(nodeName){
 			// summary:
 			//		如果节点满足被拆分的条件，则将节点拆分为两个。
@@ -728,14 +772,19 @@ define([ "dojo/_base/declare",
 					this.anchor = this.insertMi(this.anchor, data);
 					this.onChange(data);
 					return;
-				}else if(nodeName == "mfrac"){
+				}else if(nodeName === "mfrac"){
 					this._splitNodeIfNeed(nodeName);
 					this.anchor = this.insertMfrac(this.anchor, data, nodeName);
 					this.onChange(data);
 					return;
-				}else if(nodeName == "msqrt"){
+				}else if(nodeName === "msqrt"){
 					this._splitNodeIfNeed(nodeName);
 					this.anchor = this.insertMsqrt(this.anchor, data, nodeName);
+					this.onChange(data);
+					return;
+				}else if(nodeName === "mroot"){
+					this._splitNodeIfNeed(nodeName);
+					this.anchor = this.insertMroot(this.anchor, data, nodeName);
 					this.onChange(data);
 					return;
 				}
@@ -822,30 +871,7 @@ define([ "dojo/_base/declare",
 				}else if(nodeName == "msqrt"){
 					
 				}else if(nodeName == "mroot"){
-					if(this._isLineNode(node) || this._isTextNode(node)){
-						this.path.push({nodeName:"math", offset:newOffset});
-						this.path.push({nodeName:"mroot", offset:1});
-						this.path.push({nodeName:"mrow", offset:2});
-						this.path.push({nodeName:"mn", offset:1});
-						
-						var math = xmlDoc.createElement("math");
-						var rootData = xmlUtil.createEmptyMroot(xmlDoc);
-						math.appendChild(rootData.rootNode);
-						domConstruct.place(math, node, position);
-
-						this._updateAnchor(rootData.focusNode, 0);
-					}else{
-						this.path.pop();
-						this.path.push({nodeName:"mroot", offset:offset+1});
-						this.path.push({nodeName:"mrow", offset:2});
-						this.path.push({nodeName:"mn", offset:1});
-						
-						var parent = node.parentNode;
-						var rootData = xmlUtil.createEmptyMroot(xmlDoc);
-						domConstruct.place(rootData.rootNode, parent, offset);
-						
-						this._updateAnchor(rootData.focusNode, 0);
-					}
+					
 				}else if(nodeName == "mi"){
 					// 对sin/cos等特殊字符的处理
 					// TODO：删除
