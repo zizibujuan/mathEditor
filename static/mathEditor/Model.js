@@ -459,6 +459,53 @@ define([ "dojo/_base/declare",
 			return {node: node, offset: offset};
 		},
 		
+		insertFenced: function(anchor, fencedContent){
+			var nodeName = "mfenced";
+			var node = anchor.node;
+			var offset = anchor.offset;
+			var xmlDoc = this.doc;
+			if(this._isLineNode(node) || this._isTextNode(node)){
+				/*
+				 * <mfenced open="[" close="}" separators="sep#1 sep#2 ... sep#(n-1)">
+  				 * <mrow><mi>x</mi></mrow>
+  				 * <mrow><mi>y</mi></mrow>
+  				 * </mfenced>
+  				 */
+				this.path.push({nodeName:"math", offset:offset+1});
+				this.path.push({nodeName:nodeName, offset:1});
+				this.path.push({nodeName:"mrow", offset:1});
+				this.path.push({nodeName:"mn", offset:1});
+				
+				var math = xmlDoc.createElement("math");
+				var mfenced = xmlDoc.createElement(nodeName);
+				
+				var fenced = {
+					"{":{left:"{", right:"}"},
+					"[":{left:"[", right:"]"},
+					"|":{left:"|", right:"|"}
+				};
+				if(fencedContent != "("){
+					mfenced.setAttribute("open",fenced[fencedContent].left);
+					mfenced.setAttribute("close",fenced[fencedContent].right);
+				}
+				var mrow = xmlDoc.createElement("mrow");
+				var placeHolder = xmlUtil.getPlaceHolder(xmlDoc);
+				
+				math.appendChild(mfenced);
+				mfenced.appendChild(mrow);
+				mrow.appendChild(placeHolder);
+				
+				domConstruct.place(math, node, offset);
+				
+				node = placeHolder;
+				offset = 0;
+			}else{
+				
+			}
+			
+			return {node: node, offset: offset};
+		},
+		
 		insertTrigonometric: function(anchor, data, nodeName){
 			var node = anchor.node;
 			var offset = anchor.offset;
@@ -817,6 +864,10 @@ define([ "dojo/_base/declare",
 					return;
 				}else if(dripLang.isGreekLetter(data)){
 					this.anchor = this.insertMi(this.anchor, data);
+					this.onChange(data);
+					return;
+				}else if(dripLang.isFenced(data)){
+					this.anchor = this.insertFenced(this.anchor, data);
 					this.onChange(data);
 					return;
 				}else if(nodeName === "mfrac"){
