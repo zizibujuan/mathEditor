@@ -84,28 +84,43 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   			runTest: function(t){
   				// 结果是在line中先加一个text节点，然后再加一个math节点
   				var model = this.model;
+  				var focusNode = null;
   				model.toMathMLMode();
   				// 如果是中文，则放在text节点中
   				model.setData({data:"1"});
   				t.is("/root/line[1]/math[1]/mn[1]", model.getPath());
-  				t.is(model.getFocusNode().nodeName, "mn");
+  				focusNode = model.getFocusNode();
+  				t.is(focusNode.nodeName, "mn");
   				t.is(1, model.getOffset());
+  				t.is("1", focusNode.textContent);
+  				
   				model.setData({data:"+"});
+  				focusNode = model.getFocusNode();
   				t.is("/root/line[1]/math[1]/mo[2]", model.getPath());
-  				t.is(model.getFocusNode().nodeName, "mo");
+  				t.is(focusNode.nodeName, "mo");
   				t.is(1, model.getOffset());
+  				t.is("+", focusNode.textContent);
+  				
   				model.setData({data:"1"});
+  				focusNode = model.getFocusNode();
   				t.is("/root/line[1]/math[1]/mn[3]", model.getPath());
-  				t.is(model.getFocusNode().nodeName, "mn");
+  				t.is(focusNode.nodeName, "mn");
   				t.is(1, model.getOffset());
+  				t.is("1", focusNode.textContent);
+  				
   				model.setData({data:"="});
+  				focusNode = model.getFocusNode();
   				t.is("/root/line[1]/math[1]/mo[4]", model.getPath());
-  				t.is(model.getFocusNode().nodeName, "mo");
+  				t.is(focusNode.nodeName, "mo");
   				t.is(1, model.getOffset());
+  				t.is("=", focusNode.textContent);
+  				
   				model.setData({data:"2"});
+  				focusNode = model.getFocusNode();
   				t.is("/root/line[1]/math[1]/mn[5]", model.getPath());
-  				t.is(model.getFocusNode().nodeName, "mn");
+  				t.is(focusNode.nodeName, "mn");
   				t.is(1, model.getOffset());
+  				t.is("2", focusNode.textContent);
   			},
   			tearDown: function(){
   				

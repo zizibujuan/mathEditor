@@ -388,7 +388,7 @@ define([ "dojo/_base/declare",
 			}else{
 				if(node.nodeName != nodeName){
 					var mnNode = xmlDoc.createElement(nodeName);
-					
+					mnNode.textContent = mnContent;
 					// 需要判断是否需要拆分节点。
 					dripLang.insertNodeAfter(mnNode,node);
 					
