@@ -379,7 +379,9 @@ define([ "dojo/_base/declare",
 			var offset = anchor.offset;
 			var xmlDoc = this.doc;
 			
-			// FIXME:在进入mathml模式时，应该不再在line和text节点中。
+			// FIXME: 将所有mathml方法中的对line和text的切换提取到公共一个单独方法中，不要放在每个insert方法中。
+			
+			// FIXME: 在进入mathml模式时，应该不再在line和text节点中。
 			// 暂时先放在这里处理，但是这里的逻辑还是添加一个math节点。
 			if(this._isLineNode(node)){
 				// 如果在line节点下，则先切换到math节点下。
@@ -395,11 +397,50 @@ define([ "dojo/_base/declare",
 				node = newNode;
 				offset = mnContent.length;
 			}else if(this._isTextNode(node)){
+				// FIXME:调通代码，并添加更多的测试用例
+				this._splitNodeIfNeed(nodeName);
 				
+				var mathNode = xmlDoc.createElement("math");
+				var newNode = xmlDoc.createElement(nodeName);
+				newNode.textContent = mnContent;
+				
+				mathNode.appendChild(newNode);
+				
+				var pathOffset = 0;// 分为pathOffset和focusOffset
+				
+				var pos = this.path.pop();
+				if(offset > 0){
+					pathOffset = pos.offset + 1;
+					dripLang.insertNodeAfter(mathNode, node);
+				}else{
+					// 如果等于0，则放在节点之前
+					pathOffset = pos.offset;
+					dripLang.insertNodeBefore(mathNode, node);
+				}
+				
+				this.path.push({nodeName:"math", offset:pathOffset});
+				this.path.push({nodeName:nodeName, offset:1});
+				
+				node = newNode;
+				offset = mnContent.length;
+			
 			}else{
-				var oldText = node.textContent;
-				node.textContent = dripString.insertAtOffset(oldText, offset, mnContent);
-				offset += mnContent.length;
+				if(node.nodeName != nodeName){
+					var mnNode = xmlDoc.createElement(nodeName);
+					
+					// 需要判断是否需要拆分节点。
+					dripLang.insertNodeAfter(mnNode,node);
+					
+					var pos = this.path.pop();
+					this.path.push({nodeName:nodeName, offset:pos.offset+1});
+					
+					node = mnNode;
+					offset = mnContent.length;
+				}else{
+					var oldText = node.textContent;
+					node.textContent = dripString.insertAtOffset(oldText, offset, mnContent);
+					offset += mnContent.length;
+				}
 			}
 			
 			return {node:node, offset:offset};
@@ -794,6 +835,27 @@ define([ "dojo/_base/declare",
 			}
 		},
 		
+		mathMLToTextMode: function(anchor){
+			var node = anchor.node;
+			var offset = anchor.offset;
+			
+			var pos = null;
+			do{
+				pos = this.path.pop();
+			}while(pos && pos.nodeName != "math");
+			var textSpanNode = this.doc.createElement("text");
+			
+			// 获取math节点，然后将新节点插入到math节点之后
+			var mathNode = node;
+			while(mathNode.nodeName != "math"){
+				mathNode = mathNode.parentNode;
+			}
+			
+			dripLang.insertNodeAfter(textSpanNode, mathNode);
+			this.path.push({nodeName:"text", offset:pos.offset+1});
+			return {node: textSpanNode, offset:0};
+		},
+		
 		// 如果是中文，则放在text节点中
 		// 注意，当调用setData的时候，所有数据都是已经处理好的。
 		// 两种判断数据类型的方法：1是系统自动判断；2是人工判断
@@ -828,6 +890,16 @@ define([ "dojo/_base/declare",
 			// TODO:提取一个document作为总的model
 			//	然后将mathml和text各自的操作拆分开
 			if(this._isTextMode()){
+				
+				// FIXME: 是不是在要切换模式时，就把节点也切换好呢？
+				// 如果节点不在text模式下，则切换到text节点下。
+				
+				var node = this.anchor.node;
+				var offset = this.anchor.offset;
+				if(node.nodeName != "text" && node.nodeName != "line"){
+					this.anchor = this.mathMLToTextMode(this.anchor);
+				}
+				
 				this.anchor = this.insertText(this.anchor, data);
 				this.onChange(data);
 				return;
@@ -969,47 +1041,7 @@ define([ "dojo/_base/declare",
 			
 			
 			if(dripLang.isFenced(data)){
-				if(this._isLineNode(node) || this._isTextNode(node)){
-					/*
-					 * <mfenced open="[" close="}" separators="sep#1 sep#2 ... sep#(n-1)">
-	  				 * <mrow><mi>x</mi></mrow>
-	  				 * <mrow><mi>y</mi></mrow>
-	  				 * </mfenced>
-	  				 */
-					this.path.push({nodeName:"math", offset:offset+1});
-					this.path.push({nodeName:"mfenced", offset:1});
-					this.path.push({nodeName:"mrow", offset:1});
-					this.path.push({nodeName:"mn", offset:1});
-					
-					var math = xmlDoc.createElement("math");
-					var mfenced = xmlDoc.createElement("mfenced");
-					
-					var fenced = {
-						"{":{left:"{", right:"}"},
-						"[":{left:"[", right:"]"},
-						"|":{left:"|", right:"|"}
-					};
-					if(data != "("){
-						mfenced.setAttribute("open",fenced[data].left);
-						mfenced.setAttribute("close",fenced[data].right);
-					}
-					var mrow = xmlDoc.createElement("mrow");
-					var placeHolder = xmlUtil.getPlaceHolder(xmlDoc);
-					
-					math.appendChild(mfenced);
-					mfenced.appendChild(mrow);
-					mrow.appendChild(placeHolder);
-					
-					domConstruct.place(math, node, offset);
-					
-					this.anchor.node = placeHolder;
-					this.anchor.offset = 0;
-				}else{
-					
-				}
 				
-				this.onChange();
-				return;
 			}
 			
 			
@@ -1217,6 +1249,7 @@ define([ "dojo/_base/declare",
 		},
 		
 		_updateAnchor: function(focusNode, offset){
+			// FIXME：在0.0.2时删除。
 			// 判断focusNode与node是否相等，是不是判断引用呢？
 			// 如果是的话，两者相等，就无需重新赋值。
 			this.anchor.node = focusNode;
