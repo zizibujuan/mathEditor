@@ -856,6 +856,15 @@ define([ "dojo/_base/declare",
 			return {node: textSpanNode, offset:0};
 		},
 		
+		textToMathMLMode: function(anchor){
+			// summary:
+			//		从text模式切换到mathml模式。当切换完成之后，当前获取焦点的节点就不再可能是text和line。
+			//		最外围的就是math节点。
+			
+			
+			
+		},
+		
 		// 如果是中文，则放在text节点中
 		// 注意，当调用setData的时候，所有数据都是已经处理好的。
 		// 两种判断数据类型的方法：1是系统自动判断；2是人工判断
@@ -966,83 +975,7 @@ define([ "dojo/_base/declare",
 				
 			}
 			
-			var xmlDoc = this.doc;
-			
-			// FIXME:只有在节点不同时才需要拆分。
-			// this._splitNodeIfNeed();
-			var node = this.anchor.node;
-			var offset = this.anchor.offset;
-			
-			if(nodeName && nodeName != ""){
-				
-				
-				var newOffset = 1;
-				var position = "last";
-				
-				if(this._isTextNode(node)){
-					var _offset = this.path.pop().offset;
-					newOffset = _offset + 1;
-					position = "after";
-				}
-				
-				if(nodeName == "mfrac"){
-					
-				}else if(nodeName == "msup"){
-					
-				}else if(nodeName == "msub"){
-					
-				}else if(nodeName == "msqrt"){
-					
-				}else if(nodeName == "mroot"){
-					
-				}else if(nodeName == "mi"){
-					// 对sin/cos等特殊字符的处理
-					// TODO：删除
-					if(dripLang.isTrigonometric(data)){
-						/*
-		  				 * <mi>cos</mi>
-		  				 * <mo>&#x2061;</mo> 函数应用
-		  				 * <mrow>
-		  				 * <mn></mn> 占位符统一使用mn表示
-		  				 * </mrow>
-		  				 */
-						if(this._isLineNode(node) || this._isTextNode(node)){
-							this.path.push({nodeName:"math", offset:offset+1});
-							this.path.push({nodeName:"mrow", offset:3});
-							this.path.push({nodeName:"mn", offset:1});
-							
-							var math = xmlDoc.createElement("math");
-							var mi = xmlDoc.createElement("mi");
-							var mo = xmlDoc.createElement("mo");
-							var mrow = xmlDoc.createElement("mrow");
-							var placeHolder = xmlUtil.getPlaceHolder(xmlDoc);
-							
-							mi.textContent = data;
-							mo.textContent = "&#x2061;";
-							
-							mrow.appendChild(placeHolder);
-							
-							math.appendChild(mi);
-							math.appendChild(mo);
-							math.appendChild(mrow);
-							domConstruct.place(math, node, offset);
-							
-							this._updateAnchor(placeHolder, 0);
-							
-						}else{
-							
-						}
-					}
-				}
-				
-				this.onChange();
-				return;
-			}
-			
-			
-			if(dripLang.isFenced(data)){
-				
-			}
+			return;
 			
 			
 			// 这里需要对data做一个加工，&#xD7;只能看作一个字符。
@@ -1056,6 +989,8 @@ define([ "dojo/_base/declare",
 				
 			
 			
+			// FIXME:以下代码都应删除，注意，复制过来的数学公式代码，应该是mathml，而不是普通的字符，然后
+			// 逐个字符的转换。这样的转换有很多不可预知的东西。
 			
 			// 注意：把对数据类型的判断放在判断节点类型的外面。除非有充分的理由不要修改这个逻辑
 			// 先循环字符，再判断当前要插入字符的环境。
