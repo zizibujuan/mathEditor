@@ -317,14 +317,13 @@ define([ "dojo/_base/declare",
 			return {node:node, offset:offset};
 		},
 		
-		insertMi: function(anchor, miContext){
+		insertMi: function(anchor, miContext, nodeName){
 			// 这里只处理单个英文字母的情况
 			// 注意如果获取焦点的节点是mi节点，则offset的值要么是0， 要么是1，
 			// 分别代表在mi的前或后
 			
 			// 通常一个完整的mi类型的字符占用一个mi
 			
-			var nodeName = "mi";
 			var node = anchor.node;
 			var offset = anchor.offset;
 			var xmlDoc = this.doc;
@@ -357,7 +356,7 @@ define([ "dojo/_base/declare",
 			return {node:node, offset:offset};
 		},
 		
-		insertMn: function(anchor, mnContent){
+		insertMn: function(anchor, mnContent, nodeName){
 			// 按照以下思路重构。
 			// 添加一个数据，分以下几步：
 			//		如果指定了nodeName，则直接使用；如果没有指定，则先推导
@@ -368,7 +367,6 @@ define([ "dojo/_base/declare",
 			//		在新节点中插入内容
 			//		修正当前的path值
 			
-			var nodeName = "mn";
 			var node = anchor.node;
 			var offset = anchor.offset;
 			var xmlDoc = this.doc;
@@ -409,8 +407,7 @@ define([ "dojo/_base/declare",
 			return {node:node, offset:offset};
 		},
 		
-		insertMo: function(anchor, moContent){
-			var nodeName = "mo";
+		insertMo: function(anchor, moContent, nodeName){
 			var node = anchor.node;
 			var offset = anchor.offset;
 			var xmlDoc = this.doc;
@@ -445,15 +442,13 @@ define([ "dojo/_base/declare",
 			return {node: node, offset: offset};
 		},
 		
-		insertFenced: function(anchor, fencedContent){
+		insertFenced: function(anchor, fencedContent, nodeName){
 			/*
 			 * <mfenced open="[" close="}" separators="sep#1 sep#2 ... sep#(n-1)">
 			 * <mrow><mi>x</mi></mrow>
 			 * <mrow><mi>y</mi></mrow>
 			 * </mfenced>
 			 */
-			
-			var nodeName = "mfenced";
 			var node = anchor.node;
 			var offset = anchor.offset;
 			var xmlDoc = this.doc;
@@ -881,16 +876,16 @@ define([ "dojo/_base/declare",
 				if(nodeName === "mi"){
 					// 推断周围的字符，如果能够拼够一个三角函数，则插入三角函数
 					if(isNumericCharacter){
-						this.anchor = this.insertMi(this.anchor, data);
+						this.anchor = this.insertMi(this.anchor, data, nodeName);
 					}else if(isTrigonometric){
 						this.anchor = this.insertTrigonometric(this.anchor, data, nodeName);
 					}else{
-						var tri = this.findTrigonometric(this.anchor, data);
+						var tri = this.findTrigonometric(this.anchor, data, nodeName);
 						if(tri){
 							this.anchor = this.removeExistTrigonometricPart(this.anchor, tri);
 							this.anchor = this.insertTrigonometric(this.anchor, tri.functionName, nodeName);
 						}else{
-							this.anchor = this.insertMi(this.anchor, data);
+							this.anchor = this.insertMi(this.anchor, data, nodeName);
 						}
 					}
 					this.onChange(data);
@@ -901,15 +896,15 @@ define([ "dojo/_base/declare",
 					if(xmlUtil.isPlaceHolder(node)){
 						xmlUtil.removePlaceHolder(node);
 					}
-					this.anchor = this.insertMn(this.anchor, data);
+					this.anchor = this.insertMn(this.anchor, data, nodeName);
 					this.onChange(data);
 					return;
 				}else if(nodeName === "mo"){
-					this.anchor = this.insertMo(this.anchor, data);
+					this.anchor = this.insertMo(this.anchor, data, nodeName);
 					this.onChange(data);
 					return;
 				}else if(nodeName === "mfenced"){
-					this.anchor = this.insertFenced(this.anchor, data);
+					this.anchor = this.insertFenced(this.anchor, data, nodeName);
 					this.onChange(data);
 					return;
 				}else if(nodeName === "mfrac"){
