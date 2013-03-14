@@ -71,12 +71,12 @@ define(["dojo/_base/declare",
 		},
 		
 		_onMouseDownHandler: function(e){
-			console.log("编辑器获取焦点");
 			this._focus();
 			event.stop(e);
 		},
 		
 		_focus: function(){
+			console.log("编辑器获取焦点");
 			if(this.focused==false){
 				this.focused = true;
 				var textarea = this.textarea;

@@ -117,8 +117,13 @@ define(["dojo/_base/declare",
 			}
 			
 			on(textarea, "blur", lang.hitch(this,function(e){
-				console.log("view.blur 编辑器失去焦点");
+				console.log("textarea失去焦点");
 				this.view.blur();
+			}));
+			
+			on(textarea, "focus", lang.hitch(this,function(e){
+				console.log("textarea获取焦点");
+				this.view.focus();
 			}));
 			
 			// FIXME:一种重构思路是将key与方法绑定，然后根据key自动调用方法，即把if改为json对象
@@ -148,11 +153,13 @@ define(["dojo/_base/declare",
 					// ALT+/ 弹出提示信息
 					this.contentAssist.open();
 					event.stop(e);
+					this.view.focus();
 				}else if(e.altKey){
 					if(e.keyCode === 18){
 						console.log("Alt =");
 						this.model.toMathMLMode();
 						event.stop(e);
+						this.view.focus();
 					}
 					
 				}else if(e.keyCode === keys.ENTER){
