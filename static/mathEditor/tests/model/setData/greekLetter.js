@@ -29,7 +29,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   			},
   			runTest: function(t){
   				var model = this.model;
-  				model.setData({data:"&#x3B1;"});
+  				model.setData({data:"&#x3B1;", nodeName:"mi"});
   				
   				t.is("/root/line[1]/math[1]/mi[1]", model.getPath());
 				var focusNode = model.getFocusNode();

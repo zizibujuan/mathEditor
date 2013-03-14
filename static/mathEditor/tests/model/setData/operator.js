@@ -202,7 +202,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				// 如果是中文，则放在text节点中
   				model.setData({data:"中"});
   				model._toMathMLMode();
-  				model.setData({data:"="});
+  				model.setData({data:"+"});
   				t.is("/root/line[1]/math[2]/mo[1]", model.getPath());
   				var focusNode = model.getFocusNode();
   				t.is(focusNode.nodeName, "mo");

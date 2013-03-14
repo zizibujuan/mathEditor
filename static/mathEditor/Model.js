@@ -329,20 +329,14 @@ define([ "dojo/_base/declare",
 			var offset = anchor.offset;
 			var xmlDoc = this.doc;
 			
-			// 以下是处理mi的正常逻辑
-			if(this._isLineNode(node)){
-				this.path.push({nodeName:"math", offset:1});
-				this.path.push({nodeName:nodeName, offset:1});
-				
-				var math = xmlDoc.createElement("math");
+			if(node.nodeName === "math"){
+				// FIXME: math下的节点的处理代码，大多是一样的，需要重构
 				var newNode = xmlDoc.createElement(nodeName);
 				newNode.textContent = miContext;
-				
-				math.appendChild(newNode);
-				node.appendChild(math);
-				
+				node.appendChild(newNode);
+				this.path.push({nodeName:nodeName, offset:1});
 				node = newNode;
-				offset = 1;
+				offset = 1; // mi的offset要么是1，要么是0
 			}else{
 				// 以下只处理node也为mi节点的情况，FIXME：等需要的时候加上这个条件约束
 				var newNode = xmlDoc.createElement(nodeName);
@@ -380,50 +374,19 @@ define([ "dojo/_base/declare",
 			var xmlDoc = this.doc;
 			
 			// FIXME: 将所有mathml方法中的对line和text的切换提取到公共一个单独方法中，不要放在每个insert方法中。
+			// 等提交的时候，把这段文字作为注释输入。
 			
 			// FIXME: 在进入mathml模式时，应该不再在line和text节点中。
 			// 暂时先放在这里处理，但是这里的逻辑还是添加一个math节点。
-			if(this._isLineNode(node)){
-				// 如果在line节点下，则先切换到math节点下。
-				var mathNode = xmlDoc.createElement("math");
-				var newNode = xmlDoc.createElement(nodeName);
-				newNode.textContent = mnContent;
-				mathNode.appendChild(newNode);
-				node.appendChild(mathNode);
-				
-				this.path.push({nodeName:"math", offset:1});
-				this.path.push({nodeName:nodeName, offset:1});
-				
-				node = newNode;
-				offset = mnContent.length;
-			}else if(this._isTextNode(node)){
-				// FIXME:调通代码，并添加更多的测试用例
-				this._splitNodeIfNeed(nodeName);
-				
-				var mathNode = xmlDoc.createElement("math");
-				var newNode = xmlDoc.createElement(nodeName);
-				newNode.textContent = mnContent;
-				
-				mathNode.appendChild(newNode);
-				
-				var pathOffset = 0;// 分为pathOffset和focusOffset
-				
-				var pos = this.path.pop();
-				if(offset > 0){
-					pathOffset = pos.offset + 1;
-					dripLang.insertNodeAfter(mathNode, node);
-				}else{
-					// 如果等于0，则放在节点之前
-					pathOffset = pos.offset;
-					dripLang.insertNodeBefore(mathNode, node);
-				}
-				
-				this.path.push({nodeName:"math", offset:pathOffset});
-				this.path.push({nodeName:nodeName, offset:1});
-				
-				node = newNode;
-				offset = mnContent.length;
 			
+			if(node.nodeName == "math"){
+				// FIXME:是否需要根据offset定位插入点呢？等写了相应的测试用例之后，再添加这个逻辑
+				var newNode = xmlDoc.createElement(nodeName);
+				newNode.textContent = mnContent;
+				node.appendChild(newNode);
+				this.path.push({nodeName:nodeName, offset:1});
+				node = newNode;
+				offset = mnContent.length;
 			}else{
 				if(node.nodeName != nodeName){
 					var mnNode = xmlDoc.createElement(nodeName);
@@ -452,32 +415,14 @@ define([ "dojo/_base/declare",
 			var offset = anchor.offset;
 			var xmlDoc = this.doc;
 
-			if(this._isLineNode(node)){
-				var mathNode = xmlDoc.createElement("math");
+			if(node.nodeName == "math"){
+				// FIXME:是否需要根据offset定位插入点呢？等写了相应的测试用例之后，再添加这个逻辑
 				var newNode = xmlDoc.createElement(nodeName);
 				newNode.textContent = moContent;
-				mathNode.appendChild(newNode);
-				node.appendChild(mathNode);
-				
+				node.appendChild(newNode);
+				this.path.push({nodeName:nodeName, offset:1});
 				node = newNode;
 				offset = 1; // 操作符号的offset要么是1，要么是0
-				
-				this.path.push({nodeName:"math", offset:1});
-				this.path.push({nodeName:nodeName, offset:1});
-			}else if(this._isTextNode(node)){
-				// math应该放在textNode之后
-				var mathNode = xmlDoc.createElement("math");
-				var newNode = xmlDoc.createElement(nodeName);
-				newNode.textContent = moContent;
-				mathNode.appendChild(newNode);
-				dripLang.insertNodeAfter(mathNode, node);
-								
-				node = newNode;
-				offset = 1;
-
-				var pos = this.path.pop();
-				this.path.push({nodeName:"math", offset:pos.offset+1});
-				this.path.push({nodeName:nodeName, offset:1});
 			}else{
 				// 所有的操作符，都是一个单独的符号，用一个mo封装。
 				if(moContent == "=" && node.nodeName == "mo" && node.textContent == "="){
@@ -501,23 +446,23 @@ define([ "dojo/_base/declare",
 		},
 		
 		insertFenced: function(anchor, fencedContent){
+			/*
+			 * <mfenced open="[" close="}" separators="sep#1 sep#2 ... sep#(n-1)">
+			 * <mrow><mi>x</mi></mrow>
+			 * <mrow><mi>y</mi></mrow>
+			 * </mfenced>
+			 */
+			
 			var nodeName = "mfenced";
 			var node = anchor.node;
 			var offset = anchor.offset;
 			var xmlDoc = this.doc;
-			if(this._isLineNode(node) || this._isTextNode(node)){
-				/*
-				 * <mfenced open="[" close="}" separators="sep#1 sep#2 ... sep#(n-1)">
-  				 * <mrow><mi>x</mi></mrow>
-  				 * <mrow><mi>y</mi></mrow>
-  				 * </mfenced>
-  				 */
-				this.path.push({nodeName:"math", offset:offset+1});
+			
+			if(node.nodeName == "math"){
 				this.path.push({nodeName:nodeName, offset:1});
 				this.path.push({nodeName:"mrow", offset:1});
 				this.path.push({nodeName:"mn", offset:1});
 				
-				var math = xmlDoc.createElement("math");
 				var mfenced = xmlDoc.createElement(nodeName);
 				
 				var fenced = {
@@ -531,12 +476,10 @@ define([ "dojo/_base/declare",
 				}
 				var mrow = xmlDoc.createElement("mrow");
 				var placeHolder = xmlUtil.getPlaceHolder(xmlDoc);
-				
-				math.appendChild(mfenced);
 				mfenced.appendChild(mrow);
 				mrow.appendChild(placeHolder);
 				
-				domConstruct.place(math, node, offset);
+				node.appendChild(mfenced);
 				
 				node = placeHolder;
 				offset = 0;
@@ -552,12 +495,10 @@ define([ "dojo/_base/declare",
 			var offset = anchor.offset;
 			var xmlDoc = this.doc;
 			
-			if(this._isLineNode(node) || this._isTextNode(node)){
-				this.path.push({nodeName:"math", offset:offset+1});
+			if(node.nodeName === "math"){
 				this.path.push({nodeName:"mrow", offset:3});
 				this.path.push({nodeName:"mn", offset:1});
 				
-				var math = xmlDoc.createElement("math");
 				var mi = xmlDoc.createElement(nodeName);
 				var mo = xmlDoc.createElement("mo");
 				var mrow = xmlDoc.createElement("mrow");
@@ -568,10 +509,9 @@ define([ "dojo/_base/declare",
 				
 				mrow.appendChild(placeHolder);
 				
-				math.appendChild(mi);
-				math.appendChild(mo);
-				math.appendChild(mrow);
-				domConstruct.place(math, node, offset);
+				node.appendChild(mi);
+				node.appendChild(mo);
+				node.appendChild(mrow);
 				
 				node = placeHolder;
 				offset = 0;
@@ -605,25 +545,15 @@ define([ "dojo/_base/declare",
 			
 			// FIXME: 重构，这段代码有重复的地方
 			var xmlDoc = this.doc;
-			var newOffset = 1;
-			var position = "last";
 			
-			if(this._isTextNode(node)){
-				var _offset = this.path.pop().offset;
-				newOffset = _offset + 1;
-				position = "after";
-			}
 			
-			if(this._isLineNode(node) || this._isTextNode(node)){
-				this.path.push({nodeName:"math", offset:newOffset});
+			if(node.nodeName === "math"){
 				this.path.push({nodeName:"mfrac", offset:1});
 				this.path.push({nodeName:"mrow", offset:1});
 				this.path.push({nodeName:"mn", offset:1});
 				
-				var math = xmlDoc.createElement("math");
 				var fracData = xmlUtil.createEmptyFrac(xmlDoc);
-				math.appendChild(fracData.rootNode);
-				domConstruct.place(math, node, position);
+				node.appendChild(fracData.rootNode);
 				
 				node = fracData.focusNode;
 				offset = 0;
@@ -649,14 +579,18 @@ define([ "dojo/_base/declare",
   				 * </math>
   				 * </pre>
   				 */
+				var newOffset = 1;
+				var position = "last";
 				
 				this.path.pop();
 				this.path.push({nodeName:"mfrac", offset:newOffset});// 替换刚才节点的位置
 				this.path.push({nodeName:"mrow", offset:2});
 				this.path.push({nodeName:"mn", offset:1});
 				
+				
+				
 				var parent = node.parentNode;
-				position = newOffset - 1;
+				position = newOffset - 1; // FIXME：为什么是0呢？
 				// node为当前获取焦点的节点，该节点将作为mfrac的分子节点
 				var fracData = xmlUtil.createFracWithNumerator(xmlDoc, node);
 				domConstruct.place(fracData.rootNode, parent, position);
@@ -673,29 +607,20 @@ define([ "dojo/_base/declare",
 			
 			var xmlDoc = this.doc;
 			
-			var newOffset = 1;
-			var position = "last";
-			
-			if(this._isTextNode(node)){
-				var _offset = this.path.pop().offset;
-				newOffset = _offset + 1;
-				position = "after";
-			}
-
-			if(this._isLineNode(node) || this._isTextNode(node)){
-				this.path.push({nodeName:"math", offset:newOffset});
+			if(node.nodeName == "math"){
 				this.path.push({nodeName:"msqrt", offset:1});
 				this.path.push({nodeName:"mrow", offset:1});
 				this.path.push({nodeName:"mn", offset:1});
 				
-				var math = xmlDoc.createElement("math");
 				var sqrtData = xmlUtil.createEmptyMsqrt(xmlDoc);
-				math.appendChild(sqrtData.rootNode);
-				domConstruct.place(math, node, position);
+				node.appendChild(sqrtData.rootNode);
 
 				node = sqrtData.focusNode;
 				offset = 0;
 			}else{
+				var newOffset = 1;
+				var position = "last";
+				
 				this.path.pop();
 				this.path.push({nodeName:"msqrt", offset:offset+1});
 				this.path.push({nodeName:"mrow", offset:1});
@@ -718,29 +643,20 @@ define([ "dojo/_base/declare",
 			
 			var xmlDoc = this.doc;
 			
-			var newOffset = 1;
-			var position = "last";
-			
-			if(this._isTextNode(node)){
-				var _offset = this.path.pop().offset;
-				newOffset = _offset + 1;
-				position = "after";
-			}
-			
-			if(this._isLineNode(node) || this._isTextNode(node)){
-				this.path.push({nodeName:"math", offset:newOffset});
+			if(node.nodeName === "math"){
 				this.path.push({nodeName:"mroot", offset:1});
 				this.path.push({nodeName:"mrow", offset:2});
 				this.path.push({nodeName:"mn", offset:1});
 				
-				var math = xmlDoc.createElement("math");
 				var rootData = xmlUtil.createEmptyMroot(xmlDoc);
-				math.appendChild(rootData.rootNode);
-				domConstruct.place(math, node, position);
+				node.appendChild(rootData.rootNode);
 
 				node = rootData.focusNode;
 				offset = 0;
 			}else{
+				var newOffset = 1;
+				var position = "last";
+				
 				this.path.pop();
 				this.path.push({nodeName:"mroot", offset:offset+1});
 				this.path.push({nodeName:"mrow", offset:2});
@@ -764,29 +680,21 @@ define([ "dojo/_base/declare",
 			
 			var xmlDoc = this.doc;
 			
-			var newOffset = 1;
-			var position = "last";
-			
-			if(this._isTextNode(node)){
-				var _offset = this.path.pop().offset;
-				newOffset = _offset + 1;
-				position = "after";
-			}
-			
-			if(this._isLineNode(node) || this._isTextNode(node)){
-				this.path.push({nodeName: "math", offset: newOffset});
+			if(node.nodeName === "math"){
 				this.path.push({nodeName: nodeName, offset: 1});
 				this.path.push({nodeName: "mrow", offset: 2});
 				this.path.push({nodeName: "mn", offset: 1});
 				
-				var math = xmlDoc.createElement("math");
 				var scriptingData = xmlUtil.createEmptyScripting(xmlDoc, nodeName);
-				math.appendChild(scriptingData.rootNode);
-				domConstruct.place(math, node, position);
+				node.appendChild(scriptingData.rootNode);
+
 				node = scriptingData.focusNode;
 				offset = 0;
 			}else{
 				// TODO:总结是不是General Layout Schema 和 Script and Limit Schema的path处理逻辑都一样呢
+				var newOffset = 1;
+				var position = "last";
+				
 				this.path.pop();
 				this.path.push({nodeName: nodeName, offset: 1});// TODO:计算出offset
 				this.path.push({nodeName: "mrow", offset: 2});
@@ -856,13 +764,42 @@ define([ "dojo/_base/declare",
 			return {node: textSpanNode, offset:0};
 		},
 		
-		textToMathMLMode: function(anchor){
+		textToMathMLMode: function(anchor, nodeName){
 			// summary:
 			//		从text模式切换到mathml模式。当切换完成之后，当前获取焦点的节点就不再可能是text和line。
 			//		最外围的就是math节点。
 			
+			var node = anchor.node;
+			var offset = anchor.offset;
+			var xmlDoc = this.doc;
 			
-			
+			if(this._isLineNode(node)){
+				// 如果在line节点下，则先切换到math节点下。
+				var mathNode = xmlDoc.createElement("math");
+				node.appendChild(mathNode);
+				this.path.push({nodeName:"math", offset:1});
+				node = mathNode;
+				offset = 0;
+			}else if(this._isTextNode(node)){
+				// FIXME:调通代码，并添加更多的测试用例
+				this._splitNodeIfNeed(nodeName);
+				var mathNode = xmlDoc.createElement("math");
+				var pathOffset = 0;// 分为pathOffset和focusOffset
+				
+				var pos = this.path.pop();
+				if(offset > 0){
+					pathOffset = pos.offset + 1;
+					dripLang.insertNodeAfter(mathNode, node);
+				}else{
+					// 如果等于0，则放在节点之前
+					pathOffset = pos.offset;
+					dripLang.insertNodeBefore(mathNode, node);
+				}
+				this.path.push({nodeName: "math", offset: pathOffset});
+				node = mathNode;
+				offset = 0;
+			}
+			return {node: node, offset: offset};
 		},
 		
 		// 如果是中文，则放在text节点中
@@ -904,7 +841,6 @@ define([ "dojo/_base/declare",
 				// 如果节点不在text模式下，则切换到text节点下。
 				
 				var node = this.anchor.node;
-				var offset = this.anchor.offset;
 				if(node.nodeName != "text" && node.nodeName != "line"){
 					this.anchor = this.mathMLToTextMode(this.anchor);
 				}
@@ -913,41 +849,66 @@ define([ "dojo/_base/declare",
 				this.onChange(data);
 				return;
 			}else if(this._isMathMLMode()){
+				var node = this.anchor.node;
+				var isNumericCharacter = false;
+				var isTrigonometric = false;
+				if(!nodeName){
+					if(dripLang.isLetter(data)){
+						nodeName = "mi";
+					}else if(dripLang.isNumber(data)){
+						nodeName = "mn";
+					}else if(dripLang.isOperator(data)){
+						nodeName = "mo";
+					}else if(dripLang.isFenced(data)){
+						nodeName = "mfenced";
+					}
+				}else{
+					if(dripLang.isGreekLetter(data)){
+						// 传入的nodeName必须是mi
+						isNumericCharacter = true;
+					}else if(dripLang.isTrigonometric(data)){
+						// 传入的nodeName必须是mi
+						isTrigonometric = true;
+					}
+				}
+				
+				if(node.nodeName == "text" || node.nodeName == "line"){
+					// 先把nodeName确认下来
+					this.anchor = this.textToMathMLMode(this.anchor, nodeName);
+				}
+				
 				// 因为letter只是一个字符，所以不需要循环处理
-				if(dripLang.isLetter(data)){
+				if(nodeName === "mi"){
 					// 推断周围的字符，如果能够拼够一个三角函数，则插入三角函数
-					var tri = this.findTrigonometric(this.anchor, data);
-					if(tri){
-						this.anchor = this.removeExistTrigonometricPart(this.anchor, tri);
-						this.anchor = this.insertTrigonometric(this.anchor, tri.functionName, nodeName||"mi");
-					}else{
+					if(isNumericCharacter){
 						this.anchor = this.insertMi(this.anchor, data);
+					}else if(isTrigonometric){
+						this.anchor = this.insertTrigonometric(this.anchor, data, nodeName);
+					}else{
+						var tri = this.findTrigonometric(this.anchor, data);
+						if(tri){
+							this.anchor = this.removeExistTrigonometricPart(this.anchor, tri);
+							this.anchor = this.insertTrigonometric(this.anchor, tri.functionName, nodeName);
+						}else{
+							this.anchor = this.insertMi(this.anchor, data);
+						}
 					}
 					this.onChange(data);
 					return;
-				}else if(dripLang.isNumber(data)){
+				}else if(nodeName === "mn"){
 					// 目前只支持输入数字时，剔除占位符。
 					var node = this.anchor.node;
 					if(xmlUtil.isPlaceHolder(node)){
 						xmlUtil.removePlaceHolder(node);
 					}
-					
 					this.anchor = this.insertMn(this.anchor, data);
 					this.onChange(data);
 					return;
-				}else if(dripLang.isOperator(data)){
+				}else if(nodeName === "mo"){
 					this.anchor = this.insertMo(this.anchor, data);
 					this.onChange(data);
 					return;
-				}else if(dripLang.isTrigonometric(data)){
-					this.anchor = this.insertTrigonometric(this.anchor, data, nodeName);
-					this.onChange(data);
-					return;
-				}else if(dripLang.isGreekLetter(data)){
-					this.anchor = this.insertMi(this.anchor, data);
-					this.onChange(data);
-					return;
-				}else if(dripLang.isFenced(data)){
+				}else if(nodeName === "mfenced"){
 					this.anchor = this.insertFenced(this.anchor, data);
 					this.onChange(data);
 					return;
