@@ -16,7 +16,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 	    	name: "在空的model中插入多个 +",
   			setUp: function(){
   				this.model = new Model({});
-  				this.model._toMathMLMode();
+  				this.model.toMathMLMode();
   			},
   			runTest: function(t){
   				var model = this.model;
@@ -42,23 +42,23 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   			runTest: function(t){
   				var model = this.model;
   				// 加号
-  				model._toMathMLMode();
+  				model.toMathMLMode();
   				testSupportOperator(t, model, "+");
   				model.clear();
   				// 减号
-  				model._toMathMLMode();
+  				model.toMathMLMode();
   				testSupportOperator(t, model, "-");
   				model.clear();
   				// 乘号
-  				model._toMathMLMode();
+  				model.toMathMLMode();
   				testSupportOperator(t, model, "&#xD7;");
   				model.clear();
   				// 除号 
-  				model._toMathMLMode();
+  				model.toMathMLMode();
   				testSupportOperator(t, model, "&#xF7;");
   				model.clear();
   				// 等号
-  				model._toMathMLMode();
+  				model.toMathMLMode();
   				testSupportOperator(t, model, "=");
   				model.clear();
   				
@@ -66,12 +66,12 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				// 两者相等
   				// 这个比较特殊，用户可能先输入一个=，然后再输入一个=，这个时候要合并为一个==
   				// 		一次性输入==
-  				model._toMathMLMode();
+  				model.toMathMLMode();
   				testSupportOperator(t, model, "==");
   				model.clear();
   				
   				//		输入两个=
-  				model._toMathMLMode();
+  				model.toMathMLMode();
   				model.setData({data:"="});
   				model.setData({data:"="});
   				t.is("/root/line[1]/math[1]/mo[1]", model.getPath());
@@ -83,7 +83,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				model.clear();
   				
   				//  	输入三个=
-  				model._toMathMLMode();
+  				model.toMathMLMode();
   				model.setData({data:"="});
   				model.setData({data:"="});
   				model.setData({data:"="});
@@ -95,7 +95,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				t.is(2, focusNode.parentNode.childNodes.length);
   				model.clear();
   				//  	输入四个=
-  				model._toMathMLMode();
+  				model.toMathMLMode();
   				model.setData({data:"="});
   				model.setData({data:"="});
   				model.setData({data:"="});
@@ -110,46 +110,46 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				
   				
   				// >
-  				model._toMathMLMode();
+  				model.toMathMLMode();
   				testSupportOperator(t, model, ">");
   				model.clear();
   				// <
-  				model._toMathMLMode();
+  				model.toMathMLMode();
   				testSupportOperator(t, model, "<");
   				model.clear();
 	  			// 大于等于
-  				model._toMathMLMode();
+  				model.toMathMLMode();
   				testSupportOperator(t, model, "&#x2A7E;");
   				model.clear();
 	  			// 远大于
-  				model._toMathMLMode();
+  				model.toMathMLMode();
   				testSupportOperator(t, model, "&#x226B;");
   				model.clear();
 	  			// 小于等于
-  				model._toMathMLMode();
+  				model.toMathMLMode();
   				testSupportOperator(t, model, "&#x2A7D;");
   				model.clear();
 	  			// 远小于
-  				model._toMathMLMode();
+  				model.toMathMLMode();
   				testSupportOperator(t, model, "&#x226A;");
   				model.clear();
 	  			// 不等于
-  				model._toMathMLMode();
+  				model.toMathMLMode();
   				testSupportOperator(t, model, "&#x2260;");
   				model.clear();
 	  			// 约等于
-  				model._toMathMLMode();
+  				model.toMathMLMode();
   				testSupportOperator(t, model, "&#x2248;");
   				model.clear();
   				
   				// !=
   				//		一次性输入
-  				model._toMathMLMode();
+  				model.toMathMLMode();
   				testSupportOperator(t, model, "!=");
   				model.clear();
   				
   				//  	分两次输入
-  				model._toMathMLMode();
+  				model.toMathMLMode();
   				model.setData({data:"!"});
   				model.setData({data:"="});
   				t.is("/root/line[1]/math[1]/mo[1]", model.getPath());
@@ -161,7 +161,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				model.clear();
   				
   				//  	输入!==
-  				model._toMathMLMode();
+  				model.toMathMLMode();
   				model.setData({data:"!"});
   				model.setData({data:"="});
   				model.setData({data:"="});
@@ -173,7 +173,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				t.is(2, focusNode.parentNode.childNodes.length);
   				model.clear();
   				//  	输入!=!=
-  				model._toMathMLMode();
+  				model.toMathMLMode();
   				model.setData({data:"!"});
   				model.setData({data:"="});
   				model.setData({data:"!"});
@@ -201,7 +201,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				var model = this.model;
   				// 如果是中文，则放在text节点中
   				model.setData({data:"中"});
-  				model._toMathMLMode();
+  				model.toMathMLMode();
   				model.setData({data:"+"});
   				t.is("/root/line[1]/math[2]/mo[1]", model.getPath());
   				var focusNode = model.getFocusNode();

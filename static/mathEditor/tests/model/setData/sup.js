@@ -13,7 +13,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				 * 如果直接输入上标，并且适配不到base，则添加一个空的base和superscript，让superscript获取焦点
 				 */
 				var model = this.model;
-				model._toMathMLMode();
+				model.toMathMLMode();
 				model.setData({data:"", nodeName:"msup"});
 				t.is("/root/line[1]/math[1]/msup[1]/mrow[2]/mn[1]", model.getPath());
 				
@@ -43,7 +43,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				 * msup中的内容都使用mrow封装
 				 */
 				var model = this.model;
-				model._toMathMLMode();
+				model.toMathMLMode();
 				model.setData({data:"1"});
 				model.setData({data:"", nodeName:"msup"});
 				t.is("/root/line[1]/math[1]/msup[1]/mrow[2]/mn[1]", model.getPath());

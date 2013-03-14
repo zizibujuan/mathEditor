@@ -16,7 +16,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				 * 注意，index在界面上显示时在左上角，但是在mathml中显示在base的右边。
 				 */
 				var model = this.model;
-				model._toMathMLMode();
+				model.toMathMLMode();
 				model.setData({data:"", nodeName:"mroot"});
 				t.is("/root/line[1]/math[1]/mroot[1]/mrow[2]/mn[1]", model.getPath());
 				

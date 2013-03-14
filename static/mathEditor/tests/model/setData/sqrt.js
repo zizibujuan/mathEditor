@@ -13,7 +13,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 			 * msqrt、mroot中的内容都使用mrow封装
 			 */
 			var model = this.model;
-			model._toMathMLMode();
+			model.toMathMLMode();
 			model.setData({data:"", nodeName:"msqrt"});
 			t.is("/root/line[1]/math[1]/msqrt[1]/mrow[1]/mn[1]", model.getPath());
 			
@@ -40,7 +40,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 			 * msqrt、mroot中的内容都使用mrow封装
 			 */
 			var model = this.model;
-			model._toMathMLMode();
+			model.toMathMLMode();
 			model.setData({data:"1"});
 			model.setData({data:"", nodeName:"msqrt"});
 			t.is("/root/line[1]/math[1]/msqrt[2]/mrow[1]/mn[1]", model.getPath());

@@ -99,7 +99,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 			name: "mathml模式下，在空的model中输入一个英文字母",
 			setUp: function(){
 				this.model = new Model({});
-				this.model._toMathMLMode();
+				this.model.toMathMLMode();
 			},
 			runTest: function(t){
 				var model = this.model;
@@ -118,7 +118,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 			name: "mathml模式下，在空的model中输入一个字母之后，再输入一个字母",
 			setUp: function(){
 				this.model = new Model({});
-				this.model._toMathMLMode();
+				this.model.toMathMLMode();
 			},
 			runTest: function(t){
 				var model = this.model;
@@ -141,7 +141,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 			name: "mathml模式下，在空的model中输入一个字母之后，然后在这个字母前输入一个字母",
 			setUp: function(){
 				this.model = new Model({});
-				this.model._toMathMLMode();
+				this.model.toMathMLMode();
 			},
 			runTest: function(t){
 				var model = this.model;
@@ -165,7 +165,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 			name: "mathml模式下，在空的model中输入两个字母，然后在两个字母中间输入一个字母",
 			setUp: function(){
 				this.model = new Model({});
-				this.model._toMathMLMode();
+				this.model.toMathMLMode();
 			},
 			runTest: function(t){
 				var model = this.model;

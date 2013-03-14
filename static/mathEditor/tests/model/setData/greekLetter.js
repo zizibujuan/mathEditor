@@ -25,7 +25,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 	    	name: "在mathml模式下输入希腊字母",
   			setUp: function(){
   				this.model = new Model({});
-  				this.model._toMathMLMode();
+  				this.model.toMathMLMode();
   			},
   			runTest: function(t){
   				var model = this.model;

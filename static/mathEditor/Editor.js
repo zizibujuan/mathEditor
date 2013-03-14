@@ -117,6 +117,7 @@ define(["dojo/_base/declare",
 			}
 			
 			on(textarea, "blur", lang.hitch(this,function(e){
+				console.log("view.blur 编辑器失去焦点");
 				this.view.blur();
 			}));
 			
@@ -147,6 +148,13 @@ define(["dojo/_base/declare",
 					// ALT+/ 弹出提示信息
 					this.contentAssist.open();
 					event.stop(e);
+				}else if(e.altKey){
+					if(e.keyCode === 18){
+						console.log("Alt =");
+						this.model.toMathMLMode();
+						event.stop(e);
+					}
+					
 				}else if(e.keyCode === keys.ENTER){
 					if(this.contentAssist.opened){
 						this.contentAssist.enter(e);

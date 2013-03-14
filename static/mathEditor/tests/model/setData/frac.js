@@ -5,7 +5,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 			name: "mathml模式下，在一个空的model中加入一个空的分数，分子获取焦点",
 			setUp: function(){
 				this.model = new Model({});
-				this.model._toMathMLMode();
+				this.model.toMathMLMode();
 			},
 			runTest: function(t){
 				/**
@@ -39,7 +39,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   			runTest: function(t){
   				var model = this.model;
   				model.setData({data:"你"});
-  				model._toMathMLMode();
+  				model.toMathMLMode();
   				model.setData({data:"", nodeName:"mfrac"});
   				t.is("/root/line[1]/math[2]/mfrac[1]/mrow[1]/mn[1]", model.getPath()); //创建完成后，让分子先获取焦点
   				var node = model.getFocusNode();
@@ -61,7 +61,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				var model = this.model;
   				model.setData({data:"你我"});
   				model.anchor.offset--;
-  				model._toMathMLMode();
+  				model.toMathMLMode();
   				model.setData({data:"", nodeName:"mfrac"});
   				t.is("/root/line[1]/math[2]/mfrac[1]/mrow[1]/mn[1]", model.getPath()); //创建完成后，让分子先获取焦点
   				var node = model.getFocusNode();
@@ -105,7 +105,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				 * </pre>
   				 */
   				var model = this.model;
-  				model._toMathMLMode();
+  				model.toMathMLMode();
   				model.setData({data:"1"});
   				model.setData({data:"", nodeName:"mfrac"});
   				t.is("/root/line[1]/math[1]/mfrac[1]/mrow[2]/mn[1]", model.getPath()); //创建完成后，让分母先获取焦点
@@ -139,7 +139,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				 * </pre>
   				 */
   				var model = this.model;
-  				model._toMathMLMode();
+  				model.toMathMLMode();
   				model.setData({data:"", nodeName:"mfrac"});
   				model.setData({data:"1"});
   				t.is("/root/line[1]/math[1]/mfrac[1]/mrow[1]/mn[1]", model.getPath());

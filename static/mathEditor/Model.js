@@ -72,11 +72,11 @@ define([ "dojo/_base/declare",
 			return this.mode === "mathml";
 		},
 		
-		_toTextMode: function(){
+		toTextMode: function(){
 			this.mode = "text";
 		},
 		
-		_toMathMLMode: function(){
+		toMathMLMode: function(){
 			this.mode = "mathml";
 		},
 		
@@ -90,7 +90,7 @@ define([ "dojo/_base/declare",
 			
 			this._updateAnchor(this.doc.documentElement.firstChild, 0);
 			
-			this._toTextMode();
+			this.toTextMode();
 			
 			this.path.push({nodeName:"root"});
 			// offset 偏移量，从1开始

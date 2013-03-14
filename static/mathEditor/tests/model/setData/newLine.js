@@ -89,7 +89,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 	    	name: "mathml模式下，不支持输入回车符",
 	    	setUp: function(){
 	    		this.model = new Model({});
-	    		this.model._toMathMLMode();
+	    		this.model.toMathMLMode();
 	    	},
 	    	runTest: function(t){
 	    		

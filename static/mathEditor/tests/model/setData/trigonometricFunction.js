@@ -41,27 +41,27 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				// 其实下面这些都属于一类，一个测试用例足够。
   				// 但是在单个输入字符时，需要对每个三角函数进行判断，所以这里全部测试，
   				// 防止在代码实现时，遗漏处理的情况。
-  				model._toMathMLMode();
+  				model.toMathMLMode();
   				testSupport(t,model,"sin");
   				model.clear();
   				
-  				model._toMathMLMode();
+  				model.toMathMLMode();
   				testSupport(t,model,"cos");
   				model.clear();
   				
-  				model._toMathMLMode();
+  				model.toMathMLMode();
   				testSupport(t,model,"tan");
   				model.clear();
   				
-  				model._toMathMLMode();
+  				model.toMathMLMode();
   				testSupport(t,model,"cot");
   				model.clear();
   				
-  				model._toMathMLMode();
+  				model.toMathMLMode();
   				testSupport(t,model,"sec");
   				model.clear();
   				
-  				model._toMathMLMode();
+  				model.toMathMLMode();
   				testSupport(t,model,"csc");
   				model.clear();
   			},
@@ -72,7 +72,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   			name: "mathml模式下，在已输入数字的model中输入三角函数",
   			setUp: function(){
   				this.model = new Model({});
-  				this.model._toMathMLMode();
+  				this.model.toMathMLMode();
   			},
   			runTest: function(t){
   				var model = this.model;
@@ -103,7 +103,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   			name: "逐个字母的连续输入一个三角函数sin",
   			setUp: function(){
   				this.model = new Model({});
-  				this.model._toMathMLMode();
+  				this.model.toMathMLMode();
   			},
   			runTest: function(t){
   				var model = this.model;
@@ -146,7 +146,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   			name: "mathml下，输入s，接着输入n，然后在n前面输入i，则组合成sin",
   			setUp: function(){
   				this.model = new Model({});
-  				this.model._toMathMLMode();
+  				this.model.toMathMLMode();
   			},
   			runTest: function(t){
   				var model = this.model;
@@ -201,7 +201,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   			name: "mathml下，输入i，接着输入n，然后在i前面输入s，则组合成sin",
   			setUp: function(){
   				this.model = new Model({});
-  				this.model._toMathMLMode();
+  				this.model.toMathMLMode();
   			},
   			runTest: function(t){
   				var model = this.model;

@@ -17,7 +17,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				var model = this.model;
   				// 如果是中文，则放在text节点中
   				model.setData({data:"中"});
-  				model._toMathMLMode();
+  				model.toMathMLMode();
   				model.setData({data:"1"});
   				t.is("/root/line[1]/math[2]/mn[1]", model.getPath());
   				t.is(model.getFocusNode().nodeName, "mn");
@@ -39,7 +39,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				// 如果是中文，则放在text节点中
   				model.setData({data:"中"});
   				model.moveLeft();
-  				model._toMathMLMode();
+  				model.toMathMLMode();
   				model.setData({data:"1"});
   				t.is("/root/line[1]/math[1]/mn[1]", model.getPath());
   				t.is(model.getFocusNode().nodeName, "mn");
@@ -61,10 +61,10 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   			runTest: function(t){
   				// 结果是在line中先加一个text节点，然后再加一个math节点
   				var model = this.model;
-  				model._toMathMLMode();
+  				model.toMathMLMode();
   				// 如果是中文，则放在text节点中
   				model.setData({data:"1"});
-  				model._toTextMode();
+  				model.toTextMode();
   				model.setData({data:"中"});
   				t.is("/root/line[1]/text[2]", model.getPath());
   				t.is(model.getFocusNode().nodeName, "text");
@@ -84,7 +84,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   			runTest: function(t){
   				// 结果是在line中先加一个text节点，然后再加一个math节点
   				var model = this.model;
-  				model._toMathMLMode();
+  				model.toMathMLMode();
   				// 如果是中文，则放在text节点中
   				model.setData({data:"1"});
   				t.is("/root/line[1]/math[1]/mn[1]", model.getPath());
@@ -127,7 +127,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				model.clear();
   				// TODO：如果删除的text界面中没有任何内容，则应该删除该节点
   				// TODO：在remove系列方法中实现。
-  				model._toMathMLMode();
+  				model.toMathMLMode();
   				model.setData({data:"12"});
   				model.setData({data:"3",removeCount:1});
   				t.is("/root/line[1]/math[1]/mn[1]", model.getPath());
@@ -146,7 +146,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   			},
   			runTest: function(t){
   				var model = this.model;
-  				model._toMathMLMode();
+  				model.toMathMLMode();
   				model.setData({data:"1"});
   				model.removeLeft();
   				t.is("/root/line[1]", model.getPath());
@@ -172,7 +172,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				var model = this.model;
   				model.setData({data:"你我"});
   				model.anchor.offset--;
-  				model._toMathMLMode();
+  				model.toMathMLMode();
   				model.setData({data:"1"});
   				
   				t.is("/root/line[1]/math[2]/mn[1]", model.getPath());

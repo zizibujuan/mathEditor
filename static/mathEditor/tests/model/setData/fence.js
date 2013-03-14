@@ -19,7 +19,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				 * 括号，不弹出提示，自动完成。不要在提示框中添加就可以实现。
 				 */
 				var model = this.model;
-				model._toMathMLMode();
+				model.toMathMLMode();
 				model.setData({data:"("});
 				t.is("/root/line[1]/math[1]/mfenced[1]/mrow[1]/mn[1]", model.getPath());
 				

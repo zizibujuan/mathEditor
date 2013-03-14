@@ -38,7 +38,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 	    	name: "mathml模式下,在空的model中输入一个数字",
   			setUp: function(){
   				this.model = new Model({});
-  				this.model._toMathMLMode();
+  				this.model.toMathMLMode();
   			},
   			runTest: function(t){
   				var model = this.model;
@@ -58,7 +58,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 	    	name: "mathml模式,在空的model中输入一个数字，然后再输入一个数字",
   			setUp: function(){
   				this.model = new Model({});
-  				this.model._toMathMLMode();
+  				this.model.toMathMLMode();
   			},
   			runTest: function(t){
   				var model = this.model;
@@ -79,7 +79,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 	    	name: "mathml模式,在空的model中一次性输入两个数字",
   			setUp: function(){
   				this.model = new Model({});
-  				this.model._toMathMLMode();
+  				this.model.toMathMLMode();
   			},
   			runTest: function(t){
   				var model = this.model;
@@ -99,7 +99,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 	    	name: "mathml模式,在两个数字的中间输入数字",
 	    	setUp: function(){
 	    		this.model = new Model({});
-	    		this.model._toMathMLMode();
+	    		this.model.toMathMLMode();
 	    	},
 	    	runTest: function(t){
 	    		var model = this.model;
@@ -123,7 +123,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 	    	name: "mathml模式,在一个数字前面输入数字",
 	    	setUp: function(){
 	    		this.model = new Model({});
-	    		this.model._toMathMLMode();
+	    		this.model.toMathMLMode();
 	    	},
 	    	runTest: function(t){
 	    		var model = this.model;
