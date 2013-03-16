@@ -64,11 +64,11 @@ define([ "dojo/_base/declare",
 			lang.mixin(this, options);
 		},
 		
-		_isTextMode: function(){
+		isTextMode: function(){
 			return this.mode === "text";
 		},
 		
-		_isMathMLMode: function(){
+		isMathMLMode: function(){
 			return this.mode === "mathml";
 		},
 		
@@ -846,7 +846,7 @@ define([ "dojo/_base/declare",
 
 			// TODO:提取一个document作为总的model
 			//	然后将mathml和text各自的操作拆分开
-			if(this._isTextMode()){
+			if(this.isTextMode()){
 				
 				// FIXME: 是不是在要切换模式时，就把节点也切换好呢？
 				// 如果节点不在text模式下，则切换到text节点下。
@@ -859,7 +859,7 @@ define([ "dojo/_base/declare",
 				this.anchor = this.insertText(this.anchor, data);
 				this.onChange(data);
 				return;
-			}else if(this._isMathMLMode()){
+			}else if(this.isMathMLMode()){
 				var node = this.anchor.node;
 				var isNumericCharacter = false;
 				var isTrigonometric = false;
