@@ -74,12 +74,87 @@ define([ "dojo/_base/declare",
 		
 		toTextMode: function(){
 			this.mode = "text";
+			
+			var nodeName = this.anchor.node.nodeName;
+			if(nodeName != "line" && nodeName != "text"){
+				this.anchor = this.mathMLToTextMode(this.anchor);
+			}
 		},
 		
 		toMathMLMode: function(){
 			this.mode = "mathml";
+			
+			var nodeName = this.anchor.node.nodeName;
+			if(nodeName == "line" || nodeName == "text"){
+				this.anchor = this.textToMathMLMode(this.anchor, "math");
+				// 在mathml中添加占位符
+				var placeHolder = xmlUtil.getPlaceHolder(this.doc);
+				this.anchor.node.appendChild(placeHolder);
+				this.anchor.node = placeHolder;
+				//this.anchor.offset = 0; 因为值没有变，所以不再赋值。
+				this.path.push({nodeName:placeHolder.nodeName, offset:1});
+			}
 		},
 		
+		mathMLToTextMode: function(anchor){
+			var node = anchor.node;
+			var offset = anchor.offset;
+			
+			var pos = null;
+			do{
+				pos = this.path.pop();
+			}while(pos && pos.nodeName != "math");
+			var textSpanNode = this.doc.createElement("text");
+			
+			// 获取math节点，然后将新节点插入到math节点之后
+			var mathNode = node;
+			while(mathNode.nodeName != "math"){
+				mathNode = mathNode.parentNode;
+			}
+			
+			dripLang.insertNodeAfter(textSpanNode, mathNode);
+			this.path.push({nodeName:"text", offset:pos.offset+1});
+			return {node: textSpanNode, offset:0};
+		},
+		
+		textToMathMLMode: function(anchor, nodeName){
+			// summary:
+			//		从text模式切换到mathml模式。当切换完成之后，当前获取焦点的节点就不再可能是text和line。
+			//		最外围的就是math节点。
+			
+			var node = anchor.node;
+			var offset = anchor.offset;
+			var xmlDoc = this.doc;
+			
+			if(this._isLineNode(node)){
+				// 如果在line节点下，则先切换到math节点下。
+				var mathNode = xmlDoc.createElement("math");
+				node.appendChild(mathNode);
+				this.path.push({nodeName:"math", offset:1});
+				node = mathNode;
+				offset = 0;
+			}else if(this._isTextNode(node)){
+				// FIXME:调通代码，并添加更多的测试用例
+				this._splitNodeIfNeed(nodeName);
+				
+				var mathNode = xmlDoc.createElement("math");
+				var pathOffset = 0;// 分为pathOffset和focusOffset
+				
+				var pos = this.path.pop();
+				if(offset > 0){
+					pathOffset = pos.offset + 1;
+					dripLang.insertNodeAfter(mathNode, node);
+				}else{
+					// 如果等于0，则放在节点之前
+					pathOffset = pos.offset;
+					dripLang.insertNodeBefore(mathNode, node);
+				}
+				this.path.push({nodeName: "math", offset: pathOffset});
+				node = mathNode;
+				offset = 0;
+			}
+			return {node: node, offset: offset};
+		},
 		
 		_init: function(){
 			// 注意：在类中列出的属性，都必须在这里进行初始化。
@@ -377,7 +452,7 @@ define([ "dojo/_base/declare",
 			// FIXME: 在进入mathml模式时，应该不再在line和text节点中。
 			// 暂时先放在这里处理，但是这里的逻辑还是添加一个math节点。
 			
-			if(node.nodeName == "math"){
+			if(node.nodeName === "math" || node.nodeName === "mrow"){
 				// FIXME:是否需要根据offset定位插入点呢？等写了相应的测试用例之后，再添加这个逻辑
 				var newNode = xmlDoc.createElement(nodeName);
 				newNode.textContent = mnContent;
@@ -389,7 +464,7 @@ define([ "dojo/_base/declare",
 				if(node.nodeName != nodeName){
 					var mnNode = xmlDoc.createElement(nodeName);
 					mnNode.textContent = mnContent;
-					// 需要判断是否需要拆分节点。
+					
 					dripLang.insertNodeAfter(mnNode,node);
 					
 					var pos = this.path.pop();
@@ -738,65 +813,6 @@ define([ "dojo/_base/declare",
 			}
 		},
 		
-		mathMLToTextMode: function(anchor){
-			var node = anchor.node;
-			var offset = anchor.offset;
-			
-			var pos = null;
-			do{
-				pos = this.path.pop();
-			}while(pos && pos.nodeName != "math");
-			var textSpanNode = this.doc.createElement("text");
-			
-			// 获取math节点，然后将新节点插入到math节点之后
-			var mathNode = node;
-			while(mathNode.nodeName != "math"){
-				mathNode = mathNode.parentNode;
-			}
-			
-			dripLang.insertNodeAfter(textSpanNode, mathNode);
-			this.path.push({nodeName:"text", offset:pos.offset+1});
-			return {node: textSpanNode, offset:0};
-		},
-		
-		textToMathMLMode: function(anchor, nodeName){
-			// summary:
-			//		从text模式切换到mathml模式。当切换完成之后，当前获取焦点的节点就不再可能是text和line。
-			//		最外围的就是math节点。
-			
-			var node = anchor.node;
-			var offset = anchor.offset;
-			var xmlDoc = this.doc;
-			
-			if(this._isLineNode(node)){
-				// 如果在line节点下，则先切换到math节点下。
-				var mathNode = xmlDoc.createElement("math");
-				node.appendChild(mathNode);
-				this.path.push({nodeName:"math", offset:1});
-				node = mathNode;
-				offset = 0;
-			}else if(this._isTextNode(node)){
-				// FIXME:调通代码，并添加更多的测试用例
-				this._splitNodeIfNeed(nodeName);
-				var mathNode = xmlDoc.createElement("math");
-				var pathOffset = 0;// 分为pathOffset和focusOffset
-				
-				var pos = this.path.pop();
-				if(offset > 0){
-					pathOffset = pos.offset + 1;
-					dripLang.insertNodeAfter(mathNode, node);
-				}else{
-					// 如果等于0，则放在节点之前
-					pathOffset = pos.offset;
-					dripLang.insertNodeBefore(mathNode, node);
-				}
-				this.path.push({nodeName: "math", offset: pathOffset});
-				node = mathNode;
-				offset = 0;
-			}
-			return {node: node, offset: offset};
-		},
-		
 		// 如果是中文，则放在text节点中
 		// 注意，当调用setData的时候，所有数据都是已经处理好的。
 		// 两种判断数据类型的方法：1是系统自动判断；2是人工判断
@@ -869,7 +885,21 @@ define([ "dojo/_base/declare",
 				
 				if(node.nodeName == "text" || node.nodeName == "line"){
 					// 先把nodeName确认下来
+					// TODO:在0.0.2版本中，根据输入的字符智能判定进入哪个输入模式。
 					this.anchor = this.textToMathMLMode(this.anchor, nodeName);
+				}
+				
+				// 移除占位符
+				var node = this.anchor.node;
+				if(xmlUtil.isPlaceHolder(node)){
+					// TODO:重构，提取方法
+					var pos = this.path.pop();
+					var pathOffset = pos.offset;
+					if(pathOffset == 1){
+						this.anchor.node = node.parentNode;
+						this.anchor.offset = 0
+					}
+					xmlUtil.removePlaceHolder(node);
 				}
 				
 				// 因为letter只是一个字符，所以不需要循环处理
@@ -892,10 +922,6 @@ define([ "dojo/_base/declare",
 					return;
 				}else if(nodeName === "mn"){
 					// 目前只支持输入数字时，剔除占位符。
-					var node = this.anchor.node;
-					if(xmlUtil.isPlaceHolder(node)){
-						xmlUtil.removePlaceHolder(node);
-					}
 					this.anchor = this.insertMn(this.anchor, data, nodeName);
 					this.onChange(data);
 					return;

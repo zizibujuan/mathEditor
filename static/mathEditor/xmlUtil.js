@@ -152,9 +152,13 @@ define({
 	},
 	
 	removePlaceHolder: function(node){
-		node.removeAttribute("class");
-		node.removeAttribute("style");
-		node.textContent = "";
+//		node.removeAttribute("class");
+//		node.removeAttribute("style");
+//		node.textContent = "";
+		if(node.parentNode){
+			node.parentNode.removeChild(node);
+		}
+		
 	},
 	
 	getPlaceHolder: function(xmlDoc){
