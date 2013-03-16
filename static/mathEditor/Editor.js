@@ -85,7 +85,7 @@ define(["dojo/_base/declare",
 				model.setData({data:input,nodeName:nodeName, removeCount:cacheCount});
 				setTimeout(function() {
 					textarea.value = "";
-			    });
+			    },0);
 			},true);
 			
 			
@@ -158,8 +158,8 @@ define(["dojo/_base/declare",
 					if(e.keyCode === 18){
 						console.log("Alt =");
 						this.model.toMathMLMode();
+						this.model.onChange();
 						event.stop(e);
-						this.view.focus();
 					}
 					
 				}else if(e.keyCode === keys.ENTER){
