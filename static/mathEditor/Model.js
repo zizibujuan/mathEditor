@@ -213,9 +213,11 @@ define([ "dojo/_base/declare",
 					beforeNode = focusNode;
 					beforeNode.textContent += firstLine;
 					
-					afterNode = xmlDoc.createElement("text");
-					afterNode.textContent = lastLine;
-					dripLang.insertNodeAfter(afterNode, focusNode);
+					if(lastLine.length > 0){
+						afterNode = xmlDoc.createElement("text");
+						afterNode.textContent = lastLine;
+						dripLang.insertNodeAfter(afterNode, focusNode);
+					}
 				}else{
 					focusNode.textContent += firstLine;
 					beforeNode = focusNode;
@@ -1235,14 +1237,24 @@ define([ "dojo/_base/declare",
 					return;
 				}
 				
-				previousNode = previousNode.lastChild;
-				if(previousNode.nodeName == "math"){
+				if(previousNode.lastChild){
 					previousNode = previousNode.lastChild;
+					
+					if(previousNode.nodeName == "math"){
+						previousNode = previousNode.lastChild;
+					}
+					var textContent = previousNode.textContent;
+					
+					this.anchor.node = previousNode;
+					this.anchor.offset = textContent.length;
+				}else{
+					this.anchor.node = previousNode;
+					this.anchor.offset = 0;
+					var pos = this.path.pop();
+					pos.offset--;
+					this.path.push(pos);
 				}
-				var textContent = previousNode.textContent;
 				
-				this.anchor.node = previousNode;
-				this.anchor.offset = textContent.length;
 				return;
 			}
 			

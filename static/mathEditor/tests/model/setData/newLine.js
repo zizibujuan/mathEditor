@@ -32,6 +32,29 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				
   			}
 	    },{
+	    	name: "text模式下，输入一个字符，然后输入回车符",
+  			setUp: function(){
+  				this.model = new Model({});
+  			},
+  			runTest: function(t){
+  				var model = this.model;
+  				// 遇到如回车符号或者换行符号这类特殊的字符时，使用转义字符表示。
+  				model.setData({data: "a"});
+  				model.setData({data: "\n"});
+  				t.is(2, model.getLineCount());
+  				// 如果刚开始什么都不输入，则只插入一个空的line节点，不预插入text节点
+  				t.is("/root/line[2]", model.getPath());
+  				// 测试用例需要确定，这个节点不是第一个节点
+  				t.is("line", model.getFocusNode().nodeName);
+  				t.is(0, model.getOffset());
+  				
+  				t.is("a", model.getLineAt(0).childNodes[0].textContent);
+  				t.is(0, model.getLineAt(1).childNodes.length);
+  			},
+  			tearDown: function(){
+  				
+  			}
+	    },{
 	    	// 因为这个测试用例主要是用户测试换行，所以放在这个文件中。即使其中也间接测试了输入letter
 	    	name: "text模式下，在空的model中输入两行内容",
   			setUp: function(){

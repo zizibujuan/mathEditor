@@ -24,6 +24,7 @@ define([ "doh", "mathEditor/Model" ], function(doh, Model) {
 			model.setData({data:"\n"});
 			model.moveLeft();
 			
+			t.is("/root/line[1]", model.getPath());
 			t.is(model.getFocusNode(), model.getLineAt(0));
 			t.is(0, model.getOffset());
 		},
@@ -156,7 +157,7 @@ define([ "doh", "mathEditor/Model" ], function(doh, Model) {
 			
 		}
 	},{
-		name: "从第二个空的line节点移动到第一个line节点的末尾",
+		name: "text模式下，从第二个空的line节点移动到第一个line节点的末尾",
 		setUp: function(){
 			this.model = new Model({});
 		},
@@ -167,12 +168,14 @@ define([ "doh", "mathEditor/Model" ], function(doh, Model) {
 			model.moveLeft();
 			t.is("text", model.getFocusNode().nodeName);
 			t.is(1, model.getOffset());
+			t.is("/root/line[1]/text[1]", model.getPath());
 			model.clear();
 			
 			model.toMathMLMode();
 			model.setData({data:"1"});
 			model.setData({data:"\n"});
 			model.moveLeft();
+			t.is("/root/line[1]/math[1]/mn[1]", model.getPath());
 			t.is("mn", model.getFocusNode().nodeName);
 			t.is(1, model.getOffset());
 		},
@@ -180,7 +183,7 @@ define([ "doh", "mathEditor/Model" ], function(doh, Model) {
 			
 		}
 	},{
-		name: "从第二个非空的line节点的最前面移动到第一个line节点的末尾",
+		name: "text模式下，从第二个非空的line节点的最前面移动到第一个line节点的末尾",
 		setUp: function(){
 			this.model = new Model({});
 		},
@@ -192,6 +195,7 @@ define([ "doh", "mathEditor/Model" ], function(doh, Model) {
 			
 			model.moveLeft();
 			model.moveLeft();
+			t.is("/root/line[1]/text[1]", model.getPath());
 			t.is("中",model.getFocusNode().textContent);
 			t.is("text",model.getFocusNode().nodeName);
 			t.is(1, model.getOffset());
@@ -204,6 +208,7 @@ define([ "doh", "mathEditor/Model" ], function(doh, Model) {
 			model.setData({data:"文"});
 			model.moveLeft();
 			model.moveLeft();
+			t.is("/root/line[1]/math[1]/mn[1]", model.getPath());
 			t.is("1",model.getFocusNode().textContent);
 			t.is("mn",model.getFocusNode().nodeName);
 			t.is(1, model.getOffset());
