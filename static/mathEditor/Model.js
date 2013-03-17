@@ -187,6 +187,52 @@ define([ "dojo/_base/declare",
 			return text.split(/\r\n|\r|\n/);
 		},
 		
+		_splitNodeByNewLine: function(focusNode, offset, firstLine, lastLine){
+			var beforeNode=null,afterNode=null;
+			var xmlDoc = this.doc;
+			var textLen = focusNode.textContent.length;
+			if(offset == 0){
+				var previousNode = focusNode.previousSibling;
+				if(!previousNode || previousNode.nodeName != "text"){
+					beforeNode = xmlDoc.createElement("text");
+					beforeNode.textContent = firstLine;
+					dripLang.insertNodeBefore(beforeNode, focusNode);
+					afterNode = focusNode;
+				}else{
+					previousNode.textContent += firstLine;
+					beforeNode = previousNode;
+					afterNode = focusNode;
+				}
+				
+				if(lastLine && lastLine != ""){
+					afterNode.textContent = lastLine + afterNode.textContent;
+				}
+			}else if(offset == textLen){
+				var nextNode = focusNode.nextSibling;
+				if(!nextNode || nextNode.nodeName != "text"){
+					beforeNode = focusNode;
+					beforeNode.textContent += firstLine;
+					
+					afterNode = xmlDoc.createElement("text");
+					afterNode.textContent = lastLine;
+					dripLang.insertNodeAfter(afterNode, focusNode);
+				}else{
+					focusNode.textContent += firstLine;
+					beforeNode = focusNode;
+					afterNode = nextNode;
+					afterNode.textContent = lastLine + afterNode.textContent;
+				}
+			}else if(0 < offset && offset < textLen){
+				var oldText = focusNode.textContent;
+				focusNode.textContent = oldText.substring(0, offset)+firstLine;
+				beforeNode = focusNode;
+				afterNode = xmlDoc.createElement("text");
+				afterNode.textContent = lastLine + oldText.substring(offset);
+				dripLang.insertNodeAfter(afterNode, focusNode);
+			}
+			return {beforeNode: beforeNode, afterNode: afterNode};
+		},
+		
 		insertText: function(anchor, text){
 			// summary:
 			//		插入普通文本，用于text模式下。
@@ -204,85 +250,123 @@ define([ "dojo/_base/declare",
 			
 			var node = anchor.node;
 			var offset = anchor.offset;
-			
+			var xmlDoc = this.doc;
 			// 第一行和最后一行需要特殊处理，中间的行数全部使用line节点添加在两者中间即可，没有其他处理逻辑。
 			var lines = this._split(text);
+			
+			if(lines.length == 1){
+				var line = lines[0];
+				if(this._isLineNode(node)){
+					var nodeName = "text";
+					var newNode = xmlDoc.createElement(nodeName);
+					node.appendChild(newNode);
+					node = newNode;
+					this.path.push({nodeName: nodeName, offset: 1});
+				}
+				
+				var oldText = node.textContent;
+				node.textContent = dripString.insertAtOffset(oldText, offset, line);
+				offset += line.length;
+				return {node: node, offset: offset};
+			}
+			
 			// 从lines中移除第一行，第一行代码需要与光标前面的代码对接
 			var firstLine = lines.splice(0,1)[0];
 			// 从lines中移除最后一行，最后一行代码需要与光标后面的代码对接
 			var lastLine = lines.splice(lines.length-1, lines.length)[0];
+
+			// 为beforeNode追加值，将afterNode及其后面的节点都挪到最后一行。
+			var beforeNode = null, afterNode = null, lastLineNode = null;
 			
+			// 因为需要跳转行，所以先给出光标所在行，这样中间就不用反复设置path了。
 			
-			var xmlDoc = this.doc;
-			
+			var pos = null;
+			var lineCount = 0;
 			if(this._isLineNode(node)){
-				var nodeName = "text";
-				// 这里有一个假定，只要是line,则必是一个空行。
-				var newNode = xmlDoc.createElement(nodeName);
-				node.appendChild(newNode);
-				
-				// FIXME：如何避免多次设置path呢？
-				node = newNode;
-				offset = 0;
-				this.path.push({nodeName:nodeName,offset:0});
+				pos = this.path.pop();
+			}else if(this._isTextNode(node)){
+				this.path.pop();
+				pos = this.path.pop();
 			}
 			
-			// 如果第一行中有内容，则添加第一行
-			if(firstLine.length > 0){
-				var oldText = node.textContent;
-				node.textContent = dripString.insertAtOffset(oldText, offset, firstLine);
-				offset += firstLine.length;
-				// 注意只是在行中增加内容，不改变路径
-				var pos = this.path.pop();
-				if(pos.offset == 0){
-					pos.offset = 1;
-				}
-				this.path.push(pos);
-			}
-			if(lastLine != null){
-				var nodeName = "line";
-				var focusedLine = this._getFocusLine();
-				
-				// 插入中间行
-				var traceLine = focusedLine;
-				if(lines.length > 0){
-					array.forEach(lines, function(line){
-						var newLineNode = xmlDoc.createElement(nodeName);
-						newLineNode.textContent = line;
-						dripLang.insertNodeAfter(newLineNode, traceLine);
-						traceLine = newLineNode;
-					});
-				}
-				
-				// 插入最后一行
-				var nodeName = "line";
-				var newLineNode = xmlDoc.createElement(nodeName);
-				dripLang.insertNodeAfter(newLineNode, traceLine);
-				if(lastLine.length == 0){
-					node = newLineNode;
-					offset = 0;
-					this.path.pop();
-					var pos = this.path.pop();
-					this.path.push({nodeName:nodeName, offset:pos.offset+1});
+			if(firstLine.length == 0){
+				if(this._isLineNode(node)){
+					// beforeNode和afterNode都为null
+					
+					if(lastLine && lastLine != ""){
+						afterNode = xmlDoc.createElement("text");
+						afterNode.textContent = lastLine;
+						node.appendChild(afterNode);
+					}
 				}else{
+					var splitNode = this._splitNodeByNewLine(node, offset, firstLine, lastLine);
+					beforeNode = splitNode.beforeNode;
+					afterNode = splitNode.afterNode;
+				}
+			}else if(firstLine.length > 0){
+				if(this._isLineNode(node)){
 					var nodeName = "text";
-					// 这里有一个假定，只要是line,则必是一个空行。
 					var newNode = xmlDoc.createElement(nodeName);
-					newNode.textContent = lastLine;
+					newNode.textContent = firstLine;
 					
-					newLineNode.appendChild(newNode);
+					node.appendChild(newNode);
 					
-					node = newNode;
-					offset = lastLine.length;
-					// 剔除text
-					this.path.pop();
-					// 将line追加
-					var pos = this.path.pop();
-					pos.offset++;
-					this.path.push(pos);
-					this.path.push({nodeName:nodeName,offset:1});
+					beforeNode = newNode;
+					afterNode = newNode.nextSibling
+					
+					if(lastLine && lastLine != ""){
+						if(!afterNode){
+							afterNode = xmlDoc.createElement("text");
+							dripLang.insertNodeAfter(afterNode, beforeNode);
+						}
+						afterNode.textContent = lastLine + afterNode.textContent;
+					}
+					
+				}else{
+					var splitNode = this._splitNodeByNewLine(node, offset, firstLine, lastLine);
+					beforeNode = splitNode.beforeNode;
+					afterNode = splitNode.afterNode;
 				}
 			}
+			
+			
+			lineCount = lines.length+1;
+			var nodeName = "line";
+			var focusedLine = this._getFocusLine();
+			
+			// 插入中间行
+			var traceLine = focusedLine;
+			if(lines.length > 0){
+				array.forEach(lines, function(line){
+					var newLineNode = xmlDoc.createElement(nodeName);
+					newLineNode.textContent = line;
+					dripLang.insertNodeAfter(newLineNode, traceLine);
+					traceLine = newLineNode;
+				});
+			}
+			
+			// 插入最后一行
+			var nodeName = "line";
+			lastLineNode = xmlDoc.createElement(nodeName);
+			dripLang.insertNodeAfter(lastLineNode, traceLine);
+			if(afterNode){
+				var nextNode = afterNode;
+				do{
+					lastLineNode.appendChild(nextNode);
+				}while(nextNode = nextNode.nextSibling);
+			}
+			
+			if(afterNode){
+				this.path.push({nodeName:"line", offset:pos.offset+lineCount});
+				this.path.push({nodeName:"text", offset:1});
+				node = afterNode;
+				offset = lastLine.length;
+			}else{
+				this.path.push({nodeName:"line", offset:pos.offset+lineCount});
+				node = lastLineNode;
+				offset = 0;
+			}
+
 			return {node:node, offset:offset};
 		},
 		

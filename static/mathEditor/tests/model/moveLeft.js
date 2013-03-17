@@ -1,6 +1,7 @@
 define([ "doh", "mathEditor/Model" ], function(doh, Model) {
+	
 	doh.register("Model.moveLeft", [ {
-		name:"model中没有任何内容时，什么也不做",
+		name:"text模式下，model中没有任何内容时，什么也不做",
 		setUp: function(){
 			this.model = new Model({});
 		},
@@ -14,7 +15,39 @@ define([ "doh", "mathEditor/Model" ], function(doh, Model) {
 			
 		}
 	},{
-		name: "在model中的text节点中往左移动",
+		name:"text模式下，输入一个换行符，然后执行一次左移",
+		setUp: function(){
+			this.model = new Model({});
+		},
+		runTest: function(t){
+			var model = this.model;
+			model.setData({data:"\n"});
+			model.moveLeft();
+			
+			t.is(model.getFocusNode(), model.getLineAt(0));
+			t.is(0, model.getOffset());
+		},
+		tearDown: function(){
+			
+		}
+	},{
+		name:"mathml模式下，model中没有任何内容时，什么也不做",
+		setUp: function(){
+			this.model = new Model({});
+		},
+		runTest: function(t){
+			var model = this.model;
+			model.toMathMLMode();
+			model.moveLeft();
+			var focusNode = model.getFocusNode();
+			t.is("mn", focusNode.nodeName);
+			t.is(0, model.getOffset());
+		},
+		tearDown: function(){
+			
+		}
+	},{
+		name: "text模式下，在model中的text节点中往左移动",
 		setUp: function(){
 			this.model = new Model({});
 		},
@@ -61,6 +94,7 @@ define([ "doh", "mathEditor/Model" ], function(doh, Model) {
 		runTest: function(t){
 			var model = this.model;
 			model.setData({data: "我"});
+			model.toMathMLMode();
 			model.setData({data: "1"});
 			// TODO：在setData时，需要考虑所处的位置，是不是在text和math节点之间。
 			model.moveLeft();
@@ -81,7 +115,9 @@ define([ "doh", "mathEditor/Model" ], function(doh, Model) {
 		},
 		runTest: function(t){
 			var model = this.model;
+			model.toMathMLMode();
 			model.setData({data: "1"});
+			model.toTextMode();
 			model.setData({data: "我"});
 			model.moveLeft();
 			t.is("text", model.getFocusNode().nodeName);
@@ -97,12 +133,13 @@ define([ "doh", "mathEditor/Model" ], function(doh, Model) {
 			
 		}
 	},{
-		name: "在math中的不同token节点之间移动",
+		name: "mathml模式下，在math中的不同token节点之间移动",
 		setUp: function(){
 			this.model = new Model({});
 		},
 		runTest: function(t){
 			var model = this.model;
+			model.toMathMLMode();
 			model.setData({data:"11"});
 			model.setData({data:"+"});
 			model.moveLeft();
@@ -132,6 +169,7 @@ define([ "doh", "mathEditor/Model" ], function(doh, Model) {
 			t.is(1, model.getOffset());
 			model.clear();
 			
+			model.toMathMLMode();
 			model.setData({data:"1"});
 			model.setData({data:"\n"});
 			model.moveLeft();
@@ -159,8 +197,10 @@ define([ "doh", "mathEditor/Model" ], function(doh, Model) {
 			t.is(1, model.getOffset());
 			model.clear();
 			
+			model.toMathMLMode();
 			model.setData({data:"1"});
 			model.setData({data:"\n"});
+			model.toTextMode();
 			model.setData({data:"文"});
 			model.moveLeft();
 			model.moveLeft();

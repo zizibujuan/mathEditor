@@ -23,6 +23,10 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				// 确认当前获取焦点的行节点，是第二行
   				t.is(model.getFocusNode(), model.getLineAt(1));
   				t.is(0, model.getOffset());
+  				
+  				// 确定每个行中都没有值
+  				t.is(0, model.getLineAt(0).childNodes.length);
+  				t.is(0, model.getLineAt(1).childNodes.length);
   			},
   			tearDown: function(){
   				
@@ -43,6 +47,9 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				// 测试用例需要确定，这个节点不是第一个节点
   				t.is("text", model.getFocusNode().nodeName);
   				t.is(1, model.getOffset());
+  				
+  				t.is("a", model.getLineAt(0).childNodes[0].textContent);
+  				t.is("b", model.getLineAt(1).childNodes[0].textContent);
   			},
   			tearDown: function(){
   				
@@ -58,7 +65,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				model.setData({data:"a\nb\nc"});
   				t.is(3, model.getLineCount());
   				// 如果刚开始什么都不输入，则只插入一个空的line节点，不预插入text节点
-  				t.is("/root/line[2]/text[1]", model.getPath());
+  				t.is("/root/line[3]/text[1]", model.getPath());
   				// 测试用例需要确定，这个节点不是第一个节点
   				t.is("text", model.getFocusNode().nodeName);
   				t.is(1, model.getOffset());
@@ -67,24 +74,40 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				
   			}
 	    },{
-	    	name: "text模式下，在已有内容的model中输入三行内容",
+	    	name: "text模式下，在已有内容的model中输入换行符",
   			setUp: function(){
   				this.model = new Model({});
   			},
   			runTest: function(t){
-//  				var model = this.model;
-//  				// 遇到如回车符号或者换行符号这类特殊的字符时，使用转义字符表示。
-//  				model.setData({data:"a\nb\nc"});
-//  				t.is(3, model.getLineCount());
-//  				// 如果刚开始什么都不输入，则只插入一个空的line节点，不预插入text节点
-//  				t.is("/root/line[2]/text[1]", model.getPath());
-//  				// 测试用例需要确定，这个节点不是第一个节点
-//  				t.is("text", model.getFocusNode().nodeName);
-//  				t.is(1, model.getOffset());
+  				var model = this.model;
+  				model.setData({data:"ab"});
+  				model.anchor.offset--;
+  				model.setData({data:"\n"});
+  				t.is(2, model.getLineCount());
+  				// 如果刚开始什么都不输入，则只插入一个空的line节点，不预插入text节点
+  				t.is("/root/line[2]/text[1]", model.getPath());
+  				// 测试用例需要确定，这个节点不是第一个节点
+  				t.is("text", model.getFocusNode().nodeName);
+  				t.is(0, model.getOffset());
+  				
+  				t.is("a", model.getLineAt(0).childNodes[0].textContent);
+  				t.is("b", model.getLineAt(1).childNodes[0].textContent);
   			},
   			tearDown: function(){
   				
   			}
+	    },{
+	    	name: "在一行有text和math的model中，输入回车符",
+	    	setUp: function(){
+	    		this.model = new Model({});
+	    		this.model.toMathMLMode();
+	    	},
+	    	runTest: function(t){
+	    		
+	    	},
+	    	tearDown: function(){
+	    		
+	    	}
 	    },{
 	    	name: "mathml模式下，不支持输入回车符",
 	    	setUp: function(){
