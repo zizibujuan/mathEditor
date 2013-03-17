@@ -171,13 +171,14 @@ define([ "doh", "mathEditor/Model" ], function(doh, Model) {
 			t.is("/root/line[1]/text[1]", model.getPath());
 			model.clear();
 			
-			model.toMathMLMode();
-			model.setData({data:"1"});
-			model.setData({data:"\n"});
-			model.moveLeft();
-			t.is("/root/line[1]/math[1]/mn[1]", model.getPath());
-			t.is("mn", model.getFocusNode().nodeName);
-			t.is(1, model.getOffset());
+			// mathml模式下暂不支持输入回车符号。
+//			model.toMathMLMode();
+//			model.setData({data:"1"});
+//			model.setData({data:"\n"});
+//			model.moveLeft();
+//			t.is("/root/line[1]/math[1]/mn[1]", model.getPath());
+//			t.is("mn", model.getFocusNode().nodeName);
+//			t.is(1, model.getOffset());
 		},
 		tearDown: function(){
 			
@@ -201,17 +202,18 @@ define([ "doh", "mathEditor/Model" ], function(doh, Model) {
 			t.is(1, model.getOffset());
 			model.clear();
 			
-			model.toMathMLMode();
-			model.setData({data:"1"});
-			model.setData({data:"\n"});
-			model.toTextMode();
-			model.setData({data:"文"});
-			model.moveLeft();
-			model.moveLeft();
-			t.is("/root/line[1]/math[1]/mn[1]", model.getPath());
-			t.is("1",model.getFocusNode().textContent);
-			t.is("mn",model.getFocusNode().nodeName);
-			t.is(1, model.getOffset());
+			// mathml模式下暂不支持输入回车符号。
+//			model.toMathMLMode();
+//			model.setData({data:"1"});
+//			model.setData({data:"\n"});
+//			model.toTextMode();
+//			model.setData({data:"文"});
+//			model.moveLeft();
+//			model.moveLeft();
+//			t.is("/root/line[1]/math[1]/mn[1]", model.getPath());
+//			t.is("1",model.getFocusNode().textContent);
+//			t.is("mn",model.getFocusNode().nodeName);
+//			t.is(1, model.getOffset());
 			
 		},
 		tearDown: function(){

@@ -1226,35 +1226,48 @@ define([ "dojo/_base/declare",
 			}
 		},
 		
+		_lineUpForLineNode: function(anchor){
+			// summary:
+			//		这个方法只能用于node的nodeName为line的情况
+			var node = anchor.node;
+			var offset = anchor.offset;
+			
+			var previousNode = node.previousSibling;
+			if(!previousNode){
+				return anchor;
+			}
+			
+			if(previousNode.lastChild){
+				previousNode = previousNode.lastChild;
+				
+				if(previousNode.nodeName == "math"){
+					previousNode = previousNode.lastChild;
+				}
+				var textContent = previousNode.textContent;
+				
+				var pos = this.path.pop();
+				pos.offset--;
+				this.path.push(pos);
+				this.path.push({nodeName: previousNode.nodeName, offset:previousNode.parentNode.childElementCount});
+				
+				return {node: previousNode, offset: textContent.length};
+			}else{
+				var pos = this.path.pop();
+				pos.offset--;
+				this.path.push(pos);
+				
+				return {node: previousNode, offset: 0};
+			}
+		},
+		
 		moveLeft: function(){
 			var node = this.anchor.node;
 			var offset = this.anchor.offset;
 			
 			var nodeName = node.nodeName;
 			if(nodeName == "line"){
-				var previousNode = node.previousSibling;
-				if(!previousNode){
-					return;
-				}
-				
-				if(previousNode.lastChild){
-					previousNode = previousNode.lastChild;
-					
-					if(previousNode.nodeName == "math"){
-						previousNode = previousNode.lastChild;
-					}
-					var textContent = previousNode.textContent;
-					
-					this.anchor.node = previousNode;
-					this.anchor.offset = textContent.length;
-				}else{
-					this.anchor.node = previousNode;
-					this.anchor.offset = 0;
-					var pos = this.path.pop();
-					pos.offset--;
-					this.path.push(pos);
-				}
-				
+				// FIXME：重构
+				this.anchor = this._lineUpForLineNode(this.anchor);
 				return;
 			}
 			
@@ -1264,6 +1277,7 @@ define([ "dojo/_base/declare",
 			}
 			
 			if(offset == 0){
+				// FIXME：重构
 				// 先往前寻找兄弟节点
 				var previousNode = node.previousSibling;
 				if(previousNode){
@@ -1289,6 +1303,12 @@ define([ "dojo/_base/declare",
 						
 						this.anchor.node = previousNode;
 						this.anchor.offset = textContent.length;
+						
+						this.path.pop(); // 弹出text
+						var pos = this.path.pop();
+						pos.offset--;
+						this.path.push(pos);
+						this.path.push({nodeName: previousNode.nodeName, offset:previousNode.parentNode.childElementCount});
 					}else{
 						var textContent = previousNode.textContent;
 						
