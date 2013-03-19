@@ -1376,9 +1376,19 @@ define([ "dojo/_base/declare",
 						this.path.push({nodeName:node.nodeName, offset:1});
 					}
 				}
+			}else{
+				if(nextNode.childNodes.length == 0){
+					node = nextNode;
+					offset = 0;
+					
+					var pos = this.path.pop();
+					pos.offset++;
+					this.path.push(pos);
+				}
 			}
 			
 			this.anchor.node = node;
+			this.anchor.offset = offset;
 		},
 		
 		moveUp: function(){
