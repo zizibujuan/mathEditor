@@ -1,5 +1,6 @@
 define([ "mathEditor/tests/layer/Cursor",
          "mathEditor/tests/dataUtil",
+         
          "mathEditor/tests/model/setData",
          "mathEditor/tests/model/setData/emptyModel",
          "mathEditor/tests/model/setData/number",
@@ -18,8 +19,12 @@ define([ "mathEditor/tests/layer/Cursor",
          "mathEditor/tests/model/setData/fence",
          
          "mathEditor/tests/model/moveLeft/sqrt",
+         "mathEditor/tests/model/moveLeft/line",
+         "mathEditor/tests/model/moveLeft/text",
          
          "mathEditor/tests/model/moveRight/sqrt",
+         "mathEditor/tests/model/moveRight/line",
+         "mathEditor/tests/model/moveRight/text",
          
          "mathEditor/tests/model/moveLeft",
          "mathEditor/tests/model/removeLeft",

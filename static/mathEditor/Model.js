@@ -1279,6 +1279,18 @@ define([ "dojo/_base/declare",
 			if(offset == 0){
 				// FIXME：重构
 				// 先往前寻找兄弟节点
+				
+				// 判断是不是已经到了页首
+				if(node.previousNode == null){
+					var parent = node.parentNode;
+					if(!parent.previousSibling){
+						return;
+					}
+				}
+				
+				// 判断是不是已经到了页尾
+				
+				
 				var previousNode = node.previousSibling;
 				if(previousNode){
 					if(previousNode.nodeName == "math"){
@@ -1343,6 +1355,12 @@ define([ "dojo/_base/declare",
 		moveRight: function(){
 			var node = this.anchor.node;
 			var offset = this.anchor.offset;
+			
+			var contentLength = node.textContent.length;// FIXME:mo和mi的长度永远为1
+			if(offset < contentLength){
+				this.anchor.offset++;
+				return;
+			}
 			
 			var nextNode = node.nextSibling;
 			if(!nextNode){

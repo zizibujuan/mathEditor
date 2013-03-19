@@ -1,20 +1,6 @@
 define([ "doh", "mathEditor/Model" ], function(doh, Model) {
 	
 	doh.register("Model.moveLeft", [ {
-		name:"text模式下，model中没有任何内容时，什么也不做",
-		setUp: function(){
-			this.model = new Model({});
-		},
-		runTest: function(t){
-			var model = this.model;
-			model.moveLeft();
-			t.is("line", model.getFocusNode().nodeName);
-			t.is(0, model.getOffset());
-		},
-		tearDown: function(){
-			
-		}
-	},{
 		name:"text模式下，输入一个换行符，然后执行一次左移",
 		setUp: function(){
 			this.model = new Model({});
