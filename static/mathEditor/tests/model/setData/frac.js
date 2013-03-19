@@ -98,8 +98,8 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				 *   TO
   				 * <math>
   				 * 	<mfrac>
-  				 *    <mrow><mn>1</mn></mrow>
-  				 *    <mrow><mn></mn></mrow>
+  				 *    <mrow><mn>1</mn></mrow>  分子
+  				 *    <mrow><mn></mn></mrow>   分母
   				 *  <mfrac>
   				 * </math>
   				 * </pre>

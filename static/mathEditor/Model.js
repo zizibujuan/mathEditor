@@ -1289,6 +1289,25 @@ define([ "dojo/_base/declare",
 					this.anchor.node = previousNode;
 					this.anchor.offset = textContent.length - 1;
 					return;
+				}else{
+					var parentNode = node.parentNode;
+					
+					if(parentNode){
+						previousNode = parentNode.previousSibling;
+					}
+					
+					if(previousNode && previousNode.nodeName == "mrow"){
+						previousNode = previousNode.lastChild;
+					}
+					
+					this.path.pop();
+					var pos = this.path.pop();
+					pos.offset--;
+					this.path.push(pos);
+					this.path.push({nodeName: previousNode.nodeName, offset: previousNode.parentNode.childElementCount})
+					
+					this.anchor.node = previousNode;
+					return;
 				}
 				// 如果找不到兄弟节点，则寻找父节点
 				var parentNode = node.parentNode;
@@ -1322,7 +1341,26 @@ define([ "dojo/_base/declare",
 		},
 		
 		moveRight: function(){
+			var node = this.anchor.node;
+			var offset = this.anchor.offset;
 			
+			var nextNode = node.nextSibling;
+			if(!nextNode){
+				var parentNode = node.parentNode;
+				if(parentNode.nodeName == "mrow"){
+					var layoutNode = parentNode.parentNode;
+					if(layoutNode.nodeName == "mfrac"){
+						node = parentNode.nextSibling.firstChild;
+						this.path.pop();
+						var pos = this.path.pop();
+						pos.offset++;
+						this.path.push(pos);
+						this.path.push({nodeName:node.nodeName, offset:1});
+					}
+				}
+			}
+			
+			this.anchor.node = node;
 		},
 		
 		moveUp: function(){

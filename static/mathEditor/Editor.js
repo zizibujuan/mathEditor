@@ -134,6 +134,7 @@ define(["dojo/_base/declare",
 					this.view.showCursor();
 				}else if(e.keyCode === keys.RIGHT_ARROW){
 					this.model.moveRight();
+					this.view.showCursor();
 				}else if(e.keyCode === keys.UP_ARROW){
 					if(this.contentAssist.opened){
 						this.contentAssist.selectPrev();

@@ -17,6 +17,10 @@ define([ "mathEditor/tests/layer/Cursor",
          "mathEditor/tests/model/setData/sup",
          "mathEditor/tests/model/setData/fence",
          
+         "mathEditor/tests/model/moveLeft/sqrt",
+         
+         "mathEditor/tests/model/moveRight/sqrt",
+         
          "mathEditor/tests/model/moveLeft",
          "mathEditor/tests/model/removeLeft",
          "mathEditor/tests/lang",
