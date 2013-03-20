@@ -1356,7 +1356,13 @@ define([ "dojo/_base/declare",
 			var node = this.anchor.node;
 			var offset = this.anchor.offset;
 			
-			var contentLength = node.textContent.length;// FIXME:mo和mi的长度永远为1
+			var contentLength = 0;
+			if(xmlUtil.isPlaceHolder(node)){
+				
+			}else{
+				contentLength = node.textContent.length;// FIXME:mo和mi的长度永远为1
+			}
+			
 			if(offset < contentLength){
 				this.anchor.offset++;
 				return;
@@ -1375,6 +1381,20 @@ define([ "dojo/_base/declare",
 						this.path.push(pos);
 						this.path.push({nodeName:node.nodeName, offset:1});
 					}
+				}else{
+					var nextNode = parentNode.nextSibling;
+					if(nextNode){
+						this.path.pop();
+						var pos = this.path.pop();
+						pos.offset++;
+						this.path.push(pos);
+						
+						node = nextNode;
+						offset = 0;
+					}else{
+						// 说明已经到了边界了，什么也不做。
+					}
+					
 				}
 			}else{
 				if(nextNode.childNodes.length == 0){
