@@ -57,6 +57,43 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 			tearDown: function(){
 				
 			}
+		},{
+			name:"text模式下，先输入字符，然后输入换行符，再输入字符，执行两次左移，然后再执行两次右移，光标停留在第二行",
+			setUp: function(){
+				this.model = new Model({});
+			},
+			runTest: function(t){
+				var model = this.model;
+				model.setData({data:"a"});
+				model.setData({data:"\n"});
+				model.setData({data:"b"});
+				model.moveLeft();
+				t.is("/root/line[2]/text[1]", model.getPath());
+				var focusNode = model.getFocusNode();
+				t.is("text", focusNode.nodeName);
+				t.is(0, model.getOffset());
+				
+				model.moveLeft();
+				t.is("/root/line[1]/text[1]", model.getPath());
+				var focusNode = model.getFocusNode();
+				t.is("text", focusNode.nodeName);
+				t.is(1, model.getOffset());
+				
+				model.moveRight();
+				t.is("/root/line[2]/text[1]", model.getPath());
+				var focusNode = model.getFocusNode();
+				t.is("text", focusNode.nodeName);
+				t.is(0, model.getOffset());
+				
+				model.moveRight();
+				t.is("/root/line[2]/text[1]", model.getPath());
+				var focusNode = model.getFocusNode();
+				t.is("text", focusNode.nodeName);
+				t.is(1, model.getOffset());
+			},
+			tearDown: function(){
+				
+			}
 		}
 	                             
 	]);

@@ -12,7 +12,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				model.moveLeft();
   				t.is("/root/line[1]/text[1]", model.getPath());
   				var focusNode = model.getFocusNode();
-  				t.is(focusNode.nodeName, "text");
+  				t.is("text", focusNode.nodeName);
   				t.is(0, model.getOffset());
   				
   				// 如果已经是行中的第一个节点，且offset为0，
@@ -39,7 +39,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				model.moveLeft();
   				t.is("/root/line[1]/text[1]", model.getPath());
   				var focusNode = model.getFocusNode();
-  				t.is(focusNode.nodeName, "text");
+  				t.is("text", focusNode.nodeName);
   				t.is(0, model.getOffset());
   			},
   			tearDown: function(){

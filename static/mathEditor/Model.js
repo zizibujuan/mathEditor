@@ -1281,13 +1281,7 @@ define([ "dojo/_base/declare",
 				// 先往前寻找兄弟节点
 				
 				// 判断是不是已经到了页首
-				if(node.previousNode == null){
-					var parent = node.parentNode;
-					if(!parent.previousSibling){
-						return;
-					}
-				}
-				
+
 				// 判断是不是已经到了页尾
 				
 				
@@ -1308,19 +1302,32 @@ define([ "dojo/_base/declare",
 						previousNode = parentNode.previousSibling;
 					}
 					
-					if(previousNode && previousNode.nodeName == "mrow"){
-						previousNode = previousNode.lastChild;
+					if(previousNode){
+						if(previousNode.nodeName == "mrow"){
+							previousNode = previousNode.lastChild;
+							this.path.pop();
+							var pos = this.path.pop();
+							pos.offset--;
+							this.path.push(pos);
+							this.path.push({nodeName: previousNode.nodeName, offset: previousNode.parentNode.childElementCount});
+						}else{
+							previousNode = previousNode.lastChild;
+							this.path.pop();
+							var pos = this.path.pop();
+							pos.offset--;
+							this.path.push(pos);
+							this.path.push({nodeName: previousNode.nodeName, offset: previousNode.parentNode.childElementCount});
+							
+							this.anchor.offset = previousNode.textContent.length;
+						}
+						this.anchor.node = previousNode;
+						return;
+					}else{
+						return;
 					}
-					
-					this.path.pop();
-					var pos = this.path.pop();
-					pos.offset--;
-					this.path.push(pos);
-					this.path.push({nodeName: previousNode.nodeName, offset: previousNode.parentNode.childElementCount})
-					
-					this.anchor.node = previousNode;
-					return;
 				}
+				
+				
 				// 如果找不到兄弟节点，则寻找父节点
 				var parentNode = node.parentNode;
 				var previousNode = parentNode.previousSibling;
@@ -1368,6 +1375,9 @@ define([ "dojo/_base/declare",
 				return;
 			}
 			
+			// 已经到了一个节点的最后了
+			// 找到下一个合适的节点
+			// 如果没有找到，则进入下一行
 			var nextNode = node.nextSibling;
 			if(!nextNode){
 				var parentNode = node.parentNode;
@@ -1380,6 +1390,32 @@ define([ "dojo/_base/declare",
 						pos.offset++;
 						this.path.push(pos);
 						this.path.push({nodeName:node.nodeName, offset:1});
+					}
+				}else if(parentNode.nodeName == "line"){
+					var nextNode = parentNode.nextSibling;
+					if(nextNode){
+						if(nextNode.childNodes.length == 0){
+							this.path.pop();
+							var pos = this.path.pop();
+							pos.offset++;
+							this.path.push(pos);
+							
+							node = nextNode;
+							offset = 0;
+						}else{
+							var firstChild = nextNode.firstChild;
+							
+							this.path.pop();
+							var pos = this.path.pop();
+							pos.offset++;
+							this.path.push(pos);
+							this.path.push({nodeName: node.nodeName, offset:1});
+							
+							node = firstChild;
+							offset = 0;
+						}
+					}else{
+						// 说明已经到了边界了，什么也不做。
 					}
 				}else{
 					var nextNode = parentNode.nextSibling;
