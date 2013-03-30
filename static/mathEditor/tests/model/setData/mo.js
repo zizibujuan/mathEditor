@@ -13,7 +13,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 	
 	doh.register("Model.setData operator",[
 	    {
-	    	name: "在空的model中插入多个 +",
+	    	name: "mathml模式下，在空的model中插入多个 +",
   			setUp: function(){
   				this.model = new Model({});
   				this.model.toMathMLMode();

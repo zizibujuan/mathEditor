@@ -1,40 +1,7 @@
 define([ "doh","mathEditor/Model" ], function(doh,Model) {
 
 	doh.register("Model.setData number-输入数字",[
-	    // TODO:增加text模式下输入数字的测试用例
 	    {
-	    	name: "text模式下,输入数字。text模式下，对数字和字母的处理逻辑是一样的。",
-  			setUp: function(){
-  				this.model = new Model({});
-  			},
-  			runTest: function(t){
-  				var model = this.model;
-  				model.setData({data:"1"});
-  				var focusNode = model.getFocusNode();
-  				t.is("/root/line[1]/text[1]", model.getPath());
-  				t.is("text", focusNode.nodeName);
-  				t.is(1, model.getOffset());
-  				t.is("1", focusNode.textContent);
-  				
-  				model.setData({data:"2"});
-  				focusNode = model.getFocusNode();
-  				t.is("/root/line[1]/text[1]", model.getPath());
-  				t.is("text", focusNode.nodeName);
-  				t.is(2, model.getOffset());
-  				t.is("12", focusNode.textContent);
-  				
-  				model.anchor.offset--;
-  				model.setData({data:"3"});
-  				focusNode = model.getFocusNode();
-  				t.is("/root/line[1]/text[1]", model.getPath());
-  				t.is("text", focusNode.nodeName);
-  				t.is(2, model.getOffset());
-  				t.is("132", focusNode.textContent);
-  			},
-  			tearDown: function(){
-  				
-  			}
-	    },{
 	    	name: "mathml模式下,在空的model中输入一个数字",
   			setUp: function(){
   				this.model = new Model({});
