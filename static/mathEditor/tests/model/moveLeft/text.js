@@ -45,6 +45,23 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   			tearDown: function(){
   				
   			}
+	    },{
+	    	name: "text模式下输入两个英文字符，然后执行一次左移",
+  			setUp: function(){
+  				this.model = new Model({});
+  			},
+  			runTest: function(t){
+  				var model = this.model;
+  				model.setData({data:"ab"});
+  				model.moveLeft();
+  				t.is("/root/line[1]/text[1]", model.getPath());
+  				var focusNode = model.getFocusNode();
+  				t.is("text", focusNode.nodeName);
+  				t.is(1, model.getOffset());
+  			},
+  			tearDown: function(){
+  				
+  			}
 	    }
 	                             
 	]);
