@@ -946,6 +946,10 @@ define([ "dojo/_base/declare",
 				this.onChange(data);
 				return;
 			}else if(this.isMathMLMode()){
+				if(dripLang.isNewLine(data)){
+					return; // 输入回车符号，则什么也不做。
+				}
+				
 				var node = this.anchor.node;
 				var isNumericCharacter = false;
 				var isTrigonometric = false;

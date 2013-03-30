@@ -132,18 +132,25 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 	    		
 	    	}
 	    },{
-	    	name: "mathml模式下，不支持输入回车符",
-	    	setUp: function(){
-	    		this.model = new Model({});
-	    		this.model.toMathMLMode();
-	    	},
-	    	runTest: function(t){
-	    		
-	    	},
-	    	tearDown: function(){
-	    		
-	    	}
-	    }
+			name: "mathml模式下，输入回车符，不做任何操作",
+			setUp: function(){
+				this.model = new Model({});
+			},
+			runTest: function(t){
+				var model = this.model;
+				model.toMathMLMode();
+				t.is("/root/line[1]/math[1]/mn[1]", model.getPath());
+				
+				model.setData({data:"\n"});
+				t.is("/root/line[1]/math[1]/mn[1]", model.getPath());
+				t.is(1, model.getLineCount());
+				t.is("mn", model.getFocusNode().nodeName);
+  				t.is(0, model.getOffset())
+			},
+			tearDown: function(){
+				
+			}
+		}
 	                             
 	]);
 });
