@@ -1,6 +1,9 @@
 define(["dojo/_base/array"],function(array){
-
+	
+	// TODO:重构，这个模块的名称不准确。
 	var lang = {};
+	
+	lang.STRING_FUNCTION_APPLICATION = "&#x2061;";
 	
 	lang.isNumber = function(text) {
 		return !isNaN(parseFloat(text)) && isFinite(text);
@@ -49,6 +52,10 @@ define(["dojo/_base/array"],function(array){
 	
 	lang.isFenced = function(text){
 		return /\(|\[|\{|\|/.test(text);
+	},
+	
+	lang.isFunctionApplication = function(node){
+		return node.nodeName === "mo" && node.textContent === this.STRING_FUNCTION_APPLICATION;
 	},
 	
 	lang.insertNodeAfter = function(newNode, existingNode){

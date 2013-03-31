@@ -231,7 +231,7 @@ define(["dojo/_base/declare",
 			// 注意，如果是mo操作符的话，model中的offset永远为1，但是其中的字符可能会有2或3个。
 			var offset = this.model.getOffset();
 			var focusNode = this.model.getFocusNode();
-			if(this.model.getFocusNode().nodeName == "mo"){
+			if(this.model.getFocusNode().nodeName == "mo" && offset != 0){
 				offset = focusNode.textContent.length;
 			}
 			return {node:focusDomNode, offset:offset, mrowNode:mrowNode};

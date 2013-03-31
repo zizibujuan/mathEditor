@@ -17,6 +17,9 @@ define([ "dojo/_base/declare",
         		 dripLang,
         		 xmlUtil) {
 	var EMPTY_XML = "<root><line></line></root>";
+	
+	var STRING_FUNCTION_APPLICATION = dripLang.STRING_FUNCTION_APPLICATION;
+	
 	return declare(null,{
 		// summary:
 		//		存储当前聚焦点的完整路径
@@ -661,7 +664,7 @@ define([ "dojo/_base/declare",
 				var placeHolder = xmlUtil.getPlaceHolder(xmlDoc);
 				
 				mi.textContent = data;
-				mo.textContent = "&#x2061;";
+				mo.textContent = STRING_FUNCTION_APPLICATION;
 				
 				mrow.appendChild(placeHolder);
 				
@@ -682,7 +685,7 @@ define([ "dojo/_base/declare",
 				var placeHolder = xmlUtil.getPlaceHolder(xmlDoc);
 				
 				mi.textContent = data;
-				mo.textContent = "&#x2061;";
+				mo.textContent = STRING_FUNCTION_APPLICATION;
 				mrow.appendChild(placeHolder);
 
 				dripLang.insertNodeAfter(mi, node);
@@ -1264,6 +1267,8 @@ define([ "dojo/_base/declare",
 			}
 		},
 		
+		// TODO:重命名，因为左移，有左移一个字母和左移一个单词之分，所以需要命名的更具体。
+		// 只有英文才有这种情况。
 		moveLeft: function(){
 			var node = this.anchor.node;
 			var offset = this.anchor.offset;
@@ -1298,6 +1303,11 @@ define([ "dojo/_base/declare",
 					
 					this.anchor.node = previousNode;
 					this.anchor.offset = textContent.length - 1;
+					
+					var pos = this.path.pop();
+					pos.offset--;
+					pos.nodeName = previousNode.nodeName;
+					this.path.push(pos);
 					return;
 				}else{
 					var parentNode = node.parentNode;
@@ -1314,6 +1324,14 @@ define([ "dojo/_base/declare",
 							pos.offset--;
 							this.path.push(pos);
 							this.path.push({nodeName: previousNode.nodeName, offset: previousNode.parentNode.childElementCount});
+						}else if(dripLang.isFunctionApplication(previousNode)){
+							// FIXME:不要一次性的移除path，而是每做一次操作就移除一层
+							previousNode = previousNode.previousSibling;
+							this.path.pop();
+							var pos = this.path.pop();
+							pos.offset-=2;
+							pos.nodeName = previousNode.nodeName;
+							this.path.push(pos);
 						}else{
 							previousNode = previousNode.lastChild;
 							this.path.pop();
