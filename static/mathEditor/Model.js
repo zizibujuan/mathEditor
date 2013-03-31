@@ -1324,6 +1324,12 @@ define([ "dojo/_base/declare",
 							pos.offset--;
 							this.path.push(pos);
 							this.path.push({nodeName: previousNode.nodeName, offset: previousNode.parentNode.childElementCount});
+							
+							if(xmlUtil.isPlaceHolder(node)){
+								this.anchor.offset = 0;
+							}else{
+								this.anchor.offset = previousNode.textContent.length;
+							}
 						}else if(dripLang.isFunctionApplication(previousNode)){
 							// FIXME:不要一次性的移除path，而是每做一次操作就移除一层
 							previousNode = previousNode.previousSibling;
@@ -1412,6 +1418,9 @@ define([ "dojo/_base/declare",
 						pos.offset++;
 						this.path.push(pos);
 						this.path.push({nodeName:node.nodeName, offset:1});
+						
+						offset = 0;
+						
 					}
 				}else if(parentNode.nodeName == "line"){
 					var nextNode = parentNode.nextSibling;
