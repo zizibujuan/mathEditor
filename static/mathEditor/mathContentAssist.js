@@ -1,7 +1,8 @@
 define([ "dojo/_base/array" ], function(array) {
 
 	// 显示对应的快捷键,快捷键就是input中的值
-	
+	// TODO: 将支持英文的快捷键和支持中文的快捷键分开。
+	//       并且允许用户自定义快捷键。
 	return {
 		keywords : [ {
 			input: "/", // 用户输入的值

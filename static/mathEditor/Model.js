@@ -1321,17 +1321,27 @@ define([ "dojo/_base/declare",
 					
 					if(previousNode){
 						if(previousNode.nodeName == "mrow"){
-							previousNode = previousNode.lastChild;
-							this.path.pop();
-							var pos = this.path.pop();
-							pos.offset--;
-							this.path.push(pos);
-							this.path.push({nodeName: previousNode.nodeName, offset: previousNode.parentNode.childElementCount});
-							
-							if(xmlUtil.isPlaceHolder(node)){
+							var layoutNode = previousNode.parentNode;
+							if(layoutNode && layoutNode.nodeName === "mroot"){
+								// 进入这里，说明当前是mroot的index获取节点，需要跳到根式之前
+								this.path.pop();
+								this.path.pop();
+								
+								previousNode = layoutNode;
 								this.anchor.offset = 0;
 							}else{
-								this.anchor.offset = previousNode.textContent.length;
+								previousNode = previousNode.lastChild;
+								this.path.pop();
+								var pos = this.path.pop();
+								pos.offset--;
+								this.path.push(pos);
+								this.path.push({nodeName: previousNode.nodeName, offset: previousNode.parentNode.childElementCount});
+								
+								if(xmlUtil.isPlaceHolder(node)){
+									this.anchor.offset = 0;
+								}else{
+									this.anchor.offset = previousNode.textContent.length;
+								}
 							}
 						}else if(dripLang.isFunctionApplication(previousNode)){
 							// FIXME:不要一次性的移除path，而是每做一次操作就移除一层
@@ -1355,12 +1365,27 @@ define([ "dojo/_base/declare",
 						return;
 					}else{
 						var layoutNode = parentNode.parentNode;
-						if(layoutNode && layoutNode.nodeName === "mfrac"){
+						if(layoutNode){
 							// 说明这是个布局节点
-							this.path.pop();
-							this.path.pop();
-							this.anchor.node = parentNode.parentNode;
-							this.anchor.offset = 0;
+							var layoutNodeName = layoutNode.nodeName;
+							if(layoutNodeName === "mfrac"){
+								// 移到分数之前
+								this.path.pop();
+								this.path.pop();
+								this.anchor.node = parentNode.parentNode;
+								this.anchor.offset = 0;
+							}else if(layoutNodeName === "mroot"){
+								// 从base节点移动到index节点
+								node = parentNode.nextSibling.firstChild;
+								this.path.pop();
+								var pos = this.path.pop();
+								pos.offset++;
+								this.path.push(pos);
+								this.path.push({nodeName: node.nodeName, offset: 1});
+								
+								this.anchor.node = node;
+								this.anchor.offset = 0;
+							}
 						}
 						
 						return;
@@ -1432,7 +1457,7 @@ define([ "dojo/_base/declare",
 				var parentNode = node.parentNode;
 				if(parentNode.nodeName == "mrow"){
 					var layoutNode = parentNode.parentNode;
-					if(layoutNode.nodeName == "mfrac"){
+					if(layoutNode.nodeName === "mfrac"){
 						if(parentNode.nextSibling){
 							// 从分子末尾向分母起始移动
 							node = parentNode.nextSibling.firstChild;
@@ -1452,8 +1477,25 @@ define([ "dojo/_base/declare",
 							// offset的值与path中的offset相同
 							offset = this.path[this.path.length-1].offset;
 						}
-						
-						
+					}else if(layoutNode.nodeName === "mroot"){
+						if(parentNode.previousSibling){
+							// 从根式的index移到base中，在mathml中，<mroot>base index</mroot>
+							node = node.parentNode.previousSibling.firstChild;
+							offset = 0;
+							
+							this.path.pop();
+							var pos = this.path.pop();
+							pos.offset--;
+							this.path.push(pos);
+							this.path.push({nodeName: node.nodeName, offset: 1});
+						}else{
+							// 从base节点移到根式之外
+							this.path.pop();
+							this.path.pop();
+							
+							node = layoutNode;
+							offset = 1;
+						}
 					}
 				}else if(parentNode.nodeName == "line"){
 					var nextNode = parentNode.nextSibling;
