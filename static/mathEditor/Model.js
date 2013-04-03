@@ -46,9 +46,12 @@ define([ "dojo/_base/declare",
 		// summary:
 		//		一个在文本内容间浮动的锚，用来定位当前的输入点。
 		// node:
-		//		光标所在的节点
+		//		光标所在的节点。节点分两种类型，一种是token节点，里面放置文本内容，一种是layout节点，用来布局token节点。
 		// offset：
-		//		光标在node节点中的偏移量，主要是node的子节点或者文本节点内容的偏移量
+		//		如果是token节点，offset指光标在node节点中文本的偏移量；
+		//		如果是layout节点，offset只有两个值，0表示在node之前，1表示在node之后。
+		//		layout节点本来应该遵循与token节点相同的方式，但是那样就多饶了一道，还需要计算出实际获取焦点的节点。
+		//		TODO：考虑是否需要再添加一个type属性，来标识node的类型：token和layout
 		//node:null, offset : -1
 		anchor: null,
 		
@@ -1351,6 +1354,15 @@ define([ "dojo/_base/declare",
 						this.anchor.node = previousNode;
 						return;
 					}else{
+						var layoutNode = parentNode.parentNode;
+						if(layoutNode && layoutNode.nodeName === "mfrac"){
+							// 说明这是个布局节点
+							this.path.pop();
+							this.path.pop();
+							this.anchor.node = parentNode.parentNode;
+							this.anchor.offset = 0;
+						}
+						
 						return;
 					}
 				}

@@ -88,7 +88,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				model.moveRight();
   				t.is("/root/line[1]/math[1]/mfrac[1]", model.getPath());
 				var node = model.getFocusNode();
-				// 如果是layout mathml节点获取焦点，则0表示父节点的第一个子节点之前，n表示偏移子节点之后。
+				// 如果是layout mathml节点获取焦点，则0表示所在节点之前，1表示所在节点之后。
 				t.is("mfrac", node.nodeName);
 				t.is(1, model.getOffset());
   			},

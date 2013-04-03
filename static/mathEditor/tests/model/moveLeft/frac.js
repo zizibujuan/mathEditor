@@ -54,6 +54,25 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   			tearDown: function(){
   				
   			}
+	    },{
+	    	name: "mathml模式下，在空的分数上，左移一次光标，光标显示在整个分数之前",
+  			setUp: function(){
+  				this.model = new Model({});
+  			},
+  			runTest: function(t){
+  				var model = this.model;
+  				model.toMathMLMode();
+  				model.setData({data: "", nodeName: "mfrac"});
+  				model.moveLeft();
+  				t.is("/root/line[1]/math[1]/mfrac[1]", model.getPath());
+				var node = model.getFocusNode();
+				// 如果是layout mathml节点获取焦点，则0表示所在节点之前，1表示所在节点之后。
+				t.is("mfrac", node.nodeName);
+				t.is(0, model.getOffset());
+  			},
+  			tearDown: function(){
+  				
+  			}
 	    }
 	                             
 	]);

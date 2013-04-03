@@ -282,7 +282,11 @@ define(["dojo/_base/declare",
 					}
 				}else{
 					// 再加上当前子节点的宽度
-					left += position.w;
+					if(offset != 0){
+						// 这里处理的是布局节点。
+						left += position.w;
+					}
+					
 				}
 			}
 			return {top:top,left:left,height:height, width:width};
