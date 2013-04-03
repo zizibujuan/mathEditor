@@ -246,6 +246,7 @@ define(["dojo/_base/declare",
 			var focusInfo = this._getFocusInfo();
 			var node = focusInfo.node;
 			var offset = focusInfo.offset;
+			var position = null;
 			
 			var textLayerPosition = this.getTextLayerPosition();
 			var mrowNode = focusInfo.mrowNode;
@@ -254,20 +255,20 @@ define(["dojo/_base/declare",
 				top = mrowPosition.y - textLayerPosition.y;
 				height = mrowPosition.h;
 				
-				var position = domGeom.position(node);
+				position = domGeom.position(node);
 				left = position.x - textLayerPosition.x;
 			}else{
-				var position = domGeom.position(node);
+				position = domGeom.position(node);
 				top = position.y - textLayerPosition.y;
 				height = position.h;
 				left = position.x - textLayerPosition.x;
 			}
 			
-			//left += 字节点的宽度
+			//left += 子节点的宽度
 			if(node.nodeType == ELEMENT){
 				var childNodes = node.childNodes;
 				if(childNodes.length == 1 && childNodes[0].nodeType == TEXT){
-					// 如果childNodes的长度不是1，则offset对应的必是这些字节点的偏移量，而不是文本的
+					// 如果childNodes的长度不是1，则offset对应的必是这些子节点的偏移量，而不是文本的
 					if(node.textContent.length == offset){
 						left += node.offsetWidth;
 					}else{
@@ -280,7 +281,8 @@ define(["dojo/_base/declare",
 						left += width;
 					}
 				}else{
-					
+					// 再加上当前子节点的宽度
+					left += position.w;
 				}
 			}
 			return {top:top,left:left,height:height, width:width};

@@ -75,6 +75,26 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   			tearDown: function(){
   				
   			}
+	    },{
+	    	name: "mathml模式下，在空的分数上，右移一次光标到分母占位符，再右移一次到整个分数之后",
+  			setUp: function(){
+  				this.model = new Model({});
+  			},
+  			runTest: function(t){
+  				var model = this.model;
+  				model.toMathMLMode();
+  				model.setData({data: "", nodeName: "mfrac"});
+  				model.moveRight();
+  				model.moveRight();
+  				t.is("/root/line[1]/math[1]/mfrac[1]", model.getPath());
+				var node = model.getFocusNode();
+				// 如果是layout mathml节点获取焦点，则0表示父节点的第一个子节点之前，n表示偏移子节点之后。
+				t.is("mfrac", node.nodeName);
+				t.is(1, model.getOffset());
+  			},
+  			tearDown: function(){
+  				
+  			}
 	    }
 	    
 	    // 在分数中输入字母和操作符号等。

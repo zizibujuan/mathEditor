@@ -1407,19 +1407,40 @@ define([ "dojo/_base/declare",
 			// 找到下一个合适的节点
 			// 如果没有找到，则进入下一行
 			var nextNode = node.nextSibling;
-			if(!nextNode){
+			if(nextNode){
+				if(nextNode.childNodes.length == 0){
+					node = nextNode;
+					offset = 0;
+					
+					var pos = this.path.pop();
+					pos.offset++;
+					this.path.push(pos);
+				}
+			}else{
 				var parentNode = node.parentNode;
 				if(parentNode.nodeName == "mrow"){
 					var layoutNode = parentNode.parentNode;
 					if(layoutNode.nodeName == "mfrac"){
-						node = parentNode.nextSibling.firstChild;
-						this.path.pop();
-						var pos = this.path.pop();
-						pos.offset++;
-						this.path.push(pos);
-						this.path.push({nodeName:node.nodeName, offset:1});
+						if(parentNode.nextSibling){
+							// 从分子末尾向分母起始移动
+							node = parentNode.nextSibling.firstChild;
+							this.path.pop();
+							var pos = this.path.pop();
+							pos.offset++;
+							this.path.push(pos);
+							this.path.push({nodeName:node.nodeName, offset:1});
+							
+							offset = 0;
+						}else{
+							// 说明已经移到分母最后，要移到整个分数后面。
+							this.path.pop(); // 弹出mn
+							this.path.pop(); // 弹出mrow
+							// 剩下的path保持不变。
+							node = layoutNode;
+							// offset的值与path中的offset相同
+							offset = this.path[this.path.length-1].offset;
+						}
 						
-						offset = 0;
 						
 					}
 				}else if(parentNode.nodeName == "line"){
@@ -1462,15 +1483,6 @@ define([ "dojo/_base/declare",
 						// 说明已经到了边界了，什么也不做。
 					}
 					
-				}
-			}else{
-				if(nextNode.childNodes.length == 0){
-					node = nextNode;
-					offset = 0;
-					
-					var pos = this.path.pop();
-					pos.offset++;
-					this.path.push(pos);
 				}
 			}
 			
