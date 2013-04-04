@@ -1384,7 +1384,12 @@ define([ "dojo/_base/declare",
 								this.path.push({nodeName: node.nodeName, offset: 1});
 								
 								this.anchor.node = node;
-								this.anchor.offset = 0;
+								if(xmlUtil.isPlaceHolder(node)){
+									this.anchor.offset = 0;
+								}else{
+									// token节点
+									this.anchor.offset = node.textContent.length;
+								}
 							}
 						}
 						
