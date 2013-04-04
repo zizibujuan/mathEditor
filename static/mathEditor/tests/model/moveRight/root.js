@@ -48,6 +48,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				
   			}
 	    }
+	    // TODO:从根式外面移到根式里面
 	                             
 	]);
 });

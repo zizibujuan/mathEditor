@@ -1445,12 +1445,20 @@ define([ "dojo/_base/declare",
 			// 如果没有找到，则进入下一行
 			var nextNode = node.nextSibling;
 			if(nextNode){
+				// 如果下一个节点中没有子节点，应该只有line节点才会出现这种情况
+				// FIXME：这个判断条件不严谨
 				if(nextNode.childNodes.length == 0){
 					node = nextNode;
 					offset = 0;
 					
 					var pos = this.path.pop();
 					pos.offset++;
+					this.path.push(pos);
+				}else{
+					node = nextNode;
+					var pos = this.path.pop();
+					pos.offset++;
+					pos.nodeName = nextNode.nodeName;
 					this.path.push(pos);
 				}
 			}else{

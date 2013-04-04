@@ -121,35 +121,6 @@ define([ "doh", "mathEditor/Model" ], function(doh, Model) {
 			
 		}
 	},{
-		name: "mathml模式下，在math中的不同token节点之间移动",
-		setUp: function(){
-			this.model = new Model({});
-		},
-		runTest: function(t){
-			var model = this.model;
-			model.toMathMLMode();
-			model.setData({data:"11"});
-			t.is("11", model.getFocusNode().textContent);
-			model.setData({data:"+"});
-			model.moveLeft();
-			t.is("/root/line[1]/math[1]/mo[2]", model.getPath());
-			t.is("mo", model.getFocusNode().nodeName);
-			t.is(0, model.getOffset());
-			
-			model.moveLeft();
-			t.is("/root/line[1]/math[1]/mn[1]", model.getPath());
-			t.is("mn", model.getFocusNode().nodeName);
-			t.is(1, model.getOffset());
-			
-			model.moveLeft();
-			t.is("/root/line[1]/math[1]/mn[1]", model.getPath());
-			t.is("mn", model.getFocusNode().nodeName);
-			t.is(0, model.getOffset());
-		},
-		tearDown: function(){
-			
-		}
-	},{
 		name: "text模式下，从第二个空的line节点移动到第一个line节点的末尾",
 		setUp: function(){
 			this.model = new Model({});

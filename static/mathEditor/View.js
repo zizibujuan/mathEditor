@@ -264,7 +264,7 @@ define(["dojo/_base/declare",
 				left = position.x - textLayerPosition.x;
 			}
 			
-			//left += 子节点的宽度
+			// left += 子节点的宽度
 			if(node.nodeType == ELEMENT){
 				var childNodes = node.childNodes;
 				if(childNodes.length == 1 && childNodes[0].nodeType == TEXT){
@@ -276,6 +276,11 @@ define(["dojo/_base/declare",
 						var width = 0;
 						var text = node.textContent.substring(0, offset);
 						if(text != ""){
+							// 加上padding-left的值
+							// 没有值的时候，不加padding-left值，这样前面是mo标签时，
+							// 就能正确的紧贴mo显示光标。
+							var paddingLeft = domStyle.get(node, "padding-left");
+							left += Math.floor(paddingLeft);
 							width = dripLang.measureTextSize(node, text).width;
 						}
 						left += width;

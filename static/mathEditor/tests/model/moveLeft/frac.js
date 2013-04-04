@@ -74,6 +74,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				
   			}
 	    }
+	    // TODO：从分数外面移到分数里面
 	                             
 	]);
 });

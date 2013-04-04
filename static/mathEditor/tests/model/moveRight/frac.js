@@ -98,6 +98,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 	    }
 	    
 	    // 在分数中输入字母和操作符号等。
+	    // TODO：从分数外面移到分数里面
 	                             
 	]);
 });
