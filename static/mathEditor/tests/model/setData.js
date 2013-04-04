@@ -208,5 +208,6 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				
   			}
   		}
+  		// TODO:当弹出提示框时，也要显示当前输入的值。
   	]);
 });
