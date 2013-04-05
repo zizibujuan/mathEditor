@@ -9,11 +9,20 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   			runTest: function(t){
   				var model = this.model;
   				model.toMathMLMode();
+  				model.setData({data: "", nodeName: "msup"});
+  				model.moveLeft();
+  				model.moveRight();
   				
-//  				t.t(model.isEmpty()); // model中没有内容
-//  				t.is("/root/line[1]", model.getPath()); 
-//  				t.is(model.getFocusNode().nodeName, "line");// 默认是第一行获取焦点
-//  				t.is(0, model.getOffset()); // 因为没有内容，所以偏移量为0
+  				t.is("/root/line[1]/math[1]/msup[1]/mrow[2]/mn[1]", model.getPath());
+  				var node = model.getFocusNode();
+	  			t.is("mn", node.nodeName);
+	  			t.is("drip_placeholder_box", node.getAttribute("class"));
+	  			t.is(0, model.getOffset());
+	  			
+	  			var baseNode = node;
+	  			var superscriptNode = baseNode.parentNode.previousSibling.firstChild;
+	  			t.is("mn", superscriptNode.nodeName);
+	  			t.is("drip_placeholder_box", superscriptNode.getAttribute("class"));
   			},
   			tearDown: function(){
   				

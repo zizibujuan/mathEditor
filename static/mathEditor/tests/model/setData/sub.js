@@ -2,7 +2,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 
 	doh.register("Model.setData sub下标",[
 	    {
-			name: "在空的数学编辑器上直接输入下标",
+			name: "mathml模式下，在空的数学编辑器上直接输入下标",
 			setUp: function(){
 				this.model = new Model({});
 			},
@@ -33,7 +33,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				
 			}
 		},{
-			name: "在空的数学编辑器上输入数字和下标",
+			name: "mathml模式下，在空的数学编辑器上输入数字和下标",
 			setUp: function(){
 				this.model = new Model({});
 			},

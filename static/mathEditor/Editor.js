@@ -81,7 +81,6 @@ define(["dojo/_base/declare",
 			aspect.after(contentAssist,"apply", function(input, nodeName, cacheCount, event){
 				// FIXME:这里直接获取map值的逻辑不正确，如果处于cache状态，则不应该往model中
 				// 输入值。
-				// FIXME:1为硬编码值，需要替换。
 				model.setData({data:input,nodeName:nodeName, removeCount:cacheCount});
 				setTimeout(function() {
 					textarea.value = "";
@@ -183,16 +182,20 @@ define(["dojo/_base/declare",
 		
 		// FIXME：如何测试这个方法中的逻辑呢？
 		_onTextInput: function(inputData){
-			// TODO：如果用户新输入的值，不在推荐之中，则先执行一个应用操作。
+			// TODO: 如果用户新输入的值，不在推荐之中，则先执行一个应用操作。
+			// TODO: 如上下标的快捷键，不需要弹出提示框，直接输入即可。这样的情况该如何处理呢？
 			var model = this.model;
+			var contentAssistActive = false;
 			if(model.isMathMLMode()){
 				var adviceData = this.contentAssist.show(inputData);
+				contentAssistActive = this.contentAssist.opened;
 				if(adviceData != null){
 					// 优先显示提示框中级别最高的数据。而不是直接输入的内容。
 					inputData = adviceData;
 					//removeCount = 
 				}
 			}
+			
 			
 			// 对输入的内容进行拦截，判断是否有推荐的可选项。
 			
@@ -204,7 +207,11 @@ define(["dojo/_base/declare",
 			// 或者更完善的逻辑是，先用mtext封装，如果匹配到了则转用相应的节点封装，如mi等
 			// 只要在弹出框打开时输入的内容，都可以看作一个命令指令。
 			// 注意，悄悄应用匹配规则的情况，这是我们推荐的。
-			model.setData({data:inputData});
+			var data = {data: inputData};
+			if(contentAssistActive){
+				data.nodeName = "mi";
+			}
+			model.setData(data);
 			
 			var textarea = this.textarea;
 			setTimeout(function() {

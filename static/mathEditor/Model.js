@@ -1509,6 +1509,17 @@ define([ "dojo/_base/declare",
 							node = layoutNode;
 							offset = 1;
 						}
+					}else if(layoutNode.nodeName === "msup"){
+						if(parentNode.nextSibling){
+							node = parentNode.nextSibling.firstChild;
+							offset = 0;
+							
+							this.path.pop();
+							var pos = this.path.pop();
+							pos.offset++;
+							this.path.push(pos);
+							this.path.push({nodeName: node.nodeName, offset: 1});
+						}
 					}
 				}else if(parentNode.nodeName == "line"){
 					var nextNode = parentNode.nextSibling;
