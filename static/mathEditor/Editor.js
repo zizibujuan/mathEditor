@@ -181,6 +181,7 @@ define(["dojo/_base/declare",
 			}));
 		},
 		
+		// FIXME：如何测试这个方法中的逻辑呢？
 		_onTextInput: function(inputData){
 			// TODO：如果用户新输入的值，不在推荐之中，则先执行一个应用操作。
 			var model = this.model;
@@ -198,12 +199,17 @@ define(["dojo/_base/declare",
 			// 当model的内容发生变化时，View自动更新,所以这里不写View相关的代码
 			
 			// removeCount
+			// 引入新概念，命令模式，如vim的命令模式。
+			// 命令要在提示弹出框上面显示，所有命令都用mi封装。
+			// 或者更完善的逻辑是，先用mtext封装，如果匹配到了则转用相应的节点封装，如mi等
+			// 只要在弹出框打开时输入的内容，都可以看作一个命令指令。
+			// 注意，悄悄应用匹配规则的情况，这是我们推荐的。
 			model.setData({data:inputData});
 			
 			var textarea = this.textarea;
 			setTimeout(function() {
 				textarea.value = "";
-		    });
+		    }, 0);
 		}
 	});
 	

@@ -129,7 +129,6 @@ require(["dojo",
 				t.is(null,contentAssist.show("a"));//不显示
 				t.f(contentAssist.opened);
 				
-				
 				t.is("a",contentAssist.show("1"));
 				t.is("ab",contentAssist.show("2"));
 				t.is(null, contentAssist.show("3"));
@@ -144,6 +143,7 @@ require(["dojo",
 				
 			}	
 		}
+		// TODO:参考eclipe/orion.client中的异步测试用例。
 	]);
 	doh.runOnLoad();
 	
