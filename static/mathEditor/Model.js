@@ -1509,7 +1509,7 @@ define([ "dojo/_base/declare",
 							node = layoutNode;
 							offset = 1;
 						}
-					}else if(layoutNode.nodeName === "msup"){
+					}else if(layoutNode.nodeName === "msup" || layoutNode.nodeName === "msub"){
 						if(parentNode.nextSibling){
 							node = parentNode.nextSibling.firstChild;
 							offset = 0;
