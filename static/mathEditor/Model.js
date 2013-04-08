@@ -1011,7 +1011,20 @@ define([ "dojo/_base/declare",
 					xmlUtil.removePlaceHolder(node);
 				}
 				
-				this.onChanging("a");
+				var modelChangingEvent = {};
+				modelChangingEvent.data = data;
+				// 传入event
+				// event.data
+				// event.canceled
+				this.onChanging(modelChangingEvent);
+				var newData = modelChangingEvent.newData;
+				if(newData){
+					data = newData.data;// 在onChanging事件中变化输入的值。
+					nodeName = newData.nodeName;
+				}
+//				if(canceled){
+//					return;
+//				}
 				
 				// 因为letter只是一个字符，所以不需要循环处理
 				if(nodeName === "mi"){

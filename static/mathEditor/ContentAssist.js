@@ -55,10 +55,12 @@ define(["dojo/_base/declare",
 		
 		_onModelChanging: function(e){
 			console.log("view: model changing", e);
-			// 只有是 mathml模式时，提示框才生效
-			var inputData = e;
-				var adviceData = this.show(inputData);
-				console.log("提示框中推荐的字符", adviceData);
+			// 只有是 mathml模式时，提示框才生效.
+			// 这里的逻辑是，只有mathml模式下，才触发该事件。
+			var inputData = e.data;
+			var adviceData = this.show(inputData);
+			e.newData = adviceData;
+			console.log("提示框中推荐的字符", adviceData);
 //				if(adviceData != null){
 //					// 优先显示提示框中级别最高的数据。而不是直接输入的内容。
 //					inputData = adviceData;
@@ -195,7 +197,7 @@ define(["dojo/_base/declare",
 				if(!result || result === "" || !single){
 					result = data;
 				}
-				return result;
+				return {data:result, nodeName:proposals[0].nodeName};
 			}else{
 				this.cacheString = "";
 				if(this.opened){

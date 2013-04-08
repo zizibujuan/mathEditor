@@ -79,10 +79,15 @@ define(["dojo/_base/declare",
 			
 			// FIXME：是否需要移动代码到更合适的地方。
 			var contentAssist = this.contentAssist = new ContentAssist({view:this.view});
+			// FIXME：现在放在modeChanging中了，应该是不需要在这里重新setData了
+			// 而是在半路修改了data的值。不,因为应用时，之前的setData方法都已经执行完了。
+			// 将contentAssist与model.onModelChanging绑定，只是为了更好的在model的上下文中进行推断值，
+			// 而不是为了进行实际输入值。
 			aspect.after(contentAssist,"apply", function(input, nodeName, cacheCount, event){
 				// FIXME:这里直接获取map值的逻辑不正确，如果处于cache状态，则不应该往model中
 				// 输入值。
 				model.setData({data:input,nodeName:nodeName, removeCount:cacheCount});
+				// 而这个逻辑，应该放在onChanged中。
 				setTimeout(function() {
 					textarea.value = "";
 			    },0);
