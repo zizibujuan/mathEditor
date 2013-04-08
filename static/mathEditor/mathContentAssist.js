@@ -12,7 +12,8 @@ define([ "dojo/_base/array" ], function(array) {
 			nodeName: "mo", // 使用那个标签封装
 			freq: 0, // 用户选择的频率
 			label: "除号", // 在提示菜单中显示的值
-			iconClass: "drip_equation_icon drip_division" // 在提示菜单中显示的图标
+			iconClass: "drip_equation_icon drip_division", // 在提示菜单中显示的图标
+			single: true
 		},{
 			input: "/",
 			map: "/",

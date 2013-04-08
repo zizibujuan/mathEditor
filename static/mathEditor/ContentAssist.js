@@ -2,6 +2,7 @@ define(["dojo/_base/declare",
         "dojo/_base/array",
         "dojo/_base/lang",
         "dojo/on",
+        "dojo/aspect",
         "dojo/dom-construct",
         "dojo/dom-class",
         "dojo/dom-style",
@@ -13,6 +14,7 @@ define(["dojo/_base/declare",
 		array,
 		lang,
 		on,
+		aspect,
 		domConstruct,
 		domClass,
 		domStyle,
@@ -48,6 +50,21 @@ define(["dojo/_base/declare",
 					popup.close(this);
 				}
 			}));
+			aspect.after(this.view.model, "onChanging", lang.hitch(this, this._onModelChanging), true);
+		},
+		
+		_onModelChanging: function(e){
+			console.log("view: model changing", e);
+			// 只有是 mathml模式时，提示框才生效
+			var inputData = e;
+				var adviceData = this.show(inputData);
+				console.log("提示框中推荐的字符", adviceData);
+//				if(adviceData != null){
+//					// 优先显示提示框中级别最高的数据。而不是直接输入的内容。
+//					inputData = adviceData;
+//					//removeCount = 
+//				}
+			
 		},
 		
 		startup: function(){
@@ -164,15 +181,20 @@ define(["dojo/_base/declare",
 				}
 			}
 			
-			
-			
 			console.log("查询条件为：", this.cacheString);
 			var proposals = mathContentAssist.getProposals(this.cacheString);
 			console.log("查询到的提示信息：", proposals);
 			this._setProposals(proposals);
 			if(proposals.length > 0){
 				this._open();
+				// 推荐的字符，仅当为字符时，才有效，如加号；如果推荐的字符是一个布局运算符，如根号，
+				// 则这个字符还是取默认输入的字符。
 				var result = proposals[0].map;
+				var single = proposals[0].single; // 是单字符
+				// 当字符数相同的时候，直接推荐，不等的时候，只推荐当前输入的值。
+				if(!result || result === "" || !single){
+					result = data;
+				}
 				return result;
 			}else{
 				this.cacheString = "";

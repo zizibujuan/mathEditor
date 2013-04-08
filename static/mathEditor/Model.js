@@ -180,7 +180,7 @@ define([ "dojo/_base/declare",
 		
 		clear: function(){
 			this._init();
-			this.onChange();
+			this.onChanged();
 		},
 		
 		// 如果没有内容，则创建一个新行
@@ -905,6 +905,18 @@ define([ "dojo/_base/declare",
 			}
 		},
 		
+		/***********以下两个事件什么也不做，View在该方法执行完毕后，执行刷新操作********/
+		onChanging: function(modelChangingEvent){
+			// summary:
+			//		准备好所有信息，可以修改model时，触发的事件。
+			
+		},
+		
+		onChanged: function(modelChangedEvent){
+			// summary:
+			//		model修改完成后触发的事件。
+		},
+		
 		// 如果是中文，则放在text节点中
 		// 注意，当调用setData的时候，所有数据都是已经处理好的。
 		// 两种判断数据类型的方法：1是系统自动判断；2是人工判断
@@ -924,7 +936,7 @@ define([ "dojo/_base/declare",
 			// 		nodeName：String
 			//			将data作为什么节点插入，这个通常由人工选择，如果没有值，则系统自动判断。
 			//		removeCount: Int
-			//			默认为0，要移除的字符的数量，在新增data钱，从当前聚焦位置往前删除removeCount个字符。
+			//			默认为0，要移除的字符的数量，在新增data前，从当前聚焦位置往前删除removeCount个字符。
 			
 			var data = insertInfo.data;
 			var nodeName = insertInfo.nodeName;
@@ -949,7 +961,7 @@ define([ "dojo/_base/declare",
 				}
 				
 				this.anchor = this.insertText(this.anchor, data);
-				this.onChange(data);
+				this.onChanged(data);
 				return;
 			}else if(this.isMathMLMode()){
 				if(dripLang.isNewLine(data)){
@@ -959,6 +971,7 @@ define([ "dojo/_base/declare",
 				var node = this.anchor.node;
 				var isNumericCharacter = false;
 				var isTrigonometric = false;
+				var isCommandString = insertInfo.isCommandString;
 				if(!nodeName){
 					if(dripLang.isLetter(data)){
 						nodeName = "mi";
@@ -998,15 +1011,25 @@ define([ "dojo/_base/declare",
 					xmlUtil.removePlaceHolder(node);
 				}
 				
+				this.onChanging("a");
+				
 				// 因为letter只是一个字符，所以不需要循环处理
 				if(nodeName === "mi"){
 					// 推断周围的字符，如果能够拼够一个三角函数，则插入三角函数
-					if(isNumericCharacter){
+					if(isCommandString){
+						// 当是命令字符串时，将由n个字符构成的命令放在一个mi中。
+						// FIXME：这个判断还有没有存在的必要呢？
+						this.anchor = this.insertMi(this.anchor, data, nodeName);
+					}
+					else if(isNumericCharacter){
 						this.anchor = this.insertMi(this.anchor, data, nodeName);
 					}else if(isTrigonometric){
 						this.anchor = this.insertTrigonometric(this.anchor, data, nodeName);
 					}else{
+						// FIXME：将推断逻辑，放在这里是不是不太合适呢？
+						// 因为需要将推导的值，与提示的值进行比较。
 						var tri = this.findTrigonometric(this.anchor, data, nodeName);
+						this.onChanging(tri);
 						if(tri){
 							this.anchor = this.removeExistTrigonometricPart(this.anchor, tri);
 							this.anchor = this.insertTrigonometric(this.anchor, tri.functionName, nodeName);
@@ -1014,40 +1037,40 @@ define([ "dojo/_base/declare",
 							this.anchor = this.insertMi(this.anchor, data, nodeName);
 						}
 					}
-					this.onChange(data);
+					this.onChanged(data);
 					return;
 				}else if(nodeName === "mn"){
 					// 目前只支持输入数字时，剔除占位符。
 					this.anchor = this.insertMn(this.anchor, data, nodeName);
-					this.onChange(data);
+					this.onChanged(data);
 					return;
 				}else if(nodeName === "mo"){
 					this.anchor = this.insertMo(this.anchor, data, nodeName);
-					this.onChange(data);
+					this.onChanged(data);
 					return;
 				}else if(nodeName === "mfenced"){
 					this.anchor = this.insertFenced(this.anchor, data, nodeName);
-					this.onChange(data);
+					this.onChanged(data);
 					return;
 				}else if(nodeName === "mfrac"){
 					this._splitNodeIfNeed(nodeName);
 					this.anchor = this.insertMfrac(this.anchor, data, nodeName);
-					this.onChange(data);
+					this.onChanged(data);
 					return;
 				}else if(nodeName === "msqrt"){
 					this._splitNodeIfNeed(nodeName);
 					this.anchor = this.insertMsqrt(this.anchor, data, nodeName);
-					this.onChange(data);
+					this.onChanged(data);
 					return;
 				}else if(nodeName === "mroot"){
 					this._splitNodeIfNeed(nodeName);
 					this.anchor = this.insertMroot(this.anchor, data, nodeName);
-					this.onChange(data);
+					this.onChanged(data);
 					return;
 				}else if(nodeName === "msub" || nodeName == "msup"){
 					this._splitNodeIfNeed(nodeName);
 					this.anchor = this.insertScripting(this.anchor, data, nodeName);
-					this.onChange(data);
+					this.onChanged(data);
 					return;
 				}
 			}
@@ -1065,7 +1088,7 @@ define([ "dojo/_base/declare",
 			// 暂时让do系列方法作为共有接口暴露，当_removeLeft调通之后，使用removeLeft作为公用接口
 			var removed = this.removeLeft();
 			if(removed != ""){
-				this.onChange();
+				this.onChanged();
 			}
 		},
 		
@@ -1681,13 +1704,11 @@ define([ "dojo/_base/declare",
 		//		展示页面时使用
 		getHTML: function(){
 			return dataUtil.xmlDocToHtml(this.doc);
-		},
-		
-		
-		
-		onChange: function(data){
-			// 什么也不做，View在该方法执行完毕后，执行刷新操作
 		}
+		
+		
+		
+		
 	
 	});
 	

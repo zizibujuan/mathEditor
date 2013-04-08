@@ -77,6 +77,7 @@ define(["dojo/_base/declare",
 				textarea : this.textarea
 			});
 			
+			// FIXME：是否需要移动代码到更合适的地方。
 			var contentAssist = this.contentAssist = new ContentAssist({view:this.view});
 			aspect.after(contentAssist,"apply", function(input, nodeName, cacheCount, event){
 				// FIXME:这里直接获取map值的逻辑不正确，如果处于cache状态，则不应该往model中
@@ -129,7 +130,7 @@ define(["dojo/_base/declare",
 			on(textarea, "keydown", lang.hitch(this,function(e){
 				console.log(e, e.keyCode);
 				if(e.keyCode === keys.LEFT_ARROW){
-					this.model.moveLeft();// 注意在move系列方法中不调用model.onChange方法
+					this.model.moveLeft();// 注意在move系列方法中不调用model.onChanged方法
 					this.view.showCursor();
 				}else if(e.keyCode === keys.RIGHT_ARROW){
 					this.model.moveRight();
@@ -158,7 +159,7 @@ define(["dojo/_base/declare",
 					if(e.keyCode === 18){
 						console.log("Alt =");
 						this.model.toMathMLMode();
-						this.model.onChange();
+						this.model.onChanged();
 						event.stop(e);
 					}
 					
@@ -184,17 +185,10 @@ define(["dojo/_base/declare",
 		_onTextInput: function(inputData){
 			// TODO: 如果用户新输入的值，不在推荐之中，则先执行一个应用操作。
 			// TODO: 如上下标的快捷键，不需要弹出提示框，直接输入即可。这样的情况该如何处理呢？
+			// TODO: 将弹出提示框，放在这里有一个弊端，就是不能获取根据model中的上下文推导的数据，然后与提示框中的数据进行比较。
+			//		 即比较时机有问题。
 			var model = this.model;
-			var contentAssistActive = false;
-			if(model.isMathMLMode()){
-				var adviceData = this.contentAssist.show(inputData);
-				contentAssistActive = this.contentAssist.opened;
-				if(adviceData != null){
-					// 优先显示提示框中级别最高的数据。而不是直接输入的内容。
-					inputData = adviceData;
-					//removeCount = 
-				}
-			}
+			
 			
 			
 			// 对输入的内容进行拦截，判断是否有推荐的可选项。
@@ -208,9 +202,6 @@ define(["dojo/_base/declare",
 			// 只要在弹出框打开时输入的内容，都可以看作一个命令指令。
 			// 注意，悄悄应用匹配规则的情况，这是我们推荐的。
 			var data = {data: inputData};
-			if(contentAssistActive){
-				data.nodeName = "mi";
-			}
 			model.setData(data);
 			
 			var textarea = this.textarea;

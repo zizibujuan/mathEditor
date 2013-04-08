@@ -67,7 +67,8 @@ define(["dojo/_base/declare",
 			
 			// 初始化视图
 			textLayer.innerHTML = this.model.getHTML();
-			aspect.after(this.model, "onChange", lang.hitch(this,this._onChange));
+			
+			aspect.after(this.model, "onChanged", lang.hitch(this,this._onModelChanged));
 		},
 		
 		_onMouseDownHandler: function(e){
@@ -95,7 +96,7 @@ define(["dojo/_base/declare",
 			this._focus();
 		},
 		
-		_onChange : function(){
+		_onModelChanged : function(){
 			var html = this.model.getHTML();
 			this.textLayer.innerHTML = this.model.getHTML();
 			console.log("html:",html);
@@ -209,7 +210,6 @@ define(["dojo/_base/declare",
 									hintNode = dom.byId("MathJax-Span-"+elementJax.spanID);
 								}
 							}else{
-								debugger;
 								mrowNode = hintNode;
 								elementJax = elementJax.data[path.offset - 1];
 							}
@@ -222,8 +222,6 @@ define(["dojo/_base/declare",
 						}
 						
 						focusDomNode = dom.byId("MathJax-Span-"+elementJax.spanID);
-						
-						
 					}
 				}
 			});
