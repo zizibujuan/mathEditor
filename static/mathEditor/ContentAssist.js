@@ -23,6 +23,14 @@ define(["dojo/_base/declare",
 		MenuItem,
 		mathContentAssist) {
 
+	// 默认是ACTIVE状态，在将提示信息写入model前，设置为INACTIVE状态，写入完成后，恢复为ACTIVE状态
+	// ACTIVE --- contentAssist apply 前 ---INACTIVE ---apply 后 ---ACTIVE
+	var State = {
+		INACTIVE: 1,
+		ACTIVE: 2,
+		FILTERING: 3
+	};
+	
 	return declare("mathEditor.ContentAssist",DropDownMenu,{
 		// summary:
 		//		弹出的建议输入列表提示框
@@ -45,6 +53,8 @@ define(["dojo/_base/declare",
 		
 		postCreate: function(){
 			this.inherited(arguments);
+			this.state = State.ACTIVE;
+			
 			on(this.view.editorDiv, "mousedown", lang.hitch(this,function(e){
 				if(this.opened){
 					popup.close(this);
@@ -54,7 +64,8 @@ define(["dojo/_base/declare",
 		},
 		
 		_onModelChanging: function(e){
-			console.log("view: model changing", e);
+			console.log("contentAssist: model changing", e);
+			if(this.state === State.INACTIVE)return;
 			// 只有是 mathml模式时，提示框才生效.
 			// 这里的逻辑是，只有mathml模式下，才触发该事件。
 			var inputData = e.data;
@@ -216,6 +227,7 @@ define(["dojo/_base/declare",
 		apply: function(data, nodeName, cacheCount,evt){
 			// summary:
 			//		应用某个建议的值，将其最终存入到model中。
+			//		在将推荐的数据写入model之前，要先关闭提示框；写入完成之后，再打开提示框。
 			// data：
 			//		当前item对应的数据
 			// nodeName:
@@ -224,6 +236,10 @@ define(["dojo/_base/declare",
 			//		缓存的字符的个数，这些字符已经在view中显示，需要根据这个数字删除
 			// evt：
 			//		事件对象
+			
+			this.state = State.INACTIVE;
+			this.view.model.setData({data: data, nodeName: nodeName, removeCount: cacheCount});
+			this.state = State.ACTIVE;
 			
 			console.log(data, cacheCount, evt);
 		},
