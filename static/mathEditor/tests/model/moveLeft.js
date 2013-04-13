@@ -18,7 +18,7 @@ define([ "doh", "mathEditor/Model" ], function(doh, Model) {
 			
 		}
 	},{
-		name:"mathml模式下，model中没有任何内容时，什么也不做",
+		name:"mathml模式下，model中没有任何内容时，直接跳转出math",
 		setUp: function(){
 			this.model = new Model({});
 		},
@@ -27,7 +27,7 @@ define([ "doh", "mathEditor/Model" ], function(doh, Model) {
 			model.toMathMLMode();
 			model.moveLeft();
 			var focusNode = model.getFocusNode();
-			t.is("mn", focusNode.nodeName);
+			t.is("math", focusNode.nodeName);
 			t.is(0, model.getOffset());
 		},
 		tearDown: function(){

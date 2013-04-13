@@ -73,7 +73,27 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   			tearDown: function(){
   				
   			}
+	    },{
+	    	name: "mathml模式下，在空的分数上，左移两次光标，光标显示在整个分数之前，此时光标已移出分数",
+  			setUp: function(){
+  				this.model = new Model({});
+  			},
+  			runTest: function(t){
+  				var model = this.model;
+  				model.toMathMLMode();
+  				model.setData({data: "", nodeName: "mfrac"});
+  				model.moveLeft();
+  				model.moveLeft();
+  				t.is("/root/line[1]/math[1]", model.getPath());
+				var node = model.getFocusNode();
+				t.is("math", node.nodeName);
+				t.is(0, model.getOffset());// 0表示在math节点之前
+  			},
+  			tearDown: function(){
+  				
+  			}
 	    }
+	    // 测试分数前面有text节点的情况
 	    // TODO：从分数外面移到分数里面
 	                             
 	]);

@@ -95,6 +95,49 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   			tearDown: function(){
   				
   			}
+	    },{
+	    	// 为什么不把放表放在math之后呢？因为之前假定只要node为line，则其中没有内容。FIXME：看需不需要调节。
+	    	name: "mathml模式下，将光标移出分数，如果分数后面没有任何内容，则光标就停留在分数之后",
+  			setUp: function(){
+  				this.model = new Model({});
+  			},
+  			runTest: function(t){
+  				// TODO：重构，将移动方法进行拆分，先找到合适的下一个节点，然后再移动。
+  				var model = this.model;
+  				model.toMathMLMode();
+  				model.setData({data: "", nodeName: "mfrac"});
+  				model.moveRight();
+  				model.moveRight();
+  				model.moveRight();
+  				t.is("/root/line[1]/math[1]", model.getPath());
+				var node = model.getFocusNode();
+				t.is("math", node.nodeName);
+				t.is(1, model.getOffset());// 1表示在节点之后
+  			},
+  			tearDown: function(){
+  				
+  			}
+	    },{
+	    	name: "mathml模式下，将光标移出分数，如果分数后面有text文本，则光标就停留在text的第0字符位置",
+  			setUp: function(){
+  				this.model = new Model({});
+  			},
+  			runTest: function(t){
+  				// TODO：需要先实现右移操作
+//  				var model = this.model;
+//  				model.toMathMLMode();
+//  				model.setData({data: "", nodeName: "mfrac"});
+//  				model.moveRight();
+//  				model.moveRight();
+//  				t.is("/root/line[1]/math[1]/mfrac[1]", model.getPath());
+//				var node = model.getFocusNode();
+//				// 如果是layout mathml节点获取焦点，则0表示所在节点之前，1表示所在节点之后。
+//				t.is("mfrac", node.nodeName);
+//				t.is(1, model.getOffset());
+  			},
+  			tearDown: function(){
+  				
+  			}
 	    }
 	    
 	    // 在分数中输入字母和操作符号等。

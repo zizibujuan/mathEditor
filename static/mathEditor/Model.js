@@ -46,13 +46,21 @@ define([ "dojo/_base/declare",
 		// summary:
 		//		一个在文本内容间浮动的锚，用来定位当前的输入点。
 		// node:
-		//		光标所在的节点。节点分两种类型，一种是token节点，里面放置文本内容，一种是layout节点，用来布局token节点。
+		//		光标所在的节点。
+		//		节点分三种类型：
+		//		1. 一种是token节点，里面放置文本内容；
+		//		2. 一种是layout节点，用来布局token节点；
+		//		3. 一种是line节点，表示行。
 		// offset：
-		//		如果是token节点，offset指光标在node节点中文本的偏移量；
-		//		如果是layout节点，offset只有两个值，0表示在node之前，1表示在node之后。
+		//		offset的值，根据三种类型，各有不同的计算逻辑。
+		//		1. 如果是token节点，offset指光标在node节点中文本的偏移量；
+		//		2. 如果是layout节点，offset只有两个值，0表示在node之前，1表示在node之后；
+		//		3. 如果是line节点，则offset的值永远为0。
+		//
 		//		layout节点本来应该遵循与token节点相同的方式，但是那样就多饶了一道，还需要计算出实际获取焦点的节点。
+		//		layout节点，除了mathml中的layout节点，也包括math节点。
 		//		TODO：考虑是否需要再添加一个type属性，来标识node的类型：token和layout
-		//node:null, offset : -1
+		//node: null, offset: -1
 		anchor: null,
 		
 		// 当前节点在xml文件中的具体路径
@@ -1352,6 +1360,9 @@ define([ "dojo/_base/declare",
 					var parentNode = node.parentNode;
 					
 					if(parentNode){
+						if(parentNode.nodeName === "mstyle"){
+							parentNode = parentNode.parentNode;
+						}
 						previousNode = parentNode.previousSibling;
 					}
 					
@@ -1426,6 +1437,10 @@ define([ "dojo/_base/declare",
 									// token节点
 									this.anchor.offset = node.textContent.length;
 								}
+							}else if(layoutNodeName === "line"){
+								this.path.pop();
+								this.anchor.node = parentNode;// 此时是math节点，这个时候需要从mathml模式切换到text模式。
+								this.anchor.offset = 0;
 							}
 						}
 						
@@ -1473,7 +1488,15 @@ define([ "dojo/_base/declare",
 			if(xmlUtil.isPlaceHolder(node)){
 				
 			}else{
-				contentLength = node.textContent.length;// FIXME:mo和mi的长度永远为1
+				// 只有token节点，才需要计算
+				var nodeName = node.nodeName;
+				if(nodeName === "mn" || nodeName === "text"){
+					contentLength = node.textContent.length;
+				}else if(nodeName === "mo" || nodeName === "mi"){
+					// mo和mi的长度永远为1
+					contentLength = 1;
+				}
+				
 			}
 			
 			if(offset < contentLength){
@@ -1504,7 +1527,11 @@ define([ "dojo/_base/declare",
 				}
 			}else{
 				var parentNode = node.parentNode;
-				if(parentNode.nodeName == "mrow"){
+				if(parentNode.nodeName === "mstyle"){
+					parentNode = parentNode.parentNode;
+				}
+				
+				if(parentNode.nodeName === "mrow"){
 					var layoutNode = parentNode.parentNode;
 					if(layoutNode.nodeName === "mfrac"){
 						if(parentNode.nextSibling){
@@ -1582,6 +1609,7 @@ define([ "dojo/_base/declare",
 						}
 					}else{
 						// 说明已经到了边界了，什么也不做。
+						
 					}
 				}else{
 					var nextNode = parentNode.nextSibling;
@@ -1594,6 +1622,11 @@ define([ "dojo/_base/declare",
 						node = nextNode;
 						offset = 0;
 					}else{
+						if(parentNode.nodeName === "math"){
+							this.path.pop();
+							node = parentNode;
+							offset = 1;
+						}
 						// 说明已经到了边界了，什么也不做。
 					}
 					
