@@ -1399,14 +1399,25 @@ define([ "dojo/_base/declare",
 							pos.nodeName = previousNode.nodeName;
 							this.path.push(pos);
 						}else{
-							previousNode = previousNode.lastChild;
-							this.path.pop();
-							var pos = this.path.pop();
-							pos.offset--;
-							this.path.push(pos);
-							this.path.push({nodeName: previousNode.nodeName, offset: previousNode.parentNode.childElementCount});
-							
-							this.anchor.offset = previousNode.textContent.length;
+							if(previousNode.nodeName === "text"){
+								this.path.pop();
+								var pos = this.path.pop();
+								pos.offset--;
+								pos.nodeName = previousNode.nodeName;
+								this.path.push(pos);
+								
+								this.anchor.node = previousNode;
+								this.anchor.offset = previousNode.textContent.length;
+							}else{
+								previousNode = previousNode.lastChild;
+								this.path.pop();
+								var pos = this.path.pop();
+								pos.offset--;
+								this.path.push(pos);
+								this.path.push({nodeName: previousNode.nodeName, offset: previousNode.parentNode.childElementCount});
+								
+								this.anchor.offset = previousNode.textContent.length;
+							}
 						}
 						this.anchor.node = previousNode;
 						return;
