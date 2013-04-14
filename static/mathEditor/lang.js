@@ -88,14 +88,17 @@ define(["dojo/_base/array"],function(array){
 	lang.isMathTokenName = function(nodeName){
 		var isTokenNode = false;
 		
-		var tokenNames = ["mi","mn","mo","mtext","mspace","ms"];
-		array.forEach(tokenNames, function(name,index){
-			if(nodeName == name){
-				isTokenNode = true;
-				return;
-			}
-		});
-		return isTokenNode;
+//		var tokenNames = ["mi","mn","mo","mtext","mspace","ms"];
+//		array.forEach(tokenNames, function(name,index){
+//			if(nodeName == name){
+//				isTokenNode = true;
+//				return;
+//			}
+//		});
+//		return isTokenNode;
+		// 第二种实现方式
+		var tokenNames = {"mi":1, "mn":1, "mo":1, "mtext":1, "mspace":1, "ms":1};
+		return tokenNames[nodeName]===1;
 	},
 		
 	lang.measureTextSize = function(elem ,text) {

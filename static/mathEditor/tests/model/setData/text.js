@@ -127,6 +127,31 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   			tearDown: function(){
   				
   			}
-	    }                          
+	    },{
+	    	name: "在移出math节点后，后面没有任何内容时，输入字母",
+	    	setUp: function(){
+  				this.model = new Model({});
+  			},
+  			runTest: function(t){
+  				var model = this.model;
+  				model.toMathMLMode();
+  				model.setData({data:"", nodeName:"mfrac"});
+  				model.moveRight();
+  				model.moveRight();
+  				model.moveRight();
+  				// 移出math节点后，默认切换到text模式
+  				t.is("text", model.mode);
+  				model.setData({data:"a"});
+  				
+  				var focusNode = model.getFocusNode();
+  				t.is("/root/line[1]/text[2]", model.getPath());
+  				t.is("text", focusNode.nodeName);
+  				t.is(1, model.getOffset());
+  				t.is("a", focusNode.textContent);
+  			},
+  			tearDown: function(){
+  				
+  			}
+	    }                        
 	]);
 });

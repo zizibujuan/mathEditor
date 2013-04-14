@@ -1327,168 +1327,246 @@ define([ "dojo/_base/declare",
 				return;
 			}
 			
-			if(offset > 0){
-				this.anchor.offset--;
-				return;
+			function isTokenNode(nodeName){
+				return dripLang.isMathTokenName(nodeName) || nodeName === "text";
 			}
 			
-			if(offset == 0){
-				// FIXME：重构
-				// 先往前寻找兄弟节点
-				
-				// 判断是不是已经到了页首
+			function isTokenFirst(offset){
+				// summary:
+				//		已经到了token节点的最前面
+				return offset === 0;
+			}
+			
+			if(isTokenNode(nodeName)){
+				// 当前节点为token节点
+				if(isTokenFirst(offset)){
+					// FIXME：重构
+					// 先往前寻找兄弟节点
+					
+					// 判断是不是已经到了页首
 
-				// 判断是不是已经到了页尾
-				
-				
-				var previousNode = node.previousSibling;
-				if(previousNode){
-					if(previousNode.nodeName == "math"){
-						previousNode = previousNode.lastChild;
-					}
-					var textContent = previousNode.textContent;
+					// 判断是不是已经到了页尾
 					
-					this.anchor.node = previousNode;
-					this.anchor.offset = textContent.length - 1;
+					// FIXME：判断当前节点是什么类型的节点， 判断找到的下一个节点是什么类型的节点。
 					
-					var pos = this.path.pop();
-					pos.offset--;
-					pos.nodeName = previousNode.nodeName;
-					this.path.push(pos);
-					return;
-				}else{
-					var parentNode = node.parentNode;
-					
-					if(parentNode){
-						if(parentNode.nodeName === "mstyle"){
-							parentNode = parentNode.parentNode;
-						}
-						previousNode = parentNode.previousSibling;
-					}
-					
+					var previousNode = node.previousSibling;
 					if(previousNode){
-						if(previousNode.nodeName == "mrow"){
-							var layoutNode = previousNode.parentNode;
-							if(layoutNode && layoutNode.nodeName === "mroot"){
-								// 进入这里，说明当前是mroot的index获取节点，需要跳到根式之前
-								this.path.pop();
-								this.path.pop();
-								
-								previousNode = layoutNode;
-								this.anchor.offset = 0;
-							}else{
-								previousNode = previousNode.lastChild;
-								this.path.pop();
-								var pos = this.path.pop();
-								pos.offset--;
-								this.path.push(pos);
-								this.path.push({nodeName: previousNode.nodeName, offset: previousNode.parentNode.childElementCount});
-								
-								if(xmlUtil.isPlaceHolder(node)){
+						if(previousNode.nodeName == "math"){
+							// 从text节点跳转到math节点
+							this.mode = "mathml"; // FIXME:提取方法
+							
+							var pos = this.path.pop();
+							pos.offset--;
+							pos.nodeName = previousNode.nodeName;
+							this.path.push(pos);
+							
+							this.anchor.node = previousNode;
+							this.anchor.offset = 1;
+							return;
+						}else{
+							var textContent = previousNode.textContent;
+							
+							this.anchor.node = previousNode;
+							this.anchor.offset = textContent.length - 1;
+							
+							var pos = this.path.pop();
+							pos.offset--;
+							pos.nodeName = previousNode.nodeName;
+							this.path.push(pos);
+							return;
+						}
+					}else{
+						var parentNode = node.parentNode;
+						
+						if(parentNode){
+							if(parentNode.nodeName === "mstyle"){
+								parentNode = parentNode.parentNode;
+							}
+							previousNode = parentNode.previousSibling;
+						}
+						
+						if(previousNode){
+							if(previousNode.nodeName == "mrow"){
+								var layoutNode = previousNode.parentNode;
+								if(layoutNode && layoutNode.nodeName === "mroot"){
+									// 进入这里，说明当前是mroot的index获取节点，需要跳到根式之前
+									this.path.pop();
+									this.path.pop();
+									
+									previousNode = layoutNode;
 									this.anchor.offset = 0;
 								}else{
+									previousNode = previousNode.lastChild;
+									this.path.pop();
+									var pos = this.path.pop();
+									pos.offset--;
+									this.path.push(pos);
+									this.path.push({nodeName: previousNode.nodeName, offset: previousNode.parentNode.childElementCount});
+									
+									if(xmlUtil.isPlaceHolder(node)){
+										this.anchor.offset = 0;
+									}else{
+										this.anchor.offset = previousNode.textContent.length;
+									}
+								}
+							}else if(dripLang.isFunctionApplication(previousNode)){
+								// FIXME:不要一次性的移除path，而是每做一次操作就移除一层
+								previousNode = previousNode.previousSibling;
+								this.path.pop();
+								var pos = this.path.pop();
+								pos.offset-=2;
+								pos.nodeName = previousNode.nodeName;
+								this.path.push(pos);
+							}else{
+								if(previousNode.nodeName === "text"){
+									this.path.pop();
+									var pos = this.path.pop();
+									pos.offset--;
+									pos.nodeName = previousNode.nodeName;
+									this.path.push(pos);
+									
+									this.anchor.node = previousNode;
+									this.anchor.offset = previousNode.textContent.length;
+								}else{
+									previousNode = previousNode.lastChild;
+									this.path.pop();
+									var pos = this.path.pop();
+									pos.offset--;
+									this.path.push(pos);
+									this.path.push({nodeName: previousNode.nodeName, offset: previousNode.parentNode.childElementCount});
+									
 									this.anchor.offset = previousNode.textContent.length;
 								}
 							}
-						}else if(dripLang.isFunctionApplication(previousNode)){
-							// FIXME:不要一次性的移除path，而是每做一次操作就移除一层
-							previousNode = previousNode.previousSibling;
-							this.path.pop();
-							var pos = this.path.pop();
-							pos.offset-=2;
-							pos.nodeName = previousNode.nodeName;
-							this.path.push(pos);
+							this.anchor.node = previousNode;
+							return;
 						}else{
-							if(previousNode.nodeName === "text"){
+							var layoutNode = parentNode.parentNode;
+							if(layoutNode){
+								// 说明这是个布局节点
+								var layoutNodeName = layoutNode.nodeName;
+								if(layoutNodeName === "mfrac"){
+									// 移到分数之前
+									this.path.pop();
+									this.path.pop();
+									this.anchor.node = parentNode.parentNode;
+									this.anchor.offset = 0;
+								}else if(layoutNodeName === "mroot"){
+									// 从base节点移动到index节点
+									node = parentNode.nextSibling.firstChild;
+									this.path.pop();
+									var pos = this.path.pop();
+									pos.offset++;
+									this.path.push(pos);
+									this.path.push({nodeName: node.nodeName, offset: 1});
+									
+									this.anchor.node = node;
+									if(xmlUtil.isPlaceHolder(node)){
+										this.anchor.offset = 0;
+									}else{
+										// token节点
+										this.anchor.offset = node.textContent.length;
+									}
+								}else if(layoutNodeName === "line"){
+									this.path.pop();
+									this.anchor.node = parentNode;// 此时是math节点，这个时候需要从mathml模式切换到text模式。
+									this.anchor.offset = 0;
+								}
+							}
+							
+							return;
+						}
+					}
+				}else{
+					// 如果还没有到token节点的边界
+					this.anchor.offset--;
+				}
+			}else{
+				// 当前节点是布局节点，math,mfrac,mroot,msqrt,msub,msup等
+				if(offset === 0){
+					// 如果已经到了当前节点的左边界， 处理离开当前节点，进入另一个节点或另一层节点的逻辑
+					var previousNode = node.previousSibling;
+					
+					if(previousNode){
+						// 如果是平行前移，则弹出当前的节点信息，并加入新节点信息
+						var pos = this.path.pop();
+						pos.offset--;
+						pos.nodeName = previousNode.nodeName;
+						this.path.push(pos);
+						
+						//this.anchor.node = previousNode;
+					}else{
+						// 没有前一个兄弟节点的时候，找父节点
+						var parentNode = node.parentNode;
+						if(parentNode){
+							// 跳过一些节点，FIXME：提取函数
+							if(parentNode.nodeName === "mstyle"){
+								parentNode = parentNode.parentNode;
+							}
+							
+							previousNode = parentNode.previousSibling;
+							if(previousNode){
 								this.path.pop();
+								// 前一个节点
 								var pos = this.path.pop();
 								pos.offset--;
 								pos.nodeName = previousNode.nodeName;
 								this.path.push(pos);
-								
 								this.anchor.node = previousNode;
-								this.anchor.offset = previousNode.textContent.length;
+								if(previousNode.nodeName === "text"){
+									this.anchor.offset = previousNode.textContent.length;
+								}else{
+									
+								}
 							}else{
-								previousNode = previousNode.lastChild;
-								this.path.pop();
-								var pos = this.path.pop();
-								pos.offset--;
-								this.path.push(pos);
-								this.path.push({nodeName: previousNode.nodeName, offset: previousNode.parentNode.childElementCount});
+								if(parentNode.nodeName === "math"){
+									this.path.pop();
+									this.anchor.node = parentNode;
+								}else{
+									previousNode = parentNode.parentNode;
+									if(previousNode){
+										// 往上移动时，只是把当前的节点信息移除
+										this.path.pop();
+										this.anchor.node = previousNode;
+										// this.anchor.offset 一直保持为0
+									}
+								}
 								
-								this.anchor.offset = previousNode.textContent.length;
+								//FIXME:需要重构调整逻辑。
 							}
+							
 						}
-						this.anchor.node = previousNode;
-						return;
-					}else{
-						var layoutNode = parentNode.parentNode;
-						if(layoutNode){
-							// 说明这是个布局节点
-							var layoutNodeName = layoutNode.nodeName;
-							if(layoutNodeName === "mfrac"){
-								// 移到分数之前
-								this.path.pop();
-								this.path.pop();
-								this.anchor.node = parentNode.parentNode;
-								this.anchor.offset = 0;
-							}else if(layoutNodeName === "mroot"){
-								// 从base节点移动到index节点
-								node = parentNode.nextSibling.firstChild;
-								this.path.pop();
-								var pos = this.path.pop();
-								pos.offset++;
-								this.path.push(pos);
-								this.path.push({nodeName: node.nodeName, offset: 1});
-								
-								this.anchor.node = node;
-								if(xmlUtil.isPlaceHolder(node)){
+					}
+				}else{
+					// 处理进入节点的逻辑
+					var prev = node.lastChild;
+					if(prev && prev.nodeName === "mstyle"){
+						prev = prev.lastChild;
+					}
+					if(prev){
+						this.path.push({nodeName:prev.nodeName, offset: node.childNodes.length});
+						if(prev.nodeName === "mfrac"){
+							// 定位到做后一个可编辑的节点上，定义一个完整的节点信息，需要父节点和子节点两个信息。
+							var parent = prev;
+							prev = prev.lastChild;// mrow
+							this.path.push({nodeName:prev.nodeName, offset: parent.childNodes.length});
+							
+							parent = prev;
+							prev = prev.lastChild;// 定位到mrow的最后一个节点上。
+							if(prev.nodeName === "mn"){
+								this.path.push({nodeName:prev.nodeName, offset: parent.childNodes.length});
+								this.anchor.node = prev;
+								if(xmlUtil.isPlaceHolder(prev)){
 									this.anchor.offset = 0;
 								}else{
-									// token节点
-									this.anchor.offset = node.textContent.length;
+									this.anchor.offset = prev.textContent.length;
 								}
-							}else if(layoutNodeName === "line"){
-								this.path.pop();
-								this.anchor.node = parentNode;// 此时是math节点，这个时候需要从mathml模式切换到text模式。
-								this.anchor.offset = 0;
+								
 							}
 						}
-						
-						return;
 					}
-				}
-				
-				
-				// 如果找不到兄弟节点，则寻找父节点
-				var parentNode = node.parentNode;
-				var previousNode = parentNode.previousSibling;
-				if(previousNode){
-					if(previousNode.nodeName == "line"){
-						previousNode = previousNode.lastChild;
-						if(previousNode.nodeName == "math"){
-							previousNode = previousNode.lastChild;
-						}
-						var textContent = previousNode.textContent;
-						
-						this.anchor.node = previousNode;
-						this.anchor.offset = textContent.length;
-						
-						this.path.pop(); // 弹出text
-						var pos = this.path.pop();
-						pos.offset--;
-						this.path.push(pos);
-						this.path.push({nodeName: previousNode.nodeName, offset:previousNode.parentNode.childElementCount});
-					}else{
-						var textContent = previousNode.textContent;
-						
-						this.anchor.node = previousNode;
-						this.anchor.offset = textContent.length - 1;
-					}
-					
 				}
 			}
-			
 		},
 		
 		moveRight: function(){
@@ -1531,10 +1609,21 @@ define([ "dojo/_base/declare",
 					this.path.push(pos);
 				}else{
 					node = nextNode;
-					var pos = this.path.pop();
-					pos.offset++;
-					pos.nodeName = nextNode.nodeName;
-					this.path.push(pos);
+					if(node.nodeName === "text"){
+						// 从math节点移到text节点。
+						this.mode = "text";
+						
+						var pos = this.path.pop();
+						pos.offset++;
+						pos.nodeName = nextNode.nodeName;
+						this.path.push(pos);
+						offset = 0;
+					}else{
+						var pos = this.path.pop();
+						pos.offset++;
+						pos.nodeName = nextNode.nodeName;
+						this.path.push(pos);
+					}
 				}
 			}else{
 				var parentNode = node.parentNode;
@@ -1637,6 +1726,8 @@ define([ "dojo/_base/declare",
 							this.path.pop();
 							node = parentNode;
 							offset = 1;
+							// 已经到了math的边界，这个时候默认切换到text模式
+							this.mode = "text";
 						}
 						// 说明已经到了边界了，什么也不做。
 					}

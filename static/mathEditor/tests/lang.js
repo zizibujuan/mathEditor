@@ -55,6 +55,13 @@ define([ "doh", "mathEditor/lang" ], function(doh, dripLang) {
 			t.t(dripLang.isNewLine("\r\n"));
 		}
 	},{
+		name: "isMathTokenName 输入的节点名称是mathml语法下的token节点",
+		runTest: function(t){
+			t.t(dripLang.isMathTokenName("mi"));
+			t.f(dripLang.isMathTokenName("text"));
+			t.f(dripLang.isMathTokenName("mfrac"));
+		}
+	},{
 		name: "isGreekLetter 判断输入的值是不是希腊字母，包括大写和小写",
 		runTest: function(t){
 			t.t(dripLang.isGreekLetter("&#x3B1;"));

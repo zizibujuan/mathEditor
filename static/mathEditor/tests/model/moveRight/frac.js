@@ -118,22 +118,27 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				
   			}
 	    },{
-	    	name: "mathml模式下，将光标移出分数，如果分数后面有text文本，则光标就停留在text的第0字符位置",
+	    	name: "从math节点右移到text节点，将光标移出分数，如果分数后面有text文本，则光标就停留在text的第0字符位置",
   			setUp: function(){
   				this.model = new Model({});
   			},
   			runTest: function(t){
-  				// TODO：需要先实现右移操作
-//  				var model = this.model;
-//  				model.toMathMLMode();
-//  				model.setData({data: "", nodeName: "mfrac"});
-//  				model.moveRight();
-//  				model.moveRight();
-//  				t.is("/root/line[1]/math[1]/mfrac[1]", model.getPath());
-//				var node = model.getFocusNode();
-//				// 如果是layout mathml节点获取焦点，则0表示所在节点之前，1表示所在节点之后。
-//				t.is("mfrac", node.nodeName);
-//				t.is(1, model.getOffset());
+  				var model = this.model;
+  				model.toMathMLMode();
+  				model.setData({data: "", nodeName: "mfrac"});
+  				// 另一种写法是，不再调用moveRight方法，而是直接通过赋值anchor和path，跳转到期望的位置。
+  				model.moveRight();// 移到分母
+  				model.moveRight();// 移到整个分数后面
+  				model.moveRight();// 移出数学公式编辑区域
+  				model.toTextMode();
+  				model.setData({data: "a"});
+  				model.moveLeft();// 移到a字母前面
+  				model.moveLeft();// 模式切换，移到math节点中
+  				model.moveRight();// 模式切换，移到text节点中
+  				t.is("/root/line[1]/text[2]", model.getPath());
+				var node = model.getFocusNode();
+				t.is("text", node.nodeName);
+				t.is(0, model.getOffset());
   			},
   			tearDown: function(){
   				
