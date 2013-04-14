@@ -143,6 +143,26 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   			tearDown: function(){
   				
   			}
+	    },{
+	    	name: "mathml模式下，在空的分数中，将光标从分数前面移到分数的分子上",
+  			setUp: function(){
+  				this.model = new Model({});
+  			},
+  			runTest: function(t){
+  				var model = this.model;
+  				model.toMathMLMode();
+  				model.setData({data: "", nodeName: "mfrac"});
+  				model.moveLeft();
+  				model.moveRight();
+  				t.is("/root/line[1]/math[1]/mfrac[1]/mrow[1]/mn[1]", model.getPath());
+				var node = model.getFocusNode();
+				t.is("text", node.nodeName);
+				t.is(0, model.getOffset());
+				t.is("drip_placeholder_box", node.getAttribute("class"));
+  			},
+  			tearDown: function(){
+  				
+  			}
 	    }
 	    
 	    // 在分数中输入字母和操作符号等。

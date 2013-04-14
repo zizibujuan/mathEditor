@@ -1314,6 +1314,9 @@ define([ "dojo/_base/declare",
 			}
 		},
 		
+		_isTokenNode: function(nodeName){
+			return dripLang.isMathTokenName(nodeName) || nodeName === "text";
+		},
 		// TODO:重命名，因为左移，有左移一个字母和左移一个单词之分，所以需要命名的更具体。
 		// 只有英文才有这种情况。
 		moveLeft: function(){
@@ -1327,17 +1330,13 @@ define([ "dojo/_base/declare",
 				return;
 			}
 			
-			function isTokenNode(nodeName){
-				return dripLang.isMathTokenName(nodeName) || nodeName === "text";
-			}
-			
 			function isTokenFirst(offset){
 				// summary:
 				//		已经到了token节点的最前面
 				return offset === 0;
 			}
 			
-			if(isTokenNode(nodeName)){
+			if(this._isTokenNode(nodeName)){
 				// 当前节点为token节点
 				if(isTokenFirst(offset)){
 					// FIXME：重构
@@ -1569,33 +1568,65 @@ define([ "dojo/_base/declare",
 			}
 		},
 		
+		_getTextLength: function(tokenNode){
+			// summary:
+			//		获取节点中有效符号的个数，注意这个长度不是字符的长度。
+			//		如sin是一个三角函数，它的长度是1，而不是3。
+			
+			var length = 0;
+			if(xmlUtil.isPlaceHolder(tokenNode)){
+				// 占位符中内容的长度为0
+				return 0;
+			}else{
+				// 只有token节点，才需要计算
+				var nodeName = tokenNode.nodeName;
+				if(nodeName === "mn" || nodeName === "text"){
+					length = tokenNode.textContent.length;
+				}else if(nodeName === "mo" || nodeName === "mi"){
+					// mo和mi的长度永远为1
+					length = 1;
+				}
+			}
+			return length;
+		},
+		
+		_movePathToNextSibling: function(nextSibling){
+			// summary:
+			//		将path的值设为下一个兄弟节点。
+			//		注意：在一个token节点中移动光标时，不需要调整path的值。
+			
+			var pos = this.path.pop();
+			pos.offset++;
+			pos.nodeName = nextSibling.nodeName;
+			this.path.push(pos);
+		},
+		
 		moveRight: function(){
+			// summary:
+			//		右移时，有的情况是要往外层走；有的时候是要往内层走。
+			//		左移也是。
+			
 			var node = this.anchor.node;
 			var offset = this.anchor.offset;
 			
-			var contentLength = 0;
-			if(xmlUtil.isPlaceHolder(node)){
-				
-			}else{
-				// 只有token节点，才需要计算
-				var nodeName = node.nodeName;
-				if(nodeName === "mn" || nodeName === "text"){
-					contentLength = node.textContent.length;
-				}else if(nodeName === "mo" || nodeName === "mi"){
-					// mo和mi的长度永远为1
-					contentLength = 1;
+			var nodeName = node.nodeName;
+			if(this._isTokenNode(nodeName)){
+				var contentLength = this._getTextLength(node);
+				if(offset < contentLength){
+					this.anchor.offset++;
+					return;
+				}else{
+					// TODO：开始跨出token节点，往右移。
+					
 				}
-				
 			}
+
 			
-			if(offset < contentLength){
-				this.anchor.offset++;
-				return;
-			}
 			
 			// 已经到了一个节点的最后了
 			// 找到下一个合适的节点
 			// 如果没有找到，则进入下一行
+			
 			var nextNode = node.nextSibling;
 			if(nextNode){
 				// 如果下一个节点中没有子节点，应该只有line节点才会出现这种情况
@@ -1603,40 +1634,41 @@ define([ "dojo/_base/declare",
 				if(nextNode.childNodes.length == 0){
 					node = nextNode;
 					offset = 0;
-					
-					var pos = this.path.pop();
-					pos.offset++;
-					this.path.push(pos);
+					// 移动到下一行
+					this._movePathToNextSibling(nextNode);
 				}else{
 					node = nextNode;
 					if(node.nodeName === "text"){
 						// 从math节点移到text节点。
+						// 如果之前的模式是mathml，则转换为text
 						this.mode = "text";
-						
-						var pos = this.path.pop();
-						pos.offset++;
-						pos.nodeName = nextNode.nodeName;
-						this.path.push(pos);
 						offset = 0;
-					}else{
-						var pos = this.path.pop();
-						pos.offset++;
-						pos.nodeName = nextNode.nodeName;
-						this.path.push(pos);
 					}
+					this._movePathToNextSibling(nextNode);
 				}
 			}else{
+				// 分两步:
+				//		1. 不断往上找，直到找到下一个有效的节点;
+				//		2. 然后再在这个节点上往内层查找
+				
+				// 以下实现的是从里往外层移动。这是token节点才有的特征
 				var parentNode = node.parentNode;
+				// 目前需要跳过的节点有mstyle和mrow，而mrow只是在有些情况下才需要跳过。
 				if(parentNode.nodeName === "mstyle"){
 					parentNode = parentNode.parentNode;
 				}
-				
+				// 注意，mstyle现在只有mfrac才有
+				// mfrac的固定路径为 mfrac/mstyle/mrow
 				if(parentNode.nodeName === "mrow"){
-					var layoutNode = parentNode.parentNode;
-					if(layoutNode.nodeName === "mfrac"){
-						if(parentNode.nextSibling){
+					// 如果是mrow节点，则需要根据mrow的节点的类别决定后续的操作
+					// parent可定是layout节点
+					var parent = parentNode.parentNode;
+					var child = parentNode;
+					
+					if(parent.nodeName === "mfrac"){
+						if(child.nextSibling){
 							// 从分子末尾向分母起始移动
-							node = parentNode.nextSibling.firstChild;
+							node = child.nextSibling.firstChild;
 							this.path.pop();
 							var pos = this.path.pop();
 							pos.offset++;
@@ -1649,14 +1681,14 @@ define([ "dojo/_base/declare",
 							this.path.pop(); // 弹出mn
 							this.path.pop(); // 弹出mrow
 							// 剩下的path保持不变。
-							node = layoutNode;
+							node = parent;
 							// offset的值与path中的offset相同
 							offset = this.path[this.path.length-1].offset;
 						}
-					}else if(layoutNode.nodeName === "mroot"){
-						if(parentNode.previousSibling){
+					}else if(parent.nodeName === "mroot"){
+						if(child.previousSibling){
 							// 从根式的index移到base中，在mathml中，<mroot>base index</mroot>
-							node = node.parentNode.previousSibling.firstChild;
+							node = child.previousSibling.firstChild;
 							offset = 0;
 							
 							this.path.pop();
@@ -1669,12 +1701,12 @@ define([ "dojo/_base/declare",
 							this.path.pop();
 							this.path.pop();
 							
-							node = layoutNode;
+							node = parent;
 							offset = 1;
 						}
-					}else if(layoutNode.nodeName === "msup" || layoutNode.nodeName === "msub"){
-						if(parentNode.nextSibling){
-							node = parentNode.nextSibling.firstChild;
+					}else if(parent.nodeName === "msup" || parent.nodeName === "msub"){
+						if(child.nextSibling){
+							node = child.nextSibling.firstChild;
 							offset = 0;
 							
 							this.path.pop();
@@ -1684,8 +1716,8 @@ define([ "dojo/_base/declare",
 							this.path.push({nodeName: node.nodeName, offset: 1});
 						}
 					}
-				}else if(parentNode.nodeName == "line"){
-					var nextNode = parentNode.nextSibling;
+				}else if(child.nodeName == "line"){
+					var nextNode = child.nextSibling;
 					if(nextNode){
 						if(nextNode.childNodes.length == 0){
 							this.path.pop();
@@ -1712,7 +1744,7 @@ define([ "dojo/_base/declare",
 						
 					}
 				}else{
-					var nextNode = parentNode.nextSibling;
+					var nextNode = child.nextSibling;
 					if(nextNode){
 						this.path.pop();
 						var pos = this.path.pop();
@@ -1722,12 +1754,34 @@ define([ "dojo/_base/declare",
 						node = nextNode;
 						offset = 0;
 					}else{
-						if(parentNode.nodeName === "math"){
-							this.path.pop();
-							node = parentNode;
-							offset = 1;
-							// 已经到了math的边界，这个时候默认切换到text模式
-							this.mode = "text";
+						if(child.nodeName === "math"){
+							if(offset === 1){
+								this.path.pop();
+								node = child;
+								offset = 1;
+								// 已经到了math的边界，这个时候默认切换到text模式
+								this.mode = "text";
+							}else if(offset === 0){
+								var next = child.firstChild;
+								if(next.nodeName === "mstyle"){
+									next = next.firstChild;
+								}
+								
+								this.path.push({nodeName: next.nodeName, offset: 1});
+								if(next.nodeName === "mfrac"){
+									// 定位到做后一个可编辑的节点上，定义一个完整的节点信息，需要父节点和子节点两个信息。
+									next = next.firstChild;// mrow
+									this.path.push({nodeName:next.nodeName, offset: 1});
+									
+									next = next.firstChild;// 定位到mrow的第一个节点上。
+									if(next.nodeName === "mn"){
+										this.path.push({nodeName:next.nodeName, offset: 1});
+										this.anchor.node = next;
+										this.anchor.offset = 0;
+									}
+								}
+							}
+							
 						}
 						// 说明已经到了边界了，什么也不做。
 					}
@@ -1853,10 +1907,6 @@ define([ "dojo/_base/declare",
 		getHTML: function(){
 			return dataUtil.xmlDocToHtml(this.doc);
 		}
-		
-		
-		
-		
 	
 	});
 	
