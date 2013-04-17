@@ -1808,7 +1808,11 @@ define([ "dojo/_base/declare",
 				this.anchor.offset++;
 				return;
 			}
-			// 以下是节点之间的移动
+			// 以下是节点之间的移动，现在约定math节点和text节点必须是交替出现的，不会同时出现两个math或两个text
+			// text到math
+			
+			// math到text
+			// 
 			
 			
 			var node = this.anchor.node;
