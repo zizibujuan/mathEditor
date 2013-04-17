@@ -62,6 +62,13 @@ define([ "doh", "mathEditor/lang" ], function(doh, dripLang) {
 			t.f(dripLang.isMathTokenName("mfrac"));
 		}
 	},{
+		name: "_isMathLayoutNodeName 输入的节点名称是mathml语法下的layout节点",
+		runTest: function(t){
+			t.f(dripLang._isMathLayoutNodeName("mi"));
+			t.f(dripLang._isMathLayoutNodeName("text"));
+			t.t(dripLang._isMathLayoutNodeName("mfrac"));
+		}
+	},{
 		name: "isGreekLetter 判断输入的值是不是希腊字母，包括大写和小写",
 		runTest: function(t){
 			t.t(dripLang.isGreekLetter("&#x3B1;"));

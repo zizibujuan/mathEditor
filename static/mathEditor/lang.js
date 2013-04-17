@@ -1,5 +1,7 @@
 define(["dojo/_base/array"],function(array){
 	
+	var mathLayoutNodeNames = {"mfrac":1,"mroot":1,"msqrt":1,"msub":1,"msup":1};
+	var mathTokenNodeNames = {"mi":1, "mn":1, "mo":1, "mtext":1, "mspace":1, "ms":1};
 	// TODO:重构，这个模块的名称不准确。
 	var lang = {};
 	
@@ -85,8 +87,17 @@ define(["dojo/_base/array"],function(array){
 		return this.isMathTokenName(nodeName);
 	},
 	
+	lang.isMathLayoutNode = function(node){
+		var nodeName = node.nodeName;
+		return this._isMathLayoutNodeName(nodeName);
+	},
+	
+	lang._isMathLayoutNodeName = function(nodeName){
+		return mathLayoutNodeNames[nodeName] === 1;
+	},
+	
 	lang.isMathTokenName = function(nodeName){
-		var isTokenNode = false;
+//		var isTokenNode = false;
 		
 //		var tokenNames = ["mi","mn","mo","mtext","mspace","ms"];
 //		array.forEach(tokenNames, function(name,index){
@@ -97,8 +108,7 @@ define(["dojo/_base/array"],function(array){
 //		});
 //		return isTokenNode;
 		// 第二种实现方式
-		var tokenNames = {"mi":1, "mn":1, "mo":1, "mtext":1, "mspace":1, "ms":1};
-		return tokenNames[nodeName]===1;
+		return mathTokenNodeNames[nodeName]===1;
 	},
 		
 	lang.measureTextSize = function(elem ,text) {

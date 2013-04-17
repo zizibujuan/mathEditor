@@ -1601,10 +1601,72 @@ define([ "dojo/_base/declare",
 			this.path.push(pos);
 		},
 		
+		_isLineNode: function(node){
+			return node.nodeName === "line";
+		},
+		
+		
+		
 		moveRight: function(){
 			// summary:
 			//		右移时，有的情况是要往外层走；有的时候是要往内层走。
 			//		左移也是。
+			//	在其中做三件事情：
+			//	1. 找到下一个节点
+			//	2. 设置当前节点和偏移量
+			//	3. 存储当前节点的路径信息
+			//
+			//	移动路径分析：
+			//	1. 由一个token节点移到另一个token节点
+			//	2. 由一个token节点移到一个layout节点
+			//	3. 由一个layout节点移到token节点
+			//	4. 由token节点移到line节点
+			//	5. 由layout节点移到line节点
+			//	6. 由line节点移到line节点
+			//	7. 由line节点移到layout节点
+			//	8. 由line节点移到token节点
+			//
+			//	也谈重构：
+			//		不要指望一下子就能发现事物的本质，做事情的第一步就是从现象的累计开始，从琐碎的细节开始，
+			//		随着工作的进行，轮廓逐渐的清晰，这个时候本质的真容跃然纸上，这个时候可以重构了。
+			//		即使没有重构，至少我们把握住了一些现象，系统依然是可以运行的。
+			//		所以说初级系统是首先运行于各种现象的累积之上的；也可进一步优化和重构，让其运行在事务的本质之上。
+			//		要抓本质，首先抓事物之间的关系，不要限于同一事物的琐碎中去。
+			//
+			//	目前支持的有效节点有：
+			//	line,text, mathml token, mathml layout(frac)
+			//	把移动的特殊情况都罗列出来，然后逐个实现（这就是编辑器的需求）
+			//	1. mathml token内部移动：只需调整偏移量 +1
+			//	2. text节点内部移动：只需调整偏移量 +1
+			//	3. 空行之间移动：node为下一行；偏移量为0；path移到一行
+			//	4. text节点移到math节点：移到math上，整个math用另一个背景色显示，或用边框扩住（获取焦点）。
+			//	5. math节点移到text节点：math不再获取焦点，移到text的最前面。
+			//	6. mathml token节点之间移动：下一个节点获取焦点，偏移量为1；path也移到下一个节点。
+			//	7. 从math节点进入其中的第一个有效节点（往内层走）：
+			//		找到第一个有效节点：token节点、分数、根号、上下标、括号等。（TODO：补充）
+			//	8. 分数
+			//		移动到分数前
+			//		从分数前移动到分子前
+			//		从分子后移动到分母前
+			//		从分母后移动到分数后
+			//		离开分数后(面)
+			//	9. 根号
+			//		移到根号前
+			//		从根号前移动到根次前
+			//		从根次后移动到根式前
+			//		从根式后移动到根号后
+			//		离开根号后
+			//	10. 上下坐标
+			//		移到上下坐标前
+			//		从上下坐标前直接移到base中（注意差别是直接进入内容）
+			//		从base后移到sup/sub前
+			//		由sup/sub后移到上下坐标后
+			//	11. 括号
+			//		移到括号前
+			//		从括号前移到括号里的第一个节点前（有效节点）
+			//		从最后一个节点后移到括号后
+			//		离开括号后
+			//	12. ……
 			
 			var node = this.anchor.node;
 			var offset = this.anchor.offset;
@@ -1613,11 +1675,26 @@ define([ "dojo/_base/declare",
 			if(this._isTokenNode(nodeName)){
 				var contentLength = this._getTextLength(node);
 				if(offset < contentLength){
+					// 在token节点内移动。
 					this.anchor.offset++;
 					return;
 				}else{
-					// TODO：开始跨出token节点，往右移。
-					
+					// TODO：开始跨出token节点，往右移
+					// 注意获取两个节点的信息（当前节点和下一个节点），以及两个节点之间的路径。
+					var nextNode = node.nextSibling;
+					if(nextNode){
+//						if(this._isLineNode(nextNode)){
+//							// 移动到下一行
+//							node = nextNode;
+//							offset = 0;
+//							this._movePathToNextSibling(nextNode);
+//						}else if(this._isTokenNode(nextNode.nodeName)){
+//							node = nextNode;
+//							offset = 1;
+//							this._movePathToNextSibling(nextNode);
+//						}
+//						return;
+					}
 				}
 			}
 
@@ -1655,6 +1732,8 @@ define([ "dojo/_base/declare",
 				var parentNode = node.parentNode;
 				// 目前需要跳过的节点有mstyle和mrow，而mrow只是在有些情况下才需要跳过。
 				if(parentNode.nodeName === "mstyle"){
+					// FIXME：这里的逻辑不正确，不应该直接跳转到父节点，跳到mstyle中的下一个节点。
+					// 但是这个逻辑，已经在前面判断了，所以逻辑没有错，说明已经到了mstyle的最后一个节点了。
 					parentNode = parentNode.parentNode;
 				}
 				// 注意，mstyle现在只有mfrac才有
@@ -1716,8 +1795,8 @@ define([ "dojo/_base/declare",
 							this.path.push({nodeName: node.nodeName, offset: 1});
 						}
 					}
-				}else if(child.nodeName == "line"){
-					var nextNode = child.nextSibling;
+				}else if(parentNode.nodeName == "line"){
+					var nextNode = parentNode.nextSibling;
 					if(nextNode){
 						if(nextNode.childNodes.length == 0){
 							this.path.pop();
@@ -1744,7 +1823,7 @@ define([ "dojo/_base/declare",
 						
 					}
 				}else{
-					var nextNode = child.nextSibling;
+					var nextNode = parentNode.nextSibling;
 					if(nextNode){
 						this.path.pop();
 						var pos = this.path.pop();
@@ -1754,15 +1833,15 @@ define([ "dojo/_base/declare",
 						node = nextNode;
 						offset = 0;
 					}else{
-						if(child.nodeName === "math"){
+						if(parentNode.nodeName === "math"){
 							if(offset === 1){
 								this.path.pop();
-								node = child;
+								node = parentNode;
 								offset = 1;
 								// 已经到了math的边界，这个时候默认切换到text模式
 								this.mode = "text";
 							}else if(offset === 0){
-								var next = child.firstChild;
+								var next = parentNode.firstChild;
 								if(next.nodeName === "mstyle"){
 									next = next.firstChild;
 								}
