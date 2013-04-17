@@ -1314,6 +1314,11 @@ define([ "dojo/_base/declare",
 				return;
 			}
 			
+			if(this._isInTokenNode(this.anchor)){
+				this.anchor.offset--;
+				return;
+			}
+			
 			var nodeName = node.nodeName;
 			
 			function isTokenFirst(offset){
@@ -1602,6 +1607,21 @@ define([ "dojo/_base/declare",
 			return node.nodeName === "line";
 		},
 		
+		_isInTokenNode: function(anchor){
+			// summary:
+			//		token节点包括mathml的所有token节点和text节点。
+			//		在token节点的内容里，不在token节点的开头，也不在token节点的末尾
+			
+			var node = anchor.node;
+			var offset = anchor.offset;
+			
+			if(this._isTokenNode(node.nodeName) && 0 < offset && offset < node.textContent.length){
+				return true;
+			}
+			
+			return false;
+		},
+		
 		_isLineStart: function(anchor){
 			// summary:
 			//		处理所有处于行首的判断。
@@ -1783,7 +1803,13 @@ define([ "dojo/_base/declare",
 				}
 				return;
 			}
-			// 如果
+			// 如果在token节点之内
+			if(this._isInTokenNode(this.anchor)){
+				this.anchor.offset++;
+				return;
+			}
+			// 以下是节点之间的移动
+			
 			
 			var node = this.anchor.node;
 			var offset = this.anchor.offset;
