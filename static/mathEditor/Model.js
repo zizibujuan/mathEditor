@@ -1290,45 +1290,6 @@ define([ "dojo/_base/declare",
 			}
 		},
 		
-		_lineUpForLineNode: function(anchor){
-			// summary:
-			//		这个方法只能用于node的nodeName为line的情况。
-			//		只要达到了往上一行移动的条件，就要调用该方法。
-			//
-			//	node: 为line节点
-			//	offset: 移动前的偏移量
-			// TODO:添加判断是否已到行尾的方法。
-			
-			var node = anchor.node;
-			
-			var previousNode = node.previousSibling;
-			// 如果已经是第一行
-			if(!previousNode){
-				return anchor;
-			}
-			// 只要存在上一行，先移到上一行
-			this._movePathToPreviousSibling(previousNode);
-			var childLength = previousNode.childNodes.length;
-			if(childLength === 0){
-				// 如果行中没有内容
-				return {node: previousNode, offset: 0};
-			}
-			
-			var lastChild = previousNode.lastChild;
-			var lastChildNodeNodeName = lastChild.nodeName;
-			
-			this.path.push({nodeName: lastChildNodeNodeName, offset:childLength});
-			// 在line中只会存在两种类型的节点：text和math
-			if(lastChildNodeNodeName === "text"){
-				var textContent = lastChild.textContent;
-				return {node: lastChild, offset: textContent.length};
-			}else if(lastChildNodeNodeName === "math"){
-				return {node: lastChild, offset: 1};
-			}else{
-				console.error("line中不支持"+lastChildNodeNodeName+"类型的节点");
-			}
-		},
-		
 		_isTokenNode: function(nodeName){
 			return dripLang.isMathTokenName(nodeName) || nodeName === "text";
 		},
@@ -1354,13 +1315,6 @@ define([ "dojo/_base/declare",
 			}
 			
 			var nodeName = node.nodeName;
-			// 注意，不单单是遇到line才会往上移动，而是只要满足在行尾的条件，就需要往上移动
-			// nodeName == 'line' 只是往上一行移动的条件之一。
-			if(nodeName == "line"){
-				// FIXME：重构
-				this.anchor = this._lineUpForLineNode(this.anchor);
-				return;
-			}
 			
 			function isTokenFirst(offset){
 				// summary:
@@ -1814,7 +1768,7 @@ define([ "dojo/_base/declare",
 			//		离开括号后
 			//	12. ……
 			
-			
+			// 当需要换行时。
 			var line = this._isLineEnd(this.anchor);
 			if(line){
 				if(line.nextSibling){
@@ -1829,6 +1783,7 @@ define([ "dojo/_base/declare",
 				}
 				return;
 			}
+			// 如果
 			
 			var node = this.anchor.node;
 			var offset = this.anchor.offset;
