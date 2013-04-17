@@ -1,6 +1,6 @@
 define([ "doh","mathEditor/Model" ], function(doh,Model) {
 
-	doh.register("Model.moveRight frac在分数之间右移光标",[
+	doh.register("Model.moveRight.frac frac在分数之间右移光标",[
 	    {
 	    	name: "mathml模式下，在一个空的分子上右移光标",
   			setUp: function(){

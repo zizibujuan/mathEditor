@@ -1,6 +1,6 @@
 define([ "doh","mathEditor/Model" ], function(doh,Model) {
 
-	doh.register("Model.moveRight 在根式中右移光标",[
+	doh.register("Model.moveRight.root 在根式中右移光标",[
 	    {
 	    	name: "mathml模式下，在空的根式root中右移光标，将光标从index中移到base中。",
   			setUp: function(){

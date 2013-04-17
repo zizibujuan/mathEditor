@@ -1,6 +1,6 @@
 define([ "doh","mathEditor/Model" ], function(doh,Model) {
 
-	doh.register("Model.setData emptyModel",[
+	doh.register("Model.setData.emptyModel",[
 	    {
 	    	name: "测试空的model",
   			setUp: function(){

@@ -1,6 +1,6 @@
 define([ "doh","mathEditor/Model" ], function(doh,Model) {
 
-	doh.register("Model.setData sup上标",[
+	doh.register("Model.setData.sup 上标",[
 	    {
 			name: "mathml模式下，在空的数学编辑器上直接输入上标",
 			setUp: function(){

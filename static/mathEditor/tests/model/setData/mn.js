@@ -1,6 +1,6 @@
 define([ "doh","mathEditor/Model" ], function(doh,Model) {
 
-	doh.register("Model.setData number-输入数字",[
+	doh.register("Model.setData.mn number-输入数字",[
 	    {
 	    	name: "mathml模式下,在空的model中输入一个数字",
   			setUp: function(){

@@ -1,7 +1,7 @@
 // CJK 中日韩统一表意文字（CJK Unified Ideographs）
 define([ "doh","mathEditor/Model" ], function(doh,Model) {
 
-	doh.register("Model.setData 中日韩文字",[
+	doh.register("Model.setData.CJK 中日韩文字",[
 		{
 			name: "在空的model中输入一个汉字",
 			setUp: function(){

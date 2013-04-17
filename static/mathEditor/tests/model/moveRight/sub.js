@@ -1,6 +1,6 @@
 define([ "doh","mathEditor/Model" ], function(doh,Model) {
 
-	doh.register("Model.moveRight 在有下标的符号中右移光标",[
+	doh.register("Model.moveRight.sub 在有下标的符号中右移光标",[
 	    {
 	    	name: "mathml模式下，在空的有下标的公式中，将光标从base中移到subscript中",
   			setUp: function(){

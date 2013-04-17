@@ -10,7 +10,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 	// 除了以上逻辑,还需要添加:
 	//		1. 判断是否已到行首的判断逻辑
 	//		2. 进入行尾的逻辑
-	doh.register("Model.moveLeft line节点间左移",[
+	doh.register("Model.moveLeft.line line节点间左移",[
 	    {
 			name:"model中没有任何内容时，执行左移，则什么也不做",
 			setUp: function(){

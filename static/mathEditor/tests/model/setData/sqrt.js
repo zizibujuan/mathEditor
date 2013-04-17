@@ -1,6 +1,6 @@
 define([ "doh","mathEditor/Model" ], function(doh,Model) {
 
-	doh.register("Model.setData sqrt平方根",[
+	doh.register("Model.setData.sqrt 平方根",[
     {
 		name: "mathml模式下，在空的model中输入平方根",
 		setUp: function(){

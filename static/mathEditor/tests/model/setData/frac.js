@@ -1,6 +1,6 @@
 define([ "doh","mathEditor/Model" ], function(doh,Model) {
 
-	doh.register("Model.setData frac 分数",[
+	doh.register("Model.setData.frac 分数",[
 		{
 			name: "mathml模式下，在一个空的model中加入一个空的分数，分子获取焦点",
 			setUp: function(){

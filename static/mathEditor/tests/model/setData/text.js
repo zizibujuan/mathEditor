@@ -1,6 +1,6 @@
 define([ "doh","mathEditor/Model" ], function(doh,Model) {
 
-	doh.register("Model.setData 在text中输入文本",[
+	doh.register("Model.setData.text 在text中输入文本",[
 	    /********************text模式下，输入英文字母*******************/
 		{
 			name: "text模式下，在空的model中输入一个英文字母",

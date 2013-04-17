@@ -1,6 +1,6 @@
 define([ "doh","mathEditor/Model" ], function(doh,Model) {
 
-	doh.register("Model.moveRight text节点间右移",[
+	doh.register("Model.moveRight.text text节点间右移",[
 	    {
 	    	name: "text模式下输入一个英文字符，然后执行右移",
   			setUp: function(){

@@ -5,7 +5,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 	 * 因为如果用户从其他文本编辑器中拷贝过来一段文字之后，如果换行符为\r\n，
 	 * 则这个程序就无法正确识别。
 	 */
-	doh.register("Model.setData newLine创建新行",[
+	doh.register("Model.setData.line newLine创建新行",[
 	    {
 	    	name: "text模式下，在空的model中插入一个新行，即敲击回车插入空行, 使用\\n表示换行，因此遇到keyCode为13时，转换为\\n",
   			setUp: function(){

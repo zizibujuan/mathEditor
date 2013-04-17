@@ -9,7 +9,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 	//		2.涉及到两种模式之间的切换
 	//			由text节点左移到math节点上
 	//			由math节点左移到text节点上
-	doh.register("Model.moveLeft frac在分数之间左移光标",[
+	doh.register("Model.moveLeft.frac frac在分数之间左移光标",[
 	    {
 	    	name: "mathml模式下，在空的分数上先右移光标，然后再左移",
   			setUp: function(){

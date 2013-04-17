@@ -1,6 +1,6 @@
 define([ "doh","mathEditor/Model" ], function(doh,Model) {
 
-	doh.register("Model.setData root开根号",[
+	doh.register("Model.setData.root 开根号",[
 	    {
 			name: "mathml模式下，在空的数学编辑器上输入N次方根",
 			setUp: function(){

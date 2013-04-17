@@ -11,7 +11,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 		t.is(1, model.getOffset());
 	}
 	
-	doh.register("Model.setData operator",[
+	doh.register("Model.setData.mo 操作符",[
 	    {
 	    	name: "mathml模式下，在空的model中插入多个 +",
   			setUp: function(){

@@ -1,6 +1,6 @@
 define([ "doh","mathEditor/Model" ], function(doh,Model) {
 
-	doh.register("Model.moveLeft text节点间左移",[
+	doh.register("Model.moveLeft.text text节点间左移",[
 	    {
 	    	name: "text模式下输入一个英文字符，然后执行两次左移",
   			setUp: function(){

@@ -1,6 +1,6 @@
 define([ "doh","mathEditor/Model" ], function(doh,Model) {
 
-	doh.register("Model.setData fence对称的括号",[
+	doh.register("Model.setData.fence fence对称的括号",[
 	    {
 			name: "mathml模式下，在空的model上输入()/[]/{}/||",
 			setUp: function(){

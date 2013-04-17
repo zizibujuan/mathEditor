@@ -2,7 +2,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 
 	// 无论是text模式还是mathml模式，都允许输入希腊字母
 	
-	doh.register("Model.setData 希腊字母",[
+	doh.register("Model.setData.greekLetter 希腊字母",[
 	    /*{
 	    	name: "在text模式下输入希腊字母, 暂不支持",
   			setUp: function(){

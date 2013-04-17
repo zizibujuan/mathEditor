@@ -1,6 +1,6 @@
 define([ "doh","mathEditor/Model" ], function(doh,Model) {
 
-	doh.register("Model.moveLeft 在mn节点中左移",[
+	doh.register("Model.moveLeft.mn 在mn节点中左移",[
 	    {
 	    	name: "mathml模式下，输入一个数字，左移光标一次",
   			setUp: function(){

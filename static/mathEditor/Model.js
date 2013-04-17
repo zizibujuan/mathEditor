@@ -1301,10 +1301,11 @@ define([ "dojo/_base/declare",
 			
 			var line = this._isLineStart(this.anchor);
 			if(line){
-				if(line.previousSibling){
-					this._movePathToPreviousSibling(line);
+				var prev = line.previousSibling;
+				if(prev){
+					this._movePathToPreviousSibling(prev);
 					// 因为只支持排版方向为从左到右的情况，所以是移到上一行的最后位置。
-					this._moveLineEnd(line.previousSibling);
+					this._moveLineEnd(prev);
 				}else{
 					// 因为在_isLineStart中删除了之前的节点，
 					// 但是我们需要焦点停留在原来的位置，因此重新加上。
@@ -1313,9 +1314,26 @@ define([ "dojo/_base/declare",
 				}
 				return;
 			}
-			
-			if(this._isInTokenNode(this.anchor)){
+			// 在token之内移动
+			if(this._canMoveLeftWithInToken(this.anchor)){
 				this.anchor.offset--;
+				return;
+			}
+			
+			// 以下是节点之间的移动，现在约定math节点和text节点必须是交替出现的，不会同时出现两个math或两个text
+			// text到math
+			var prev = node.previousSibling;
+			if(prev && node.nodeName === "text" && prev.nodeName === "math"){
+				this._movePathToPreviousSibling(prev);
+				this.anchor.node = prev;
+				this.anchor.offset = 1;
+				return;
+			}
+			// math到text
+			if(prev && node.nodeName === "math" && prev.nodeName === "text"){
+				this._movePathToPreviousSibling(prev);
+				this.anchor.node = prev;
+				this.anchor.offset = prev.textContent.length;
 				return;
 			}
 			
@@ -1607,21 +1625,6 @@ define([ "dojo/_base/declare",
 			return node.nodeName === "line";
 		},
 		
-		_isInTokenNode: function(anchor){
-			// summary:
-			//		token节点包括mathml的所有token节点和text节点。
-			//		在token节点的内容里，不在token节点的开头，也不在token节点的末尾
-			
-			var node = anchor.node;
-			var offset = anchor.offset;
-			
-			if(this._isTokenNode(node.nodeName) && 0 < offset && offset < node.textContent.length){
-				return true;
-			}
-			
-			return false;
-		},
-		
 		_isLineStart: function(anchor){
 			// summary:
 			//		处理所有处于行首的判断。
@@ -1727,6 +1730,30 @@ define([ "dojo/_base/declare",
 			console.error("没有添加最后一个节点是"+lastChildNodeName+"时，进入行尾的逻辑");
 		},
 		
+		_canMoveRightWithInToken: function(anchor){
+			var node = anchor.node;
+			if(xmlUtil.isPlaceHolder(node))return false;
+			var offset = anchor.offset;
+			
+			if(this._isTokenNode(node.nodeName) && 0 <= offset && offset < node.textContent.length){
+				return true;
+			}
+			
+			return false;
+		},
+		
+		_canMoveLeftWithInToken: function(anchor){
+			var node = anchor.node;
+			if(xmlUtil.isPlaceHolder(node))return false;
+			var offset = anchor.offset;
+			
+			if(this._isTokenNode(node.nodeName) && 0 < offset && offset <= node.textContent.length){
+				return true;
+			}
+			
+			return false;
+		},
+		
 		moveRight: function(){
 			// summary:
 			//		右移时，有的情况是要往外层走；有的时候是要往内层走。
@@ -1791,10 +1818,11 @@ define([ "dojo/_base/declare",
 			// 当需要换行时。
 			var line = this._isLineEnd(this.anchor);
 			if(line){
-				if(line.nextSibling){
-					this._movePathToNextSibling(line);
+				var next = line.nextSibling;
+				if(next){
+					this._movePathToNextSibling(next);
 					// 因为只支持排版方向为从左到右的情况，所以是移到上一行的最后位置。
-					this._moveLineStart(line.nextSibling);
+					this._moveLineStart(next);
 				}else{
 					// 因为在_isLineEnd中删除了之前的节点，
 					// 但是我们需要焦点停留在原来的位置，因此重新加上。
@@ -1804,19 +1832,34 @@ define([ "dojo/_base/declare",
 				return;
 			}
 			// 如果在token节点之内
-			if(this._isInTokenNode(this.anchor)){
+			if(this._canMoveRightWithInToken(this.anchor)){
 				this.anchor.offset++;
 				return;
 			}
-			// 以下是节点之间的移动，现在约定math节点和text节点必须是交替出现的，不会同时出现两个math或两个text
-			// text到math
-			
-			// math到text
-			// 
-			
 			
 			var node = this.anchor.node;
 			var offset = this.anchor.offset;
+			// 以下是节点之间的移动，现在约定math节点和text节点必须是交替出现的，不会同时出现两个math或两个text
+			// text到math
+			var next = node.nextSibling;
+			if(next && node.nodeName === "text" && next.nodeName === "math"){
+				this._movePathToNextSibling(next);
+				this.anchor.node = next;
+				this.anchor.offset = 0;
+				this.mode = "mathml";
+				return;
+			}
+			// math到text
+			if(next && node.nodeName === "math" && next.nodeName === "text"){
+				this._movePathToNextSibling(next);
+				this.anchor.node = next;
+				this.anchor.offset = 0;
+				this.mode = "text";
+				return;
+			}
+			
+			
+			
 			
 			var nodeName = node.nodeName;
 			if(this._isTokenNode(nodeName)){

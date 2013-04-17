@@ -1,6 +1,6 @@
 define([ "doh","mathEditor/Model" ], function(doh,Model) {
 
-	doh.register("Model.moveLeft 在mo节点中左移光标",[
+	doh.register("Model.moveLeft.mo 在mo节点中左移光标",[
 	    {
 	    	name: "mathml模式下，输入一个操作符=，然后左移光标",
   			setUp: function(){

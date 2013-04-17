@@ -23,7 +23,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 		t.is(tri, triNode.textContent);
 	}
 	
-	doh.register("Model.setData 三角函数",[
+	doh.register("Model.setData.trigonometricFunction 三角函数",[
 	    {
   			name: "在空的数学编辑器上输入sin/cos/tan/cot/sec/csc",
   			setUp: function(){

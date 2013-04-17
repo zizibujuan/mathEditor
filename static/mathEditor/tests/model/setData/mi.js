@@ -1,7 +1,7 @@
 // 输入英文字母
 define([ "doh","mathEditor/Model" ], function(doh,Model) {
 
-	doh.register("Model.setData 英文字母",[
+	doh.register("Model.setData.mi 输入变量",[
 	    
 		/********************mathml模式下*******************/
 		{
