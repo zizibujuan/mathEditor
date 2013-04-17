@@ -78,6 +78,42 @@ define([ "dojo/_base/declare",
 			lang.mixin(this, options);
 		},
 		
+		_init: function(){
+			// 注意：在类中列出的属性，都必须在这里进行初始化。
+			this.doc = xmlParser.parse(EMPTY_XML);
+			this.path = [];
+			this.anchor = {};
+			// FIXME:如何存储呢？
+			
+			this._updateAnchor(this.doc.documentElement.firstChild, 0);
+			
+			this.toTextMode();
+			
+			this.path.push({nodeName:"root"});
+			// offset 偏移量，从1开始
+			this.path.push({nodeName:"line", offset:1});
+		},
+		
+		clear: function(){
+			this._init();
+			this.onChanged();
+		},
+		
+		// 如果没有内容，则创建一个新行
+		// 如果存在内容，则加载内容，并将光标移到最后
+		loadData: function(xmlString){
+			this.clear();
+			var xml = xmlString || "";
+			if(xml === ""){
+				return this._init();
+			}
+			else{
+				this.doc = xmlParser.parse(xmlString);
+				this.path = [];
+				this.anchor = {};
+			}
+		},
+		
 		isTextMode: function(){
 			return this.mode === "text";
 		},
@@ -170,32 +206,6 @@ define([ "dojo/_base/declare",
 			return {node: node, offset: offset};
 		},
 		
-		_init: function(){
-			// 注意：在类中列出的属性，都必须在这里进行初始化。
-			this.doc = xmlParser.parse(EMPTY_XML);
-			this.path = [];
-			this.anchor = {};
-			// FIXME:如何存储呢？
-			
-			this._updateAnchor(this.doc.documentElement.firstChild, 0);
-			
-			this.toTextMode();
-			
-			this.path.push({nodeName:"root"});
-			// offset 偏移量，从1开始
-			this.path.push({nodeName:"line", offset:1});
-		},
-		
-		clear: function(){
-			this._init();
-			this.onChanged();
-		},
-		
-		// 如果没有内容，则创建一个新行
-		// 如果存在内容，则加载内容，并将光标移到最后
-		loadData: function(xmlString){
-			
-		},
 		
 		_split: function(text){
 			return text.split(/\r\n|\r|\n/);
@@ -1282,35 +1292,40 @@ define([ "dojo/_base/declare",
 		
 		_lineUpForLineNode: function(anchor){
 			// summary:
-			//		这个方法只能用于node的nodeName为line的情况
+			//		这个方法只能用于node的nodeName为line的情况。
+			//		只要达到了往上一行移动的条件，就要调用该方法。
+			//
+			//	node: 为line节点
+			//	offset: 移动前的偏移量
+			// TODO:添加判断是否已到行尾的方法。
+			
 			var node = anchor.node;
-			var offset = anchor.offset;
 			
 			var previousNode = node.previousSibling;
+			// 如果已经是第一行
 			if(!previousNode){
 				return anchor;
 			}
-			
-			if(previousNode.lastChild){
-				previousNode = previousNode.lastChild;
-				
-				if(previousNode.nodeName == "math"){
-					previousNode = previousNode.lastChild;
-				}
-				var textContent = previousNode.textContent;
-				
-				var pos = this.path.pop();
-				pos.offset--;
-				this.path.push(pos);
-				this.path.push({nodeName: previousNode.nodeName, offset:previousNode.parentNode.childElementCount});
-				
-				return {node: previousNode, offset: textContent.length};
-			}else{
-				var pos = this.path.pop();
-				pos.offset--;
-				this.path.push(pos);
-				
+			// 只要存在上一行，先移到上一行
+			this._movePathToPreviousSibling(previousNode);
+			var childLength = previousNode.childNodes.length;
+			if(childLength === 0){
+				// 如果行中没有内容
 				return {node: previousNode, offset: 0};
+			}
+			
+			var lastChild = previousNode.lastChild;
+			var lastChildNodeNodeName = lastChild.nodeName;
+			
+			this.path.push({nodeName: lastChildNodeNodeName, offset:childLength});
+			// 在line中只会存在两种类型的节点：text和math
+			if(lastChildNodeNodeName === "text"){
+				var textContent = lastChild.textContent;
+				return {node: lastChild, offset: textContent.length};
+			}else if(lastChildNodeNodeName === "math"){
+				return {node: lastChild, offset: 1};
+			}else{
+				console.error("line中不支持"+lastChildNodeNodeName+"类型的节点");
 			}
 		},
 		
@@ -1323,7 +1338,24 @@ define([ "dojo/_base/declare",
 			var node = this.anchor.node;
 			var offset = this.anchor.offset;
 			
+			var line = this._isLineStart(this.anchor);
+			if(line){
+				if(line.previousSibling){
+					this._movePathToPreviousSibling(line);
+					// 因为只支持排版方向为从左到右的情况，所以是移到上一行的最后位置。
+					this._moveLineEnd(line.previousSibling);
+				}else{
+					// 因为在_isLineStart中删除了之前的节点，
+					// 但是我们需要焦点停留在原来的位置，因此重新加上。
+					// FIXME：暂时重新加上，要是能不做这一步操作，也能完成同样的功能，最好。
+					this._moveLineStart(line);
+				}
+				return;
+			}
+			
 			var nodeName = node.nodeName;
+			// 注意，不单单是遇到line才会往上移动，而是只要满足在行尾的条件，就需要往上移动
+			// nodeName == 'line' 只是往上一行移动的条件之一。
 			if(nodeName == "line"){
 				// FIXME：重构
 				this.anchor = this._lineUpForLineNode(this.anchor);
@@ -1601,11 +1633,125 @@ define([ "dojo/_base/declare",
 			this.path.push(pos);
 		},
 		
+		_movePathToPreviousSibling: function(nextSibling){
+			// summary:
+			//		将path的值设为下一个兄弟节点。
+			//		注意：在一个token节点中移动光标时，不需要调整path的值。
+			
+			var pos = this.path.pop();
+			pos.offset--;
+			pos.nodeName = nextSibling.nodeName;
+			this.path.push(pos);
+		},
+		
 		_isLineNode: function(node){
 			return node.nodeName === "line";
 		},
 		
+		_isLineStart: function(anchor){
+			// summary:
+			//		处理所有处于行首的判断。
+			//		有三种情况：
+			//		1. 处于一个空行中
+			//		2. 行中第一个节点是text节点，并且offset的值为0
+			//		3. 行中第一个节点是math节点，并且offset的值为0
+			//
+			//		在判断逻辑中调节path。
+			// 		如果不是行尾，则返回false；如果是行尾则返回当前行。
+			//		FIXME:在这个方法中处理了两个逻辑，为的是减少条件判断。寻找更好的重构手段。
+			
+			var node = anchor.node;
+			var offset = anchor.offset;
+			
+			var nodeName = node.nodeName;
+			if(nodeName === "line"){
+				return node;
+			}else if(nodeName === "text" && offset === 0 && !node.previousSibling){
+				this.path.pop();
+				return node.parentNode;
+			}else if(nodeName === "math" && offset === 0 && !node.previousSibling){
+				this.path.pop();
+				return node.parentNode;
+			}
+			return false;
+		},
 		
+		_isLineEnd: function(anchor){
+			// summary：
+			//		在判断逻辑中调节path。
+			// 		如果不是行尾，则返回false；如果是行尾则返回当前行。
+			//		FIXME:在这个方法中处理了两个逻辑，为的是减少条件判断。寻找更好的重构手段。
+			var node = anchor.node;
+			var offset = anchor.offset;
+			var nodeName = node.nodeName;
+			if(nodeName === "line"){
+				return node;
+			}else if(nodeName === "text" && offset === node.textContent.length  && !node.nextSibling){
+				this.path.pop();// 从路径中移除text节点
+				return node.parentNode;
+			}else if(nodeName === "math" && offset === 1 && !node.nextSibling){
+				this.path.pop();
+				return node.parentNode;
+			}
+			
+			return false;
+		},
+		
+		_moveLineStart: function(line){
+			// summary:
+			//		移到行首
+			var childCount = line.childNodes.length;
+			if(childCount === 0){
+				this.anchor.node = line;
+				this.anchor.offset = 0;
+				return;
+			}
+			var firstChild = line.firstChild;
+			var firstChildNodeName = firstChild.nodeName;
+			if(firstChildNodeName === "text"){
+				this.anchor.node = firstChild;
+				this.anchor.offset = 0;
+				this.path.push({nodeName: firstChildNodeName, offset: 1});
+				return;
+			}
+			
+			if(firstChildNodeName === "math"){
+				this.anchor.node = firstChild;
+				this.anchor.offset = 0;
+				this.path.push({nodeName: firstChildNodeName, offset: 1});
+				return;
+			}
+			
+			console.error("没有添加第一个节点是"+firstChildNodeName+"时，进入行首的逻辑");
+		},
+		
+		_moveLineEnd: function(line){
+			// summary:
+			//		移到行尾，不处理调整行的path
+			var childCount = line.childNodes.length;
+			if(childCount === 0){
+				this.anchor.node = line;
+				this.anchor.offset = 0;
+				return;
+			}
+			var lastChild = line.lastChild;
+			var lastChildNodeName = lastChild.nodeName;
+			if(lastChildNodeName === "text"){
+				this.anchor.node = lastChild;
+				this.anchor.offset = lastChild.textContent.length;
+				this.path.push({nodeName: lastChildNodeName, offset: childCount});
+				return;
+			}
+			
+			if(lastChildNodeName === "math"){
+				this.anchor.node = lastChild;
+				this.anchor.offset = 1;
+				this.path.push({nodeName: lastChildNodeName, offset: childCount});
+				return;
+			}
+			
+			console.error("没有添加最后一个节点是"+lastChildNodeName+"时，进入行尾的逻辑");
+		},
 		
 		moveRight: function(){
 			// summary:
@@ -1667,6 +1813,22 @@ define([ "dojo/_base/declare",
 			//		从最后一个节点后移到括号后
 			//		离开括号后
 			//	12. ……
+			
+			
+			var line = this._isLineEnd(this.anchor);
+			if(line){
+				if(line.nextSibling){
+					this._movePathToNextSibling(line);
+					// 因为只支持排版方向为从左到右的情况，所以是移到上一行的最后位置。
+					this._moveLineStart(line.nextSibling);
+				}else{
+					// 因为在_isLineEnd中删除了之前的节点，
+					// 但是我们需要焦点停留在原来的位置，因此重新加上。
+					// FIXME：暂时重新加上，要是能不做这一步操作，也能完成同样的功能，最好。
+					this._moveLineEnd(line);
+				}
+				return;
+			}
 			
 			var node = this.anchor.node;
 			var offset = this.anchor.offset;
@@ -1880,10 +2042,6 @@ define([ "dojo/_base/declare",
 			
 		},
 		
-		getLineCount: function(){
-			return this.doc.documentElement.childNodes.length;
-		},
-		
 		_getFocusLine: function(){
 			// summary:
 			//		当前节点往上追溯，获取nodeName为line的行
@@ -1968,6 +2126,10 @@ define([ "dojo/_base/declare",
 			return this.anchor.offset;
 		},
 		
+		getLines: function(){
+			return this.doc.documentElement.childNodes;
+		},
+		
 		getLineAt: function(lineIndex){
 			// summary: 
 			//		获取行节点。
@@ -1977,12 +2139,13 @@ define([ "dojo/_base/declare",
 			return this.getLines()[lineIndex];
 		},
 		
-		getLines: function(){
-			return this.doc.documentElement.childNodes;
+		getLineCount: function(){
+			return this.getLines().length;
 		},
 		
 		// 习题 line 获取html格式的数据
 		//		展示页面时使用
+		// FIXME:是不是应该移到view中呢？
 		getHTML: function(){
 			return dataUtil.xmlDocToHtml(this.doc);
 		}
