@@ -1338,6 +1338,9 @@ define([ "dojo/_base/declare",
 				this.mode = "text";
 				return;
 			}
+			// TODO：从math往里层走。
+			// 先分两种情况考虑，一个是token节点，一个是lyaout节点
+			// 都是在节点之间移动。
 			
 			var nodeName = node.nodeName;
 			
