@@ -154,8 +154,6 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				var model = this.model;
   				model.toMathMLMode();
   				model.setData({data: "", nodeName: "mfrac"});
-  				model.moveRight();
-  				model.moveRight();
   				model.moveRight();// 移到分母
   				model.moveRight();// 移到整个分数后面
   				model.moveRight();// 移出数学公式编辑区域

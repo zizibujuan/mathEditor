@@ -1327,6 +1327,7 @@ define([ "dojo/_base/declare",
 				this._movePathToPreviousSibling(prev);
 				this.anchor.node = prev;
 				this.anchor.offset = 1;
+				this.mode = "mathml";
 				return;
 			}
 			// math到text
@@ -1334,6 +1335,7 @@ define([ "dojo/_base/declare",
 				this._movePathToPreviousSibling(prev);
 				this.anchor.node = prev;
 				this.anchor.offset = prev.textContent.length;
+				this.mode = "text";
 				return;
 			}
 			
