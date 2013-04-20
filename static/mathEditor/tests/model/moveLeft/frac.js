@@ -212,9 +212,79 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   			tearDown: function(){
   				
   			}
+	    },{
+	    	name: "mathml模式下，由分子前左移到分数前，当分子上的第一个元素是token节点时",
+  			setUp: function(){
+  				this.model = new Model({});
+  			},
+  			runTest: function(t){
+  				var model = this.model;
+  				model.mode = "mathml";
+  				model.loadData("<root><line>" +
+  						"<math>" +
+	  						"<mstyle>" +
+		  						"<mfrac>" +
+			  						"<mrow><mn>1</mn></mrow>" +
+			  						"<mrow><mn>22</mn></mrow>" +
+		  						"</mfrac>" +
+	  						"</mstyle>" +
+  						"</math>" +
+  						"</line></root>");
+  				var line = model.getLineAt(0);
+  				model.anchor.node = line.firstChild.firstChild.firstChild.firstChild.firstChild;
+  				model.anchor.offset = 0;
+  				model.path.push({nodeName: "root"});
+  				model.path.push({nodeName: "line", offset: 1});
+  				model.path.push({nodeName: "math", offset: 1});
+  				model.path.push({nodeName: "mfrac", offset: 1});
+  				model.path.push({nodeName: "mrow", offset: 1});
+  				model.path.push({nodeName: "mn", offset: 1});
+  				model.moveLeft();
+  				t.is("/root/line[1]/math[1]/mfrac[1]", model.getPath());
+				var node = model.getFocusNode();
+				t.is("mfrac", node.nodeName);
+				t.is(0, model.getOffset());
+  			},
+  			tearDown: function(){
+  				
+  			}
+	    },{
+	    	name: "mathml模式下，由分子前左移到分数前，当分子上第一个元素是layout节点时",
+  			setUp: function(){
+  				this.model = new Model({});
+  			},
+  			runTest: function(t){
+  				var model = this.model;
+  				model.mode = "mathml";
+  				model.loadData("<root><line>" +
+  						"<math>" +
+	  						"<mstyle>" +
+		  						"<mfrac>" +
+		  						"<mrow><mstyle><mfrac><mrow><mn>22</mn></mrow><mrow><mn>33</mn></mrow></mfrac></mstyle></mrow>" +
+		  						"<mrow><mn>1</mn></mrow>" +
+		  						"</mfrac>" +
+	  						"</mstyle>" +
+  						"</math>" +
+  						"</line></root>");
+  				var line = model.getLineAt(0);
+  				model.anchor.node = line.firstChild.firstChild.firstChild.firstChild.firstChild.firstChild;
+  				model.anchor.offset = 0;
+  				model.path.push({nodeName: "root"});
+  				model.path.push({nodeName: "line", offset: 1});
+  				model.path.push({nodeName: "math", offset: 1});
+  				model.path.push({nodeName: "mfrac", offset: 1});
+  				model.path.push({nodeName: "mrow", offset: 1});
+  				model.path.push({nodeName: "mfrac", offset: 1});
+  				model.moveLeft();
+  				t.is("/root/line[1]/math[1]/mfrac[1]", model.getPath());
+				var node = model.getFocusNode();
+				t.is("mfrac", node.nodeName);
+				t.is(0, model.getOffset());
+  			},
+  			tearDown: function(){
+  				
+  			}
 	    },
-	    
-	    // TODO:由分子前移到分数前
 	    
 	    
 	    

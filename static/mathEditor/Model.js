@@ -1297,7 +1297,15 @@ define([ "dojo/_base/declare",
 		_isDenominatorMrow: function(node){
 			// summary:
 			//		判断当前节点是分母所在的row节点
+			
 			return node && node.nodeName === "mrow" && node.parentNode.nodeName === "mfrac" && node.previousSibling;
+		},
+		
+		_isNumeratorMrow: function(node){
+			// summary:
+			//		判断当前节点是分子所在的row节点
+			
+			return node && node.nodeName === "mrow" && node.parentNode.nodeName === "mfrac" && node.nextSibling;
 		},
 		
 		_moveLeftDenominatorToNumerator: function(denominatorMrow/*分母*/){
@@ -1416,6 +1424,7 @@ define([ "dojo/_base/declare",
 					// 不是token节点，就是layout节点，获取是msytle等节点
 					// 注意，如果是layout节点，往左边移动时，offset会一直保持为1
 					// this.anchor.offset = 1;
+					
 				}
 				return;
 			}
@@ -1431,6 +1440,14 @@ define([ "dojo/_base/declare",
 				}
 				if(this._isDenominatorMrow(parentNode)){
 					this._moveLeftDenominatorToNumerator(parentNode);
+					return;
+				}
+				
+				if(this._isNumeratorMrow(parentNode)){
+					// 往左上移
+					this.path.pop();
+					this.anchor.node = parentNode.parentNode;
+					// this.anchor.offset = 0;
 					return;
 				}
 				
@@ -1455,6 +1472,13 @@ define([ "dojo/_base/declare",
 					return;
 				}
 				
+				if(this._isNumeratorMrow(parentNode)){
+					// 往左上移
+					this.path.pop();
+					this.anchor.node = parentNode.parentNode;
+					// this.anchor.offset = 0;
+					return;
+				}
 				
 				
 				if(parentNode){
