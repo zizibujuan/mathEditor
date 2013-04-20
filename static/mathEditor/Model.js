@@ -1341,8 +1341,31 @@ define([ "dojo/_base/declare",
 			// TODO：从math往里层走。
 			// 先分两种情况考虑，一个是token节点，一个是lyaout节点
 			// 都是在节点之间移动。
-			
+			// 先单个情况具体处理，然后找出共性再提取。
 			var nodeName = node.nodeName;
+			if(nodeName === "math"){
+				var lastChild = node.lastChild;
+				if(lastChild.nodeName === "mstyle"){
+					lastChild = lastChild.lastChild;
+				}
+				this.path.push({nodeName: lastChild.nodeName, offset: node.childNodes.length});
+				this.anchor.node = lastChild;
+				if(this._isTokenNode(lastChild.nodeName)){
+					// 往里层走，所以path是追加 moveIn
+					this.anchor.offset = this._getTextLength(lastChild);
+				}else{
+					// 不是token节点，就是layout节点，获取是msytle等节点
+					// 注意，如果是layout节点，往左边移动时，offset会一直保持为1
+					// this.anchor.offset = 1;
+				}
+				return;
+			}
+			
+			
+			
+			
+			
+			
 			
 			function isTokenFirst(offset){
 				// summary:
@@ -1863,7 +1886,24 @@ define([ "dojo/_base/declare",
 				return;
 			}
 			
-			
+			var nodeName = node.nodeName;
+			if(nodeName === "math"){
+				var firstChild = node.firstChild;
+				if(firstChild.nodeName === "mstyle"){
+					firstChild = firstChild.firstChild;
+				}
+				this.path.push({nodeName: firstChild.nodeName, offset: 1});
+				this.anchor.node = firstChild;
+				if(this._isTokenNode(firstChild.nodeName)){
+					// 往里层走，所以path是追加 moveIn
+					this.anchor.offset = 0;
+				}else{
+					// 不是token节点，就是layout节点，获取是msytle等节点
+					// 注意，如果是layout节点，往右边移动时，offset会一直保持为0
+					// this.anchor.offset = 0;
+				}
+				return;
+			}
 			
 			
 			var nodeName = node.nodeName;
