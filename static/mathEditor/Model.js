@@ -1343,7 +1343,8 @@ define([ "dojo/_base/declare",
 			// 都是在节点之间移动。
 			// 先单个情况具体处理，然后找出共性再提取。
 			var nodeName = node.nodeName;
-			if(nodeName === "math"){
+			if(nodeName === "math" && offset === 1){
+				// 往里层移动
 				var lastChild = node.lastChild;
 				if(lastChild.nodeName === "mstyle"){
 					lastChild = lastChild.lastChild;
@@ -1361,6 +1362,22 @@ define([ "dojo/_base/declare",
 				return;
 			}
 			
+			if((this._isTokenNode(nodeName) || nodeName === "mfrac") && offset === 0){
+				// 往外层移动
+				var parentNode = node.parentNode;// 找token的父节点，则一定是layout节点，无需做判断
+				if(parentNode.nodeName === "mstyle"){
+					parentNode = parentNode.parentNode;
+				}
+				if(parentNode){
+					this.path.pop();
+					this.anchor.node = parentNode;
+					// this.anchor.offset = 0;
+				}
+				return;
+			}
+			
+			
+			// 执行到这里的时候，只能是this.anchor.offset == 0，这个时候要么是平行左移，要么是往左上层移，要么是往左下层移
 			
 			
 			
@@ -1887,7 +1904,7 @@ define([ "dojo/_base/declare",
 			}
 			
 			var nodeName = node.nodeName;
-			if(nodeName === "math"){
+			if(nodeName === "math" && offset === 0){
 				var firstChild = node.firstChild;
 				if(firstChild.nodeName === "mstyle"){
 					firstChild = firstChild.firstChild;
@@ -1904,6 +1921,38 @@ define([ "dojo/_base/declare",
 				}
 				return;
 			}
+			
+			if(nodeName === "mfrac" && offset === 1){
+				// 往外层移动
+				var parentNode = node.parentNode;// 找token的父节点，则一定是layout节点，无需做判断
+				if(parentNode.nodeName === "mstyle"){
+					parentNode = parentNode.parentNode;
+				}
+				if(parentNode){
+					this.path.pop();
+					this.anchor.node = parentNode;
+					// this.anchor.offset = 1;
+				}
+				return;
+			}
+			
+			if(this._isTokenNode(nodeName) && offset === this._getTextLength(node)){
+				// 往外层移动
+				var parentNode = node.parentNode;// 找token的父节点，则一定是layout节点，无需做判断
+				if(parentNode.nodeName === "mstyle"){
+					parentNode = parentNode.parentNode;
+				}
+				if(parentNode){
+					this.path.pop();
+					this.anchor.node = parentNode;
+					this.anchor.offset = 1;
+				}
+				return;
+			}
+			
+			
+			
+			
 			
 			
 			var nodeName = node.nodeName;
