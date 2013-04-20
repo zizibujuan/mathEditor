@@ -1293,6 +1293,38 @@ define([ "dojo/_base/declare",
 		_isTokenNode: function(nodeName){
 			return dripLang.isMathTokenName(nodeName) || nodeName === "text";
 		},
+		
+		_isDenominatorMrow: function(node){
+			// summary:
+			//		判断当前节点是分母所在的row节点
+			return node && node.nodeName === "mrow" && node.parentNode.nodeName === "mfrac" && node.previousSibling;
+		},
+		
+		_moveLeftDenominatorToNumerator: function(denominatorMrow/*分母*/){
+			// summary
+			//		左移，从分母最前面，移动到分子最后面
+			
+			var pos = this.path.pop();
+			// 如果遇到mrow，则停止往左外层走，开始找分子节点
+			var numeratorMrow = denominatorMrow.previousSibling;
+			// 移到分子中
+			pos.offset--;
+			this.path.push(pos);
+			var lastChild = numeratorMrow.lastChild;
+			if(this._isTokenNode(lastChild.nodeName)){
+				this.path.push({nodeName: lastChild.nodeName, offset:numeratorMrow.childNodes.length});
+				this.anchor.node = lastChild;
+				this.anchor.offset = this._getTextLength(lastChild);
+			}else{
+				if(lastChild.nodeName === "mstyle"){
+					lastChild = lastChild.lastChild;
+				}
+				this.path.push({nodeName: lastChild.nodeName, offset:lastChild.parentNode.childNodes.length});
+				this.anchor.node = lastChild;
+				this.anchor.offset = 1;
+			}
+		},
+		
 		// TODO:重命名，因为左移，有左移一个字母和左移一个单词之分，所以需要命名的更具体。
 		// 只有英文才有这种情况。
 		moveLeft: function(){
@@ -1361,15 +1393,72 @@ define([ "dojo/_base/declare",
 				}
 				return;
 			}
+
+			if(nodeName == "mfrac" && offset ===1){
+				// 往里层走
+				var lastChild = node.lastChild;
+				if(lastChild.nodeName === "mrow"){
+					this.path.push({nodeName: lastChild.nodeName, offset: node.childNodes.length});
+					// mfrac中的mrow要放在path中
+					lastChild = lastChild.lastChild;
+					if(lastChild.nodeName === "mstyle"){
+						// 分数中嵌套分数的情况
+						lastChild = lastChild.lastChild;
+					}
+					this.path.push({nodeName: lastChild.nodeName, offset: lastChild.parentNode.childNodes.length});
+				}
+				
+				this.anchor.node = lastChild;
+				if(this._isTokenNode(lastChild.nodeName)){
+					// 往里层走，所以path是追加 moveIn
+					this.anchor.offset = this._getTextLength(lastChild);
+				}else{
+					// 不是token节点，就是layout节点，获取是msytle等节点
+					// 注意，如果是layout节点，往左边移动时，offset会一直保持为1
+					// this.anchor.offset = 1;
+				}
+				return;
+			}
 			
-			if((this._isTokenNode(nodeName) || nodeName === "mfrac") && offset === 0){
+			if(this._isTokenNode(nodeName) && offset === 0){
 				// 往外层移动
+				// 从path中移出token
+				this.path.pop();
+				
+				var parentNode = node.parentNode;// 找token的父节点，则一定是layout节点，无需做判断
+				if(parentNode && parentNode.nodeName === "mstyle"){
+					parentNode = parentNode.parentNode;
+				}
+				if(this._isDenominatorMrow(parentNode)){
+					this._moveLeftDenominatorToNumerator(parentNode);
+					return;
+				}
+				
+				if(parentNode){
+					this.anchor.node = parentNode;
+					// this.anchor.offset = 0;
+				}
+				return;
+			}
+			
+			if(nodeName === "mfrac" && offset === 0){
+				// 往外层移动
+				this.path.pop();
+				
 				var parentNode = node.parentNode;// 找token的父节点，则一定是layout节点，无需做判断
 				if(parentNode.nodeName === "mstyle"){
 					parentNode = parentNode.parentNode;
 				}
+				
+				if(this._isDenominatorMrow(parentNode)){
+					this._moveLeftDenominatorToNumerator(parentNode);
+					return;
+				}
+				
+				
+				
 				if(parentNode){
-					this.path.pop();
+					
 					this.anchor.node = parentNode;
 					// this.anchor.offset = 0;
 				}
