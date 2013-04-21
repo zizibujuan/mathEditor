@@ -1,6 +1,313 @@
 define([ "doh","mathEditor/Model" ], function(doh,Model) {
-
+	// summary
+	//		右移的测试逻辑有：
+	//		1.在空的分数下
+	//			由分数前面右移到分子前面
+	//			由分子后面右移到分母前面
+	//			由分母后面右移到分数后面
+	//		2.涉及到两种模式之间的切换
+	//			由text节点左移到math节点上
+	//			由math节点左移到text节点上
 	doh.register("Model.moveRight.frac frac在分数之间右移光标",[
+	    {
+			name: "mathml模式下，由分数前面右移到分子前面，当分子里第一个元素是token节点时",
+			setUp: function(){
+				this.model = new Model({});
+			},
+			runTest: function(t){
+				var model = this.model;
+				model.mode = "mathml";
+				model.loadData("<root><line>" +
+						"<math>" +
+							"<mstyle>" +
+								"<mfrac>" +
+									"<mrow><mn>11</mn></mrow>" +
+									"<mrow><mn>22</mn></mrow>" +
+								"</mfrac>" +
+							"</mstyle>" +
+						"</math>" +
+				"</line></root>");
+				var line = model.getLineAt(0);
+				model.anchor.node = line.firstChild.firstChild.firstChild;
+				model.anchor.offset = 0;
+				model.path.push({nodeName: "root"});
+				model.path.push({nodeName: "line", offset: 1});
+				model.path.push({nodeName: "math", offset: 1});
+				model.path.push({nodeName: "mfrac", offset: 1});
+				model.moveRight();
+				t.is("/root/line[1]/math[1]/mfrac[1]/mrow[1]/mn[1]", model.getPath());
+				var node = model.getFocusNode();
+				t.t(node.parentNode.previousSibling == null); // 证明是分子。
+				t.is("mn", node.nodeName);
+				t.is(0, model.getOffset());
+				t.is("11", node.textContent);
+			},
+			tearDown: function(){
+				
+			}
+		},{
+			name: "mathml模式下，由分数前面右移到分子前面，当分子里第一个元素是layout节点时",
+			setUp: function(){
+				this.model = new Model({});
+			},
+			runTest: function(t){
+				var model = this.model;
+				model.mode = "mathml";
+				model.loadData("<root><line>" +
+						"<math>" +
+							"<mstyle>" +
+								"<mfrac>" +
+									"<mrow><mstyle><mfrac><mrow><mn>22</mn></mrow><mrow><mn>33</mn></mrow></mfrac></mstyle></mrow>" +
+									"<mrow><mn>1</mn></mrow>" +
+								"</mfrac>" +
+							"</mstyle>" +
+						"</math>" +
+				"</line></root>");
+				var line = model.getLineAt(0);
+				model.anchor.node = line.firstChild.firstChild.firstChild;
+				model.anchor.offset = 0;
+				model.path.push({nodeName: "root"});
+				model.path.push({nodeName: "line", offset: 1});
+				model.path.push({nodeName: "math", offset: 1});
+				model.path.push({nodeName: "mfrac", offset: 1});
+				model.moveRight();
+				t.is("/root/line[1]/math[1]/mfrac[1]/mrow[1]/mfrac[1]", model.getPath());
+				var node = model.getFocusNode();
+				t.t(node.parentNode.previousSibling == null); // 证明是分子。
+				t.is("mfrac", node.nodeName);
+				t.is(0, model.getOffset());
+			},
+			tearDown: function(){
+				
+			}
+		},{
+			name: "mathml模式下，执行右移，从分子最后面移到分母最前面，分子尾节点是token节点，分母首节点是token节点",
+			setUp: function(){
+				this.model = new Model({});
+			},
+			runTest: function(t){
+				var model = this.model;
+				model.mode = "mathml";
+				model.loadData("<root><line>" +
+						"<math>" +
+							"<mstyle>" +
+	  						"<mfrac>" +
+		  						"<mrow><mn>11</mn></mrow>" +
+		  						"<mrow><mn>22</mn></mrow>" +
+	  						"</mfrac>" +
+							"</mstyle>" +
+						"</math>" +
+				"</line></root>");
+				var line = model.getLineAt(0);
+				model.anchor.node = line.firstChild.firstChild.firstChild.firstChild.firstChild;
+				model.anchor.offset = 2;
+				model.path.push({nodeName: "root"});
+				model.path.push({nodeName: "line", offset: 1});
+				model.path.push({nodeName: "math", offset: 1});
+				model.path.push({nodeName: "mfrac", offset: 1});
+				model.path.push({nodeName: "mrow", offset: 1});
+				model.path.push({nodeName: "mn", offset: 1});
+				model.moveRight();
+				t.is("/root/line[1]/math[1]/mfrac[1]/mrow[2]/mn[1]", model.getPath());
+				var node = model.getFocusNode();
+				t.t(node.parentNode.nextSibling == null); // 证明是分母。
+				t.is("mn", node.nodeName);
+				t.is(0, model.getOffset());
+				t.is("22", node.textContent);
+			},
+			tearDown: function(){
+				
+			}
+		},{
+			name: "mathml模式下，执行右移，从分子最后面移到分母最前面，分子尾节点是layout节点，分母首节点是token节点",
+			setUp: function(){
+				this.model = new Model({});
+			},
+			runTest: function(t){
+				var model = this.model;
+				model.mode = "mathml";
+				model.loadData("<root><line>" +
+						"<math>" +
+							"<mstyle>" +
+	  						"<mfrac>" +
+		  						"<mrow><mstyle><mfrac><mrow><mn>123</mn></mrow><mrow><mn>456</mn></mrow></mfrac></mstyle></mrow>" +
+		  						"<mrow><mn>22</mn></mrow>" +
+	  						"</mfrac>" +
+							"</mstyle>" +
+						"</math>" +
+				"</line></root>");
+				var line = model.getLineAt(0);
+				model.anchor.node = line.firstChild.firstChild.firstChild.firstChild.firstChild.firstChild;
+				model.anchor.offset = 1;
+				model.path.push({nodeName: "root"});
+				model.path.push({nodeName: "line", offset: 1});
+				model.path.push({nodeName: "math", offset: 1});
+				model.path.push({nodeName: "mfrac", offset: 1});
+				model.path.push({nodeName: "mrow", offset: 1});
+				model.path.push({nodeName: "mfrac", offset: 1});
+				model.moveRight();
+				t.is("/root/line[1]/math[1]/mfrac[1]/mrow[2]/mn[1]", model.getPath());
+				var node = model.getFocusNode();
+				t.t(node.parentNode.nextSibling == null); // 证明是分母。
+				t.is("mn", node.nodeName);
+				t.is(0, model.getOffset());
+				t.is("22", node.textContent);
+			},
+			tearDown: function(){
+				
+			}
+		},{
+			name: "mathml模式下，执行右移，从分子最后面移到分母最前面，分子尾节点是token节点，分母首节点是layout节点",
+			setUp: function(){
+				this.model = new Model({});
+			},
+			runTest: function(t){
+				var model = this.model;
+				model.mode = "mathml";
+				model.loadData("<root><line>" +
+						"<math>" +
+							"<mstyle>" +
+	  						"<mfrac>" +
+		  						"<mrow><mn>22</mn></mrow>" +
+		  						"<mrow><mstyle><mfrac><mrow><mn>123</mn></mrow><mrow><mn>456</mn></mrow></mfrac></mstyle></mrow>" +
+	  						"</mfrac>" +
+							"</mstyle>" +
+						"</math>" +
+				"</line></root>");
+				var line = model.getLineAt(0);
+				model.anchor.node = line.firstChild.firstChild.firstChild.firstChild.firstChild;
+				model.anchor.offset = 2;
+				model.path.push({nodeName: "root"});
+				model.path.push({nodeName: "line", offset: 1});
+				model.path.push({nodeName: "math", offset: 1});
+				model.path.push({nodeName: "mfrac", offset: 1});
+				model.path.push({nodeName: "mrow", offset: 1});
+				model.path.push({nodeName: "mn", offset: 1});
+				model.moveRight();
+				t.is("/root/line[1]/math[1]/mfrac[1]/mrow[2]/mfrac[1]", model.getPath());
+				var node = model.getFocusNode();
+				t.t(node.parentNode.nextSibling == null); // 证明是分母。
+				t.is("mfrac", node.nodeName);
+				t.is(0, model.getOffset());
+			},
+			tearDown: function(){
+				
+			}
+		},{
+			name: "mathml模式下，执行右移，从分子最后面移到分母最前面，分子尾节点是layout节点，分母首节点是layout节点",
+			setUp: function(){
+				this.model = new Model({});
+			},
+			runTest: function(t){
+				var model = this.model;
+				model.mode = "mathml";
+				model.loadData("<root><line>" +
+						"<math>" +
+							"<mstyle>" +
+	  						"<mfrac>" +
+		  						"<mrow><mstyle><mfrac><mrow><mn>111</mn></mrow><mrow><mn>222</mn></mrow></mfrac></mstyle></mrow>" +
+		  						"<mrow><mstyle><mfrac><mrow><mn>123</mn></mrow><mrow><mn>456</mn></mrow></mfrac></mstyle></mrow>" +
+	  						"</mfrac>" +
+							"</mstyle>" +
+						"</math>" +
+				"</line></root>");
+				var line = model.getLineAt(0);
+				model.anchor.node = line.firstChild.firstChild.firstChild.firstChild.firstChild.firstChild;
+				model.anchor.offset = 1;
+				model.path.push({nodeName: "root"});
+				model.path.push({nodeName: "line", offset: 1});
+				model.path.push({nodeName: "math", offset: 1});
+				model.path.push({nodeName: "mfrac", offset: 1});
+				model.path.push({nodeName: "mrow", offset: 1});
+				model.path.push({nodeName: "mfrac", offset: 1});
+				model.moveRight();
+				t.is("/root/line[1]/math[1]/mfrac[1]/mrow[2]/mfrac[1]", model.getPath());
+				var node = model.getFocusNode();
+				t.t(node.parentNode.nextSibling == null); // 证明是分母。
+				t.is("mfrac", node.nodeName);
+				t.is(0, model.getOffset());
+			},
+			tearDown: function(){
+				
+			}
+		},{
+			name: "mathml模式下，由分母后右移到分数后，当分母上的最后一个元素是token节点时",
+			setUp: function(){
+				this.model = new Model({});
+			},
+			runTest: function(t){
+				var model = this.model;
+				model.mode = "mathml";
+				model.loadData("<root><line>" +
+						"<math>" +
+							"<mstyle>" +
+	  						"<mfrac>" +
+		  						"<mrow><mn>1</mn></mrow>" +
+		  						"<mrow><mn>22</mn></mrow>" +
+	  						"</mfrac>" +
+							"</mstyle>" +
+						"</math>" +
+						"</line></root>");
+				var line = model.getLineAt(0);
+				model.anchor.node = line.firstChild.firstChild.firstChild.lastChild.firstChild;
+				model.anchor.offset = 2;
+				model.path.push({nodeName: "root"});
+				model.path.push({nodeName: "line", offset: 1});
+				model.path.push({nodeName: "math", offset: 1});
+				model.path.push({nodeName: "mfrac", offset: 1});
+				model.path.push({nodeName: "mrow", offset: 2});
+				model.path.push({nodeName: "mn", offset: 1});
+				model.moveRight();
+				t.is("/root/line[1]/math[1]/mfrac[1]", model.getPath());
+				var node = model.getFocusNode();
+				t.is("mfrac", node.nodeName);
+				t.is(1, model.getOffset());
+			},
+			tearDown: function(){
+				
+			}
+		},{
+			name: "mathml模式下，由分母后右移到分数后，当分母上的最后一个元素是layout节点时",
+			setUp: function(){
+				this.model = new Model({});
+			},
+			runTest: function(t){
+				var model = this.model;
+				model.mode = "mathml";
+				model.loadData("<root><line>" +
+						"<math>" +
+							"<mstyle>" +
+	  						"<mfrac>" +
+	  						"<mrow><mn>1</mn></mrow>" +
+	  						"<mrow><mstyle><mfrac><mrow><mn>22</mn></mrow><mrow><mn>33</mn></mrow></mfrac></mstyle></mrow>" +
+	  						"</mfrac>" +
+							"</mstyle>" +
+						"</math>" +
+						"</line></root>");
+				var line = model.getLineAt(0);
+				model.anchor.node = line.firstChild.firstChild.firstChild.lastChild.firstChild.firstChild;
+				model.anchor.offset = 1;
+				model.path.push({nodeName: "root"});
+				model.path.push({nodeName: "line", offset: 1});
+				model.path.push({nodeName: "math", offset: 1});
+				model.path.push({nodeName: "mfrac", offset: 1});
+				model.path.push({nodeName: "mrow", offset: 2});
+				model.path.push({nodeName: "mfrac", offset: 1});
+				model.moveRight();
+				t.is("/root/line[1]/math[1]/mfrac[1]", model.getPath());
+				var node = model.getFocusNode();
+				t.is("mfrac", node.nodeName);
+				t.is(1, model.getOffset());
+			},
+			tearDown: function(){
+				
+			}
+		},
+	    
+	    
+	    
+	    
+	    
 	    {
 	    	name: "mathml模式下，在一个空的分子上右移光标",
   			setUp: function(){

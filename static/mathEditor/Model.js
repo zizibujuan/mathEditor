@@ -1313,11 +1313,11 @@ define([ "dojo/_base/declare",
 			//		左移，从分母最前面，移动到分子最后面
 			
 			var pos = this.path.pop();
-			// 如果遇到mrow，则停止往左外层走，开始找分子节点
-			var numeratorMrow = denominatorMrow.previousSibling;
 			// 移到分子中
 			pos.offset--;
 			this.path.push(pos);
+			// 如果遇到mrow，则停止往左外层走，开始找分子节点
+			var numeratorMrow = denominatorMrow.previousSibling;
 			var lastChild = numeratorMrow.lastChild;
 			if(this._isTokenNode(lastChild.nodeName)){
 				this.path.push({nodeName: lastChild.nodeName, offset:numeratorMrow.childNodes.length});
@@ -1331,6 +1331,42 @@ define([ "dojo/_base/declare",
 				this.anchor.node = lastChild;
 				this.anchor.offset = 1;
 			}
+		},
+		
+		_moveRightNumeratorToDenominator: function(numeratorMrow/*分子*/){
+			// summary
+			//		右移，从分子最后面，移动到分母最前面
+			
+			var pos = this.path.pop();
+			// 移到分母中
+			pos.offset++;
+			this.path.push(pos);
+			
+			var denominatorMrow = numeratorMrow.nextSibling;
+			var firstChild = denominatorMrow.firstChild;
+			if(this._isTokenNode(firstChild.nodeName)){
+				
+			}else{
+				if(firstChild.nodeName === "mstyle"){
+					firstChild = firstChild.firstChild;
+				}
+			}
+			this.path.push({nodeName: firstChild.nodeName, offset: 1});
+			this.anchor.node = firstChild;
+			this.anchor.offset = 0;
+		},
+		
+		_moveToTopRight: function(node){
+			// summary:
+			//		往右上外层移动
+			this.path.pop();
+			this.anchor.node = node.parentNode;
+			this.anchor.offset = 1; // 往上移动时，节点为layout节点。
+		},
+		
+		_moveToBottomRight: function(node){
+			// summary:
+			//		往右下内层移动
 		},
 		
 		// TODO:重命名，因为左移，有左移一个字母和左移一个单词之分，所以需要命名的更具体。
@@ -1458,6 +1494,7 @@ define([ "dojo/_base/declare",
 				return;
 			}
 			
+			// TODO：尝试是否可将mfrac改为所有的layout节点名称
 			if(nodeName === "mfrac" && offset === 0){
 				// 往外层移动
 				this.path.pop();
@@ -2037,30 +2074,97 @@ define([ "dojo/_base/declare",
 			
 			if(nodeName === "mfrac" && offset === 1){
 				// 往外层移动
+				this.path.pop();
+				
 				var parentNode = node.parentNode;// 找token的父节点，则一定是layout节点，无需做判断
 				if(parentNode.nodeName === "mstyle"){
 					parentNode = parentNode.parentNode;
 				}
+				if(this._isNumeratorMrow(parentNode)){
+					this._moveRightNumeratorToDenominator(parentNode);
+					return;
+				}
+				if(this._isDenominatorMrow(parentNode)){
+					this._moveToTopRight(parentNode);
+					return;
+				}
 				if(parentNode){
-					this.path.pop();
 					this.anchor.node = parentNode;
 					// this.anchor.offset = 1;
 				}
 				return;
 			}
+			// 移进mfrac
+			if(nodeName == "mfrac" && offset ===0){
+				// 往里层走 FIXME：重构方法
+				var firstChild = node.firstChild;
+				if(firstChild.nodeName === "mrow"){
+					this.path.push({nodeName: firstChild.nodeName, offset: 1});
+					// mfrac中的mrow要放在path中
+					firstChild = firstChild.firstChild;
+					if(firstChild.nodeName === "mstyle"){
+						// 分数中嵌套分数的情况
+						firstChild = firstChild.firstChild;
+					}
+					this.path.push({nodeName: firstChild.nodeName, offset: 1});
+				}
+				
+				this.anchor.node = firstChild;
+				//this.anchor.offset = 0;
+				return;
+			}
 			
 			if(this._isTokenNode(nodeName) && offset === this._getTextLength(node)){
 				// 往外层移动
+				// 从path中移出token
+				this.path.pop();
+				
 				var parentNode = node.parentNode;// 找token的父节点，则一定是layout节点，无需做判断
-				if(parentNode.nodeName === "mstyle"){
+				if(parentNode && parentNode.nodeName === "mstyle"){
 					parentNode = parentNode.parentNode;
 				}
+				if(this._isNumeratorMrow(parentNode)){
+					this._moveRightNumeratorToDenominator(parentNode);
+					return;
+				}
+				if(this._isDenominatorMrow(parentNode)){
+					this._moveToTopRight(parentNode);
+					return;
+				}
+				
+				
 				if(parentNode){
-					this.path.pop();
 					this.anchor.node = parentNode;
 					this.anchor.offset = 1;
 				}
 				return;
+				
+				// 往外层移动
+				// 从path中移出token
+//				this.path.pop();
+//				
+//				var parentNode = node.parentNode;// 找token的父节点，则一定是layout节点，无需做判断
+//				if(parentNode && parentNode.nodeName === "mstyle"){
+//					parentNode = parentNode.parentNode;
+//				}
+//				if(this._isDenominatorMrow(parentNode)){
+//					this._moveLeftDenominatorToNumerator(parentNode);
+//					return;
+//				}
+//				
+//				if(this._isNumeratorMrow(parentNode)){
+//					// 往左上移
+//					this.path.pop();
+//					this.anchor.node = parentNode.parentNode;
+//					// this.anchor.offset = 0;
+//					return;
+//				}
+//				
+//				if(parentNode){
+//					this.anchor.node = parentNode;
+//					// this.anchor.offset = 0;
+//				}
+//				return;
 			}
 			
 			
