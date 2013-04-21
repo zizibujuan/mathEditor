@@ -450,7 +450,8 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				
   			}
 	    }
-	    // 测试分数前面有text节点的情况
+	    // TODO:测试分数前面有text节点的情况
+	    // TODO:测试分数前面和后面有mathml token和layout节点的情况
 	    // TODO：从分数外面移到分数里面
 	                             
 	]);
