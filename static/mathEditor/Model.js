@@ -2138,33 +2138,6 @@ define([ "dojo/_base/declare",
 					this.anchor.offset = 1;
 				}
 				return;
-				
-				// 往外层移动
-				// 从path中移出token
-//				this.path.pop();
-//				
-//				var parentNode = node.parentNode;// 找token的父节点，则一定是layout节点，无需做判断
-//				if(parentNode && parentNode.nodeName === "mstyle"){
-//					parentNode = parentNode.parentNode;
-//				}
-//				if(this._isDenominatorMrow(parentNode)){
-//					this._moveLeftDenominatorToNumerator(parentNode);
-//					return;
-//				}
-//				
-//				if(this._isNumeratorMrow(parentNode)){
-//					// 往左上移
-//					this.path.pop();
-//					this.anchor.node = parentNode.parentNode;
-//					// this.anchor.offset = 0;
-//					return;
-//				}
-//				
-//				if(parentNode){
-//					this.anchor.node = parentNode;
-//					// this.anchor.offset = 0;
-//				}
-//				return;
 			}
 			
 			
