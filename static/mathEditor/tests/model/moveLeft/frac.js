@@ -382,7 +382,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				
   			}
 	    },{
-	    	name: "mathml模式下，在空的分数上，左移两次光标，光标显示在整个分数之前，此时光标已移出分数,并进入前一个节点",
+	    	name: "mathml模式下，在空的分数上，左移三次光标，光标显示在整个分数之前，此时光标已移出分数,并进入前一个节点",
   			setUp: function(){
   				this.model = new Model({});
   			},
@@ -391,8 +391,9 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				model.setData({data: "a"});
   				model.toMathMLMode();
   				model.setData({data: "", nodeName: "mfrac"});
-  				model.moveLeft();
-  				model.moveLeft();
+  				model.moveLeft();// 移到分数前
+  				model.moveLeft();// 移到math节点前
+  				model.moveLeft();// 移到text后
   				t.is("/root/line[1]/text[1]", model.getPath());
 				var node = model.getFocusNode();
 				t.is("text", node.nodeName);
@@ -410,8 +411,6 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				var model = this.model;
   				model.toMathMLMode();
   				model.setData({data: "", nodeName: "mfrac"});
-  				model.moveRight();
-  				model.moveRight();
   				model.moveRight();// 移到分母
   				model.moveRight();// 移到整个分数后面
   				model.moveLeft();// 移到分母上

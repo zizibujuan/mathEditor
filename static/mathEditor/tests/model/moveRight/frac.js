@@ -463,7 +463,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				model.moveRight();
   				t.is("/root/line[1]/math[1]/mfrac[1]/mrow[1]/mn[1]", model.getPath());
 				var node = model.getFocusNode();
-				t.is("text", node.nodeName);
+				t.is("mn", node.nodeName);
 				t.is(0, model.getOffset());
 				t.is("drip_placeholder_box", node.getAttribute("class"));
   			},
