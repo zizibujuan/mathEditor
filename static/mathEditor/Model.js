@@ -1369,6 +1369,183 @@ define([ "dojo/_base/declare",
 			//		往右下内层移动
 		},
 		
+		_getTextLength: function(tokenNode){
+			// summary:
+			//		获取节点中有效符号的个数，注意这个长度不是字符的长度。
+			//		如sin是一个三角函数，它的长度是1，而不是3。
+			
+			var length = 0;
+			if(xmlUtil.isPlaceHolder(tokenNode)){
+				// 占位符中内容的长度为0
+				return 0;
+			}else{
+				// 只有token节点，才需要计算
+				var nodeName = tokenNode.nodeName;
+				if(nodeName === "mn" || nodeName === "text"){
+					length = tokenNode.textContent.length;
+				}else if(nodeName === "mo" || nodeName === "mi"){
+					// mo和mi的长度永远为1
+					length = 1;
+				}
+			}
+			return length;
+		},
+		
+		_movePathToNextSibling: function(nextSibling){
+			// summary:
+			//		将path的值设为下一个兄弟节点。
+			//		注意：在一个token节点中移动光标时，不需要调整path的值。
+			
+			var pos = this.path.pop();
+			pos.offset++;
+			pos.nodeName = nextSibling.nodeName;
+			this.path.push(pos);
+		},
+		
+		_movePathToPreviousSibling: function(nextSibling){
+			// summary:
+			//		将path的值设为下一个兄弟节点。
+			//		注意：在一个token节点中移动光标时，不需要调整path的值。
+			
+			var pos = this.path.pop();
+			pos.offset--;
+			pos.nodeName = nextSibling.nodeName;
+			this.path.push(pos);
+		},
+		
+		_isLineNode: function(node){
+			return node.nodeName === "line";
+		},
+		
+		_isLineStart: function(anchor){
+			// summary:
+			//		处理所有处于行首的判断。
+			//		有三种情况：
+			//		1. 处于一个空行中
+			//		2. 行中第一个节点是text节点，并且offset的值为0
+			//		3. 行中第一个节点是math节点，并且offset的值为0
+			//
+			//		在判断逻辑中调节path。
+			// 		如果不是行尾，则返回false；如果是行尾则返回当前行。
+			//		FIXME:在这个方法中处理了两个逻辑，为的是减少条件判断。寻找更好的重构手段。
+			
+			var node = anchor.node;
+			var offset = anchor.offset;
+			
+			var nodeName = node.nodeName;
+			if(nodeName === "line"){
+				return node;
+			}else if(nodeName === "text" && offset === 0 && !node.previousSibling){
+				this.path.pop();
+				return node.parentNode;
+			}else if(nodeName === "math" && offset === 0 && !node.previousSibling){
+				this.path.pop();
+				return node.parentNode;
+			}
+			return false;
+		},
+		
+		_isLineEnd: function(anchor){
+			// summary：
+			//		在判断逻辑中调节path。
+			// 		如果不是行尾，则返回false；如果是行尾则返回当前行。
+			//		FIXME:在这个方法中处理了两个逻辑，为的是减少条件判断。寻找更好的重构手段。
+			var node = anchor.node;
+			var offset = anchor.offset;
+			var nodeName = node.nodeName;
+			if(nodeName === "line"){
+				return node;
+			}else if(nodeName === "text" && offset === node.textContent.length  && !node.nextSibling){
+				this.path.pop();// 从路径中移除text节点
+				return node.parentNode;
+			}else if(nodeName === "math" && offset === 1 && !node.nextSibling){
+				this.path.pop();
+				return node.parentNode;
+			}
+			
+			return false;
+		},
+		
+		_moveLineStart: function(line){
+			// summary:
+			//		移到行首
+			var childCount = line.childNodes.length;
+			if(childCount === 0){
+				this.anchor.node = line;
+				this.anchor.offset = 0;
+				return;
+			}
+			var firstChild = line.firstChild;
+			var firstChildNodeName = firstChild.nodeName;
+			if(firstChildNodeName === "text"){
+				this.anchor.node = firstChild;
+				this.anchor.offset = 0;
+				this.path.push({nodeName: firstChildNodeName, offset: 1});
+				return;
+			}
+			
+			if(firstChildNodeName === "math"){
+				this.anchor.node = firstChild;
+				this.anchor.offset = 0;
+				this.path.push({nodeName: firstChildNodeName, offset: 1});
+				return;
+			}
+			
+			console.error("没有添加第一个节点是"+firstChildNodeName+"时，进入行首的逻辑");
+		},
+		
+		_moveLineEnd: function(line){
+			// summary:
+			//		移到行尾，不处理调整行的path
+			var childCount = line.childNodes.length;
+			if(childCount === 0){
+				this.anchor.node = line;
+				this.anchor.offset = 0;
+				return;
+			}
+			var lastChild = line.lastChild;
+			var lastChildNodeName = lastChild.nodeName;
+			if(lastChildNodeName === "text"){
+				this.anchor.node = lastChild;
+				this.anchor.offset = lastChild.textContent.length;
+				this.path.push({nodeName: lastChildNodeName, offset: childCount});
+				return;
+			}
+			
+			if(lastChildNodeName === "math"){
+				this.anchor.node = lastChild;
+				this.anchor.offset = 1;
+				this.path.push({nodeName: lastChildNodeName, offset: childCount});
+				return;
+			}
+			
+			console.error("没有添加最后一个节点是"+lastChildNodeName+"时，进入行尾的逻辑");
+		},
+		
+		_canMoveRightWithInToken: function(anchor){
+			var node = anchor.node;
+			if(xmlUtil.isPlaceHolder(node))return false;
+			var offset = anchor.offset;
+			
+			if(this._isTokenNode(node.nodeName) && 0 <= offset && offset < node.textContent.length){
+				return true;
+			}
+			
+			return false;
+		},
+		
+		_canMoveLeftWithInToken: function(anchor){
+			var node = anchor.node;
+			if(xmlUtil.isPlaceHolder(node))return false;
+			var offset = anchor.offset;
+			
+			if(this._isTokenNode(node.nodeName) && 0 < offset && offset <= node.textContent.length){
+				return true;
+			}
+			
+			return false;
+		},
+		
 		// TODO:重命名，因为左移，有左移一个字母和左移一个单词之分，所以需要命名的更具体。
 		// 只有英文才有这种情况。
 		moveLeft: function(){
@@ -1770,183 +1947,6 @@ define([ "dojo/_base/declare",
 					}
 				}
 			}
-		},
-		
-		_getTextLength: function(tokenNode){
-			// summary:
-			//		获取节点中有效符号的个数，注意这个长度不是字符的长度。
-			//		如sin是一个三角函数，它的长度是1，而不是3。
-			
-			var length = 0;
-			if(xmlUtil.isPlaceHolder(tokenNode)){
-				// 占位符中内容的长度为0
-				return 0;
-			}else{
-				// 只有token节点，才需要计算
-				var nodeName = tokenNode.nodeName;
-				if(nodeName === "mn" || nodeName === "text"){
-					length = tokenNode.textContent.length;
-				}else if(nodeName === "mo" || nodeName === "mi"){
-					// mo和mi的长度永远为1
-					length = 1;
-				}
-			}
-			return length;
-		},
-		
-		_movePathToNextSibling: function(nextSibling){
-			// summary:
-			//		将path的值设为下一个兄弟节点。
-			//		注意：在一个token节点中移动光标时，不需要调整path的值。
-			
-			var pos = this.path.pop();
-			pos.offset++;
-			pos.nodeName = nextSibling.nodeName;
-			this.path.push(pos);
-		},
-		
-		_movePathToPreviousSibling: function(nextSibling){
-			// summary:
-			//		将path的值设为下一个兄弟节点。
-			//		注意：在一个token节点中移动光标时，不需要调整path的值。
-			
-			var pos = this.path.pop();
-			pos.offset--;
-			pos.nodeName = nextSibling.nodeName;
-			this.path.push(pos);
-		},
-		
-		_isLineNode: function(node){
-			return node.nodeName === "line";
-		},
-		
-		_isLineStart: function(anchor){
-			// summary:
-			//		处理所有处于行首的判断。
-			//		有三种情况：
-			//		1. 处于一个空行中
-			//		2. 行中第一个节点是text节点，并且offset的值为0
-			//		3. 行中第一个节点是math节点，并且offset的值为0
-			//
-			//		在判断逻辑中调节path。
-			// 		如果不是行尾，则返回false；如果是行尾则返回当前行。
-			//		FIXME:在这个方法中处理了两个逻辑，为的是减少条件判断。寻找更好的重构手段。
-			
-			var node = anchor.node;
-			var offset = anchor.offset;
-			
-			var nodeName = node.nodeName;
-			if(nodeName === "line"){
-				return node;
-			}else if(nodeName === "text" && offset === 0 && !node.previousSibling){
-				this.path.pop();
-				return node.parentNode;
-			}else if(nodeName === "math" && offset === 0 && !node.previousSibling){
-				this.path.pop();
-				return node.parentNode;
-			}
-			return false;
-		},
-		
-		_isLineEnd: function(anchor){
-			// summary：
-			//		在判断逻辑中调节path。
-			// 		如果不是行尾，则返回false；如果是行尾则返回当前行。
-			//		FIXME:在这个方法中处理了两个逻辑，为的是减少条件判断。寻找更好的重构手段。
-			var node = anchor.node;
-			var offset = anchor.offset;
-			var nodeName = node.nodeName;
-			if(nodeName === "line"){
-				return node;
-			}else if(nodeName === "text" && offset === node.textContent.length  && !node.nextSibling){
-				this.path.pop();// 从路径中移除text节点
-				return node.parentNode;
-			}else if(nodeName === "math" && offset === 1 && !node.nextSibling){
-				this.path.pop();
-				return node.parentNode;
-			}
-			
-			return false;
-		},
-		
-		_moveLineStart: function(line){
-			// summary:
-			//		移到行首
-			var childCount = line.childNodes.length;
-			if(childCount === 0){
-				this.anchor.node = line;
-				this.anchor.offset = 0;
-				return;
-			}
-			var firstChild = line.firstChild;
-			var firstChildNodeName = firstChild.nodeName;
-			if(firstChildNodeName === "text"){
-				this.anchor.node = firstChild;
-				this.anchor.offset = 0;
-				this.path.push({nodeName: firstChildNodeName, offset: 1});
-				return;
-			}
-			
-			if(firstChildNodeName === "math"){
-				this.anchor.node = firstChild;
-				this.anchor.offset = 0;
-				this.path.push({nodeName: firstChildNodeName, offset: 1});
-				return;
-			}
-			
-			console.error("没有添加第一个节点是"+firstChildNodeName+"时，进入行首的逻辑");
-		},
-		
-		_moveLineEnd: function(line){
-			// summary:
-			//		移到行尾，不处理调整行的path
-			var childCount = line.childNodes.length;
-			if(childCount === 0){
-				this.anchor.node = line;
-				this.anchor.offset = 0;
-				return;
-			}
-			var lastChild = line.lastChild;
-			var lastChildNodeName = lastChild.nodeName;
-			if(lastChildNodeName === "text"){
-				this.anchor.node = lastChild;
-				this.anchor.offset = lastChild.textContent.length;
-				this.path.push({nodeName: lastChildNodeName, offset: childCount});
-				return;
-			}
-			
-			if(lastChildNodeName === "math"){
-				this.anchor.node = lastChild;
-				this.anchor.offset = 1;
-				this.path.push({nodeName: lastChildNodeName, offset: childCount});
-				return;
-			}
-			
-			console.error("没有添加最后一个节点是"+lastChildNodeName+"时，进入行尾的逻辑");
-		},
-		
-		_canMoveRightWithInToken: function(anchor){
-			var node = anchor.node;
-			if(xmlUtil.isPlaceHolder(node))return false;
-			var offset = anchor.offset;
-			
-			if(this._isTokenNode(node.nodeName) && 0 <= offset && offset < node.textContent.length){
-				return true;
-			}
-			
-			return false;
-		},
-		
-		_canMoveLeftWithInToken: function(anchor){
-			var node = anchor.node;
-			if(xmlUtil.isPlaceHolder(node))return false;
-			var offset = anchor.offset;
-			
-			if(this._isTokenNode(node.nodeName) && 0 < offset && offset <= node.textContent.length){
-				return true;
-			}
-			
-			return false;
 		},
 		
 		moveRight: function(){
