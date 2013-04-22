@@ -1403,6 +1403,19 @@ define([ "dojo/_base/declare",
 			this.anchor.node = firstChild;
 			this.anchor.offset = 0;
 		},
+
+		_moveLeftMrootBaseToIndex: function(rootBaseMrow){
+			var rootIndexMrow = rootBaseMrow.nextSibling;
+			this._movePathToNextSibling(rootBaseMrow);
+			var lastChild = rootIndexMrow.lastChild;
+			this.path.push({nodeName: lastChild.nodeName, offset: rootIndexMrow.childNodes.length});
+			this.anchor.node = lastChild;
+			if(this._isTokenNode(lastChild.nodeName)){
+				this.anchor.offset = this._getTextLength(lastChild);
+			}else{
+				this.anchor.offset = 1;
+			}
+		},
 		
 		_getTextLength: function(tokenNode){
 			// summary:
@@ -1598,13 +1611,17 @@ define([ "dojo/_base/declare",
 			var baseMrow = node.firstChild; //mrow，只有调用firstChild才能保证永远正确
 			this.path.push({nodeName: baseMrow.nodeName, offset: 1/*因为msqrt中有且只有一个mrow节点*/});
 			var lastChild = baseMrow.lastChild;
-			this.path.push({nodeName: lastChild.nodeName, offset: lastChild.childNodes.length});
+			this.path.push({nodeName: lastChild.nodeName, offset: baseMrow.childNodes.length});
 			this.anchor.node = lastChild;
 			if(this._isTokenNode(lastChild.nodeName)){
 				this.anchor.offset = this._getTextLength(lastChild);
 			}else{
 				this.anchor.offset = 1;
 			}
+		},
+		
+		_moveLeftToMrootBaseEnd: function(node/*mroot节点*/){
+			this._moveLeftToMsqrtBaseEnd(node);
 		},
 		
 		_moveRightToMrootIndexStart: function(node/*mroot节点*/){
@@ -1719,6 +1736,10 @@ define([ "dojo/_base/declare",
 				this._moveLeftToMsqrtBaseEnd(node);
 				return;
 			}
+			if(nodeName === "mroot" && offset === 1){
+				this._moveLeftToMrootBaseEnd(node);
+				return;
+			}
 			
 			// TODO:需不需要将token与layout的代码合并起来
 			if(this._isTokenNode(nodeName) && offset === 0){
@@ -1729,6 +1750,10 @@ define([ "dojo/_base/declare",
 					// 如果上一个节点是msqrt节点
 					if(prev.nodeName === "msqrt"){
 						this._moveLeftToMsqrtBaseEnd(prev);
+						return;
+					}
+					if(prev.nodeName === "mroot"){
+						this._moveLeftToMrootBaseEnd(prev);
 						return;
 					}
 				}
@@ -1759,6 +1784,15 @@ define([ "dojo/_base/declare",
 					this._moveToTopLeft(parentNode);
 					return;
 				}
+				if(this._isRootBaseMrow(parentNode)){
+					this._moveLeftMrootBaseToIndex(parentNode);
+					return;
+				}
+				if(this._isRootIndexMrow(parentNode)){
+					this._moveToTopLeft(parentNode);
+					return;
+				}
+				
 				
 				if(parentNode){
 					this.anchor.node = parentNode;
@@ -1768,13 +1802,17 @@ define([ "dojo/_base/declare",
 			}
 			
 			// TODO：尝试是否可将mfrac改为所有的layout节点名称
-			if((nodeName === "mfrac" || nodeName === "msqrt") && offset === 0){
+			if((nodeName === "mfrac" || nodeName === "msqrt" || nodeName === "mroot") && offset === 0){
 				var prev = node.previousSibling;
 				if(prev){
 					this._movePathToPreviousSibling(prev);
 					// 如果下一个节点是msqrt节点
 					if(prev.nodeName === "msqrt"){
 						this._moveLeftToMsqrtBaseEnd(prev);
+						return;
+					}
+					if(prev.nodeName === "mroot"){
+						this._moveLeftToMrootBaseEnd(prev);
 						return;
 					}
 				}
@@ -1804,6 +1842,16 @@ define([ "dojo/_base/declare",
 					this._moveToTopLeft(parentNode);
 					return;
 				}
+				if(this._isRootBaseMrow(parentNode)){
+					this._moveLeftMrootBaseToIndex(parentNode);
+					return;
+				}
+				if(this._isRootIndexMrow(parentNode)){
+					this._moveToTopLeft(parentNode);
+					return;
+				}
+				
+				
 				
 				if(parentNode){
 					
