@@ -1,5 +1,22 @@
 define([ "doh","mathEditor/Model" ], function(doh,Model) {
 
+	// summary:
+	//		在根式中右移光标（这个根式中显示包含根次）
+	//		右移进根式，首先进入根次
+	//		1. 根式前没有任何节点，在根式前右移光标到根次前，根次的第一个节点是token节点；
+	//		2. 根式前没有任何节点，在根式前右移光标到根次前，根次的第一个节点是layout节点；
+	//		3. 根式前有一个token节点，在token节点最后右移光标到根次前，根次的第一个节点是token节点；
+	//		4. 根式前有一个token节点，在token节点最后右移光标到根次前，根次的第一个节点是layout节点；
+	//		5. 根式前有一个layout节点，在layout节点最后右移光标到根次前，根次的第一个节点是token节点；
+	//		6. 根式前有一个layout节点，在layout节点最后右移光标到根次前，根次的第一个节点是layout节点；
+	//		从根次后右移进根数前
+	//		1. 根次最后一个节点是token节点，根数第一个节点是token节点
+	//		2. 根次最后一个节点是token节点，根数第一个节点是layout节点
+	//		3. 根次最后一个节点是layout节点，根数第一个节点是token节点
+	//		4. 根次最后一个节点是layout节点，根数第一个节点是layout节点
+	//		从根数后右移出根式，到根式后（注意：与根式后有无节点或节点种类无关）
+	//		1. 根数的最后一个节点是token节点
+	//		2. 根数的最后一个节点是layout节点
 	doh.register("Model.moveRight.root 在根式中右移光标",[
 	    {
 	    	name: "mathml模式下，在空的根式root中右移光标，将光标从index中移到base中。",
@@ -47,8 +64,12 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   			tearDown: function(){
   				
   			}
+	    },
+	    
+	    // 新加入的。
+	    {
+	    	
 	    }
-	    // TODO:从根式外面移到根式里面
 	                             
 	]);
 });
