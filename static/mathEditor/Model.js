@@ -1556,23 +1556,23 @@ define([ "dojo/_base/declare",
 			return false;
 		},
 		
-		_moveRightToMsqrtBaseStart: function(node){
+		_moveRightToMsqrtBaseStart: function(node/*msqrt节点*/){
 			// summary:
-			//		从右边开始，往根式里层走，走到根数最前面。约定：根式中有且只有一个mrow节点。
-			var firstChild = node.firstChild;// mrow
-			this.path.push({nodeName: firstChild.nodeName, offset: 1});
-			firstChild = firstChild.firstChild;
+			//		右移，往根式里层走，走到根数最前面。约定：msqrt中有且只有一个mrow节点。
+			var baseMrow = node.firstChild;// mrow
+			this.path.push({nodeName: baseMrow.nodeName, offset: 1});
+			var firstChild = baseMrow.firstChild;
 			this.path.push({nodeName: firstChild.nodeName, offset: 1});
 			this.anchor.node = firstChild;
 			this.anchor.offset = 0; // 如果前一个节点是token节点时，需要显式赋值。
 		},
 		
-		_moveLeftToMsqrtBaseEnd: function(node){
+		_moveLeftToMsqrtBaseEnd: function(node/*msqrt节点*/){
 			// summary:
-			//		从左边开始，往根式里走，走到根数的最后面。约定：根式中有且只有一个mrow节点。
-			var lastChild = node.lastChild; //mrow
-			this.path.push({nodeName: lastChild.nodeName, offset: 1/*因为msqrt中有且只有一个mrow节点*/});
-			lastChild = lastChild.lastChild;
+			//		左移，往根式里走，走到根数的最后面。约定：msqrt中有且只有一个mrow节点。
+			var baseMrow = node.firstChild; //mrow，只有调用firstChild才能保证永远正确
+			this.path.push({nodeName: baseMrow.nodeName, offset: 1/*因为msqrt中有且只有一个mrow节点*/});
+			var lastChild = baseMrow.lastChild;
 			this.path.push({nodeName: lastChild.nodeName, offset: lastChild.childNodes.length});
 			this.anchor.node = lastChild;
 			if(this._isTokenNode(lastChild.nodeName)){
@@ -1580,6 +1580,18 @@ define([ "dojo/_base/declare",
 			}else{
 				this.anchor.offset = 1;
 			}
+		},
+		
+		_moveRightToMrootIndexStart: function(node/*mroot节点*/){
+			// summary:
+			//		右移，往根式里层走，走到根次最前面。约定：mroot中有且只有两个mrow节点，第一个为base节点，第二个为index节点
+			
+			var indexMrow = node.lastChild; // mrow
+			this.path.push({nodeName: indexMrow.nodeName, offset: 2/*因为index mrow是mroot中的第二个节点*/});
+			var firstChild = indexMrow.firstChild;
+			this.path.push({nodeName: firstChild.nodeName, offset:1});
+			this.anchor.node = firstChild;
+			this.anchor.offset = 0;
 		},
 		
 		// TODO:重命名，因为左移，有左移一个字母和左移一个单词之分，所以需要命名的更具体。
@@ -2173,6 +2185,11 @@ define([ "dojo/_base/declare",
 				this._moveRightToMsqrtBaseStart(node);
 				return;
 			}
+			if(nodeName === "mroot" && offset === 0){
+				this._moveRightToMrootIndexStart(node);
+				return;
+			}
+			
 			
 			
 			if(nodeName === "mfrac" && offset === 1){

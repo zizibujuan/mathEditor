@@ -65,11 +65,47 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				
   			}
 	    },
-	    
-	    // 新加入的。
 	    {
-	    	
+	    	name: "右移进根次，根式前没有任何节点，在根式前右移光标到根次前，根次的第一个节点是token节点。",
+  			setUp: function(){
+  				this.model = new Model({});
+  			},
+  			runTest: function(t){
+  				var model = this.model;
+  				model.mode = "mathml";
+  				model.loadData("<root><line>" +
+  						"<math>" +
+	  						"<mroot>" +
+		  						"<mrow><mn>4</mn></mrow>" + // base
+		  						"<mrow><mn>2</mn></mrow>" + // index
+	  						"</mroot>" +
+  						"</math>" +
+  				"</line></root>");
+  				
+  				var line = model.getLineAt(0);
+  				model.anchor.node = line.firstChild.firstChild;
+  				model.anchor.offset = 0;
+  				model.path.push({nodeName: "root"});
+  				model.path.push({nodeName: "line", offset: 1});
+  				model.path.push({nodeName: "math", offset: 1});
+  				model.path.push({nodeName: "mroot", offset: 1});
+  				model.moveRight();
+  				t.is("/root/line[1]/math[1]/mroot[1]/mrow[2]/mn[1]", model.getPath());
+				var node = model.getFocusNode();
+				t.is("mn", node.nodeName);
+				t.is(0, model.getOffset());
+				t.is("2", node.textContent);
+  			},
+  			tearDown: function(){
+  				
+  			}
 	    }
-	                             
+		//		右移进根式，首先进入根次
+
+		//		2. 根式前没有任何节点，在根式前右移光标到根次前，根次的第一个节点是layout节点；
+		//		3. 根式前有一个token节点，在token节点最后右移光标到根次前，根次的第一个节点是token节点；
+		//		4. 根式前有一个token节点，在token节点最后右移光标到根次前，根次的第一个节点是layout节点；
+		//		5. 根式前有一个layout节点，在layout节点最后右移光标到根次前，根次的第一个节点是token节点；
+		//		6. 根式前有一个layout节点，在layout节点最后右移光标到根次前，根次的第一个节点是layout节点；。                    
 	]);
 });
