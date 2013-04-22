@@ -1294,37 +1294,57 @@ define([ "dojo/_base/declare",
 			return dripLang.isMathTokenName(nodeName) || nodeName === "text";
 		},
 		
-		_isDenominatorMrow: function(node){
+		_isDenominatorMrow: function(node/*mrow*/){
 			// summary:
 			//		判断当前节点是分母所在的mrow节点
 			
 			return node && node.nodeName === "mrow" && node.parentNode.nodeName === "mfrac" && node.previousSibling;
 		},
 		
-		_isNumeratorMrow: function(node){
+		_isNumeratorMrow: function(node/*mrow*/){
 			// summary:
 			//		判断当前节点是分子所在的mrow节点
 			
 			return node && node.nodeName === "mrow" && node.parentNode.nodeName === "mfrac" && node.nextSibling;
 		},
 		
-		_isSqrtBaseMrow: function(node){
+		_isSqrtBaseMrow: function(node/*mrow*/){
 			// summary:
 			//		判断当前节点是不是平方根的根数所在的mrow节点
 			
 			return node && node.nodeName === "mrow" && node.parentNode.nodeName === "msqrt";
 		},
 		
+		_isRootIndexMrow: function(rootIndexMrow/*mrow*/){
+			// summary:
+			//		判断当前节点是不是根式的根次所在的mrow节点
+			//		<mroot>base index</mroot>
+			
+			return rootIndexMrow && 
+				rootIndexMrow.nodeName === "mrow" && 
+				rootIndexMrow.parentNode.nodeName === "mroot" && 
+				rootIndexMrow.previousSibling;
+		},
+		
+		_isRootBaseMrow: function(rootBaseMrow){
+			// summary:
+			//		判断当前节点是不是根式的根数所在的mrow节点
+			//		<mroot>base index</mroot>
+			
+			return rootBaseMrow && 
+				rootBaseMrow.nodeName === "mrow" && 
+				rootBaseMrow.parentNode.nodeName === "mroot" && 
+				rootBaseMrow.nextSibling;
+		},
+		
 		_moveLeftDenominatorToNumerator: function(denominatorMrow/*分母*/){
 			// summary
 			//		左移，从分母最前面，移动到分子最后面
-			
-			var pos = this.path.pop();
+
 			// 移到分子中
-			pos.offset--;
-			this.path.push(pos);
 			// 如果遇到mrow，则停止往左外层走，开始找分子节点
 			var numeratorMrow = denominatorMrow.previousSibling;
+			this._movePathToPreviousSibling(numeratorMrow);
 			var lastChild = numeratorMrow.lastChild;
 			if(this._isTokenNode(lastChild.nodeName)){
 				this.path.push({nodeName: lastChild.nodeName, offset:numeratorMrow.childNodes.length});
@@ -1344,12 +1364,8 @@ define([ "dojo/_base/declare",
 			// summary
 			//		右移，从分子最后面，移动到分母最前面
 			
-			var pos = this.path.pop();
-			// 移到分母中
-			pos.offset++;
-			this.path.push(pos);
-			
 			var denominatorMrow = numeratorMrow.nextSibling;
+			this._movePathToNextSibling(denominatorMrow);
 			var firstChild = denominatorMrow.firstChild;
 			if(this._isTokenNode(firstChild.nodeName)){
 				
@@ -1363,7 +1379,7 @@ define([ "dojo/_base/declare",
 			this.anchor.offset = 0;
 		},
 		
-		_moveToTopRight: function(node){
+		_moveToTopRight: function(node/*mrow*/){
 			// summary:
 			//		往右上外层移动
 			this.path.pop();
@@ -1371,12 +1387,21 @@ define([ "dojo/_base/declare",
 			this.anchor.offset = 1; // 往上移动时，节点为layout节点。
 		},
 		
-		_moveToTopLeft: function(node){
+		_moveToTopLeft: function(node/*mrow*/){
 			// summary:
 			//		往左上内层移动
 			this.path.pop();
 			this.anchor.node = node.parentNode;
 			this.anchor.offset = 0; // 往上移动时，节点为layout节点。
+		},
+		
+		_moveRightMrootIndexToBase: function(rootIndexMrow/*mroot index mrow*/){
+			var rootBaseMrow = rootIndexMrow.previousSibling;
+			this._movePathToPreviousSibling(rootBaseMrow);
+			var firstChild = rootBaseMrow.firstChild;
+			this.path.push({nodeName: firstChild.nodeName, offset: 1});
+			this.anchor.node = firstChild;
+			this.anchor.offset = 0;
 		},
 		
 		_getTextLength: function(tokenNode){
@@ -1695,6 +1720,7 @@ define([ "dojo/_base/declare",
 				return;
 			}
 			
+			// TODO:需不需要将token与layout的代码合并起来
 			if(this._isTokenNode(nodeName) && offset === 0){
 				// 先找前一个兄弟节点
 				var prev = node.previousSibling;
@@ -1742,7 +1768,17 @@ define([ "dojo/_base/declare",
 			}
 			
 			// TODO：尝试是否可将mfrac改为所有的layout节点名称
-			if(nodeName === "mfrac" && offset === 0){
+			if((nodeName === "mfrac" || nodeName === "msqrt") && offset === 0){
+				var prev = node.previousSibling;
+				if(prev){
+					this._movePathToPreviousSibling(prev);
+					// 如果下一个节点是msqrt节点
+					if(prev.nodeName === "msqrt"){
+						this._moveLeftToMsqrtBaseEnd(prev);
+						return;
+					}
+				}
+				
 				// 往外层移动
 				this.path.pop();
 				
@@ -1763,33 +1799,16 @@ define([ "dojo/_base/declare",
 					// this.anchor.offset = 0;
 					return;
 				}
-				
+				if(this._isSqrtBaseMrow(parentNode)){
+					// 往左外层移动
+					this._moveToTopLeft(parentNode);
+					return;
+				}
 				
 				if(parentNode){
 					
 					this.anchor.node = parentNode;
 					// this.anchor.offset = 0;
-				}
-				return;
-			}
-			if(nodeName === "msqrt" && offset === 0){
-				var prev = node.previousSibling;
-				if(prev){
-					this._movePathToPreviousSibling(prev);
-					// 如果下一个节点是msqrt节点
-					if(prev.nodeName === "msqrt"){
-						this._moveLeftToMsqrtBaseEnd(prev);
-						return;
-					}
-				}
-				
-				this.path.pop();
-				
-				var parentNode = node.parentNode;
-				if(this._isSqrtBaseMrow(parentNode)){
-					// 往左外层移动
-					this._moveToTopLeft(parentNode);
-					return;
 				}
 				return;
 			}
@@ -2190,33 +2209,10 @@ define([ "dojo/_base/declare",
 				return;
 			}
 			
-			
-			
-			if(nodeName === "mfrac" && offset === 1){
-				// 往外层移动
-				this.path.pop();
-				
-				var parentNode = node.parentNode;// 找token的父节点，则一定是layout节点，无需做判断
-				if(parentNode.nodeName === "mstyle"){
-					parentNode = parentNode.parentNode;
-				}
-				if(this._isNumeratorMrow(parentNode)){
-					this._moveRightNumeratorToDenominator(parentNode);
-					return;
-				}
-				if(this._isDenominatorMrow(parentNode)){
-					this._moveToTopRight(parentNode);
-					return;
-				}
-				if(parentNode){
-					this.anchor.node = parentNode;
-					// this.anchor.offset = 1;
-				}
-				return;
-			}
-			
+			// TODO:需不需要将token与layout的代码合并起来
 			// FIXME:需要统一layout部件的处理逻辑。
-			if(nodeName === "msqrt" && offset === 1){
+			// 这里需要切换到下一个节点，下一个节点是什么类型的节点，需要再做判断。
+			if((nodeName === "msqrt" || nodeName === "mfrac" || nodeName === "mroot") && offset === 1){
 				// 先找下一个节点
 				var next = node.nextSibling;
 				if(next){
@@ -2224,6 +2220,10 @@ define([ "dojo/_base/declare",
 					// 如果下一个节点是msqrt节点
 					if(next.nodeName === "msqrt"){
 						this._moveRightToMsqrtBaseStart(next);
+						return;
+					}
+					if(next.nodeName === "mroot"){
+						this._moveRightToMrootIndexStart(next);
 						return;
 					}
 				}
@@ -2245,6 +2245,14 @@ define([ "dojo/_base/declare",
 				}
 				if(this._isSqrtBaseMrow(parentNode)){
 					// 往外层移动
+					this._moveToTopRight(parentNode);
+					return;
+				}
+				if(this._isRootIndexMrow(parentNode)){
+					this._moveRightMrootIndexToBase(parentNode);
+					return;
+				}
+				if(this._isRootBaseMrow(parentNode)){
 					this._moveToTopRight(parentNode);
 					return;
 				}
@@ -2268,6 +2276,10 @@ define([ "dojo/_base/declare",
 						this._moveRightToMsqrtBaseStart(next);
 						return;
 					}
+					if(next.nodeName === "mroot"){
+						this._moveRightToMrootIndexStart(next);
+						return;
+					}
 					
 				}
 				
@@ -2288,6 +2300,14 @@ define([ "dojo/_base/declare",
 				}
 				if(this._isSqrtBaseMrow(parentNode)){
 					// 往外层移动
+					this._moveToTopRight(parentNode);
+					return;
+				}
+				if(this._isRootIndexMrow(parentNode)){
+					this._moveRightMrootIndexToBase(parentNode);
+					return;
+				}
+				if(this._isRootBaseMrow(parentNode)){
 					this._moveToTopRight(parentNode);
 					return;
 				}
