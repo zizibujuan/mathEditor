@@ -1371,9 +1371,12 @@ define([ "dojo/_base/declare",
 			this.anchor.offset = 1; // 往上移动时，节点为layout节点。
 		},
 		
-		_moveToBottomRight: function(node){
+		_moveToTopLeft: function(node){
 			// summary:
-			//		往右下内层移动
+			//		往左上内层移动
+			this.path.pop();
+			this.anchor.node = node.parentNode;
+			this.anchor.offset = 0; // 往上移动时，节点为layout节点。
 		},
 		
 		_getTextLength: function(tokenNode){
@@ -1555,13 +1558,28 @@ define([ "dojo/_base/declare",
 		
 		_moveRightToMsqrtBaseStart: function(node){
 			// summary:
-			//		往根式里层走，走到根数最前面,根式中必定只包含一个mrow节点
+			//		从右边开始，往根式里层走，走到根数最前面。约定：根式中有且只有一个mrow节点。
 			var firstChild = node.firstChild;// mrow
 			this.path.push({nodeName: firstChild.nodeName, offset: 1});
 			firstChild = firstChild.firstChild;
 			this.path.push({nodeName: firstChild.nodeName, offset: 1});
 			this.anchor.node = firstChild;
 			this.anchor.offset = 0; // 如果前一个节点是token节点时，需要显式赋值。
+		},
+		
+		_moveLeftToMsqrtBaseEnd: function(node){
+			// summary:
+			//		从左边开始，往根式里走，走到根数的最后面。约定：根式中有且只有一个mrow节点。
+			var lastChild = node.lastChild; //mrow
+			this.path.push({nodeName: lastChild.nodeName, offset: 1/*因为msqrt中有且只有一个mrow节点*/});
+			lastChild = lastChild.lastChild;
+			this.path.push({nodeName: lastChild.nodeName, offset: lastChild.childNodes.length});
+			this.anchor.node = lastChild;
+			if(this._isTokenNode(lastChild.nodeName)){
+				this.anchor.offset = this._getTextLength(lastChild);
+			}else{
+				this.anchor.offset = 1;
+			}
 		},
 		
 		// TODO:重命名，因为左移，有左移一个字母和左移一个单词之分，所以需要命名的更具体。
@@ -1633,7 +1651,7 @@ define([ "dojo/_base/declare",
 				return;
 			}
 
-			if(nodeName == "mfrac" && offset ===1){
+			if(nodeName === "mfrac" && offset ===1){
 				// 往里层走
 				var lastChild = node.lastChild;
 				if(lastChild.nodeName === "mrow"){
@@ -1660,7 +1678,24 @@ define([ "dojo/_base/declare",
 				return;
 			}
 			
+			if(nodeName === "msqrt" && offset === 1){				
+				this._moveLeftToMsqrtBaseEnd(node);
+				return;
+			}
+			
 			if(this._isTokenNode(nodeName) && offset === 0){
+				// 先找前一个兄弟节点
+				var prev = node.previousSibling;
+				if(prev){
+					this._movePathToPreviousSibling(prev);
+					// 如果上一个节点是msqrt节点
+					if(prev.nodeName === "msqrt"){
+						this._moveLeftToMsqrtBaseEnd(prev);
+						return;
+					}
+				}
+				
+				// 如果没有前一个兄弟节点，则往上寻找。
 				// 往外层移动
 				// 从path中移出token
 				this.path.pop();
@@ -1679,6 +1714,11 @@ define([ "dojo/_base/declare",
 					this.path.pop();
 					this.anchor.node = parentNode.parentNode;
 					// this.anchor.offset = 0;
+					return;
+				}
+				if(this._isSqrtBaseMrow(parentNode)){
+					// 往左外层移动
+					this._moveToTopLeft(parentNode);
 					return;
 				}
 				
@@ -1717,6 +1757,27 @@ define([ "dojo/_base/declare",
 					
 					this.anchor.node = parentNode;
 					// this.anchor.offset = 0;
+				}
+				return;
+			}
+			if(nodeName === "msqrt" && offset === 0){
+				var prev = node.previousSibling;
+				if(prev){
+					this._movePathToPreviousSibling(prev);
+					// 如果下一个节点是msqrt节点
+					if(prev.nodeName === "msqrt"){
+						this._moveLeftToMsqrtBaseEnd(prev);
+						return;
+					}
+				}
+				
+				this.path.pop();
+				
+				var parentNode = node.parentNode;
+				if(this._isSqrtBaseMrow(parentNode)){
+					// 往左外层移动
+					this._moveToTopLeft(parentNode);
+					return;
 				}
 				return;
 			}

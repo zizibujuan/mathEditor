@@ -6,10 +6,10 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 	//		1. 平方根前没有任何节点，从平方根前，移动到根数前
 	//		2. 平方根前有一个token节点，从token节点后移动到根数前
 	//		3. 平方根前有一个layout节点，从layout节点后移动到根数前
-	//		4. 平方根后没有任何节点，从根数后移动到平方根后(doing...)
-	//		5. 平方根后有一个token节点，从根数后移动到平方根后
-	//		6. 平方根后有一个layout节点，从根数后移动到平方根后
-	//		上面的根数中的节点可能为token和layout两种情况。
+	//		4. 平方根后没有任何节点，从根数后移动到平方根后
+	//		5. 平方根后有一个token节点，从根数后移动到平方根后,依然停在平方根后面(与后面的节点无关)
+	//		6. 平方根后有一个layout节点，从根数后移动到平方根后,依然停在平方根后面(与后面的节点无关)
+	//		上面的根数中的节点分为token和layout两种情况。
 	doh.register("Model.moveRight.sqrt 在平方根中右移光标",[
 	    {
 	    	name: "mathml模式下，平方根前没有任何节点，从平方根前，右移到根数前，根数中的第一个节点是token节点",
@@ -183,7 +183,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				model.loadData("<root><line>" +
   						"<math>" +
 	  						"<msqrt>" +
-								"<mrow><msqrt><mrow><mn>1</mn></mrow></msqrt></mrow>" +
+								"<mrow><mn>1</mn></mrow>" +
 							"</msqrt>" +
 	  						"<msqrt>" +
 		  						"<mrow><msqrt><mrow><mn>2</mn></mrow></msqrt></mrow>" +
@@ -273,9 +273,6 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				
   			}
 	    }
-	    
-	    
-	    // TODO:从根式外面移到根式里面
 	                             
 	]);
 });
