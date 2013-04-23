@@ -1351,6 +1351,12 @@ define([ "dojo/_base/declare",
 			return node && node.nodeName === "mrow" && node.parentNode.nodeName === "msup" && node.nextSibling;
 		},
 		
+		_isLastFenceChildMrow: function(node /*mrow*/){
+			// summary:
+			//		判断当前节点是不是括号中的第一个mrow节点
+			return node && node.nodeName === "mrow" && node.parentNode.nodeName === "mfence" && node.nextSibling==null;
+		},
+		
 		_moveLeftDenominatorToNumerator: function(denominatorMrow/*分母*/){
 			// summary
 			//		左移，从分母最前面，移动到分子最后面
@@ -1689,7 +1695,7 @@ define([ "dojo/_base/declare",
 		
 		_moveRightToMsupBaseStart: function(node /*msup*/){
 			// summary:
-			//		右移，移到到sup的base最前面。约定：msup中有且只有两个mrow节点
+			//		右移，移到sup的base最前面。约定：msup中有且只有两个mrow节点
 			var baseMrow = node.firstChild;
 			this.path.push({nodeName: baseMrow.nodeName, offset: 1});
 			var firstChild = baseMrow.firstChild;
@@ -1697,6 +1703,18 @@ define([ "dojo/_base/declare",
 			this.anchor.node = firstChild;
 			this.anchor.offset = 0;
 		},
+		
+		_moveRightToMfenceInnerStart: function(node /*mfence*/){
+			// summary:
+			//		右移，移到fence里面的起始处。
+			var mrow = node.firstChild;
+			this.path.push({nodeName: mrow.nodeName, offset: 1});
+			var firstChild = mrow.firstChild;
+			this.path.push({nodeName: firstChild.nodeName, offset: 1})
+			this.anchor.node = firstChild;
+			this.anchor.offset = 0;
+		},
+		
 		
 		// TODO:重命名，因为左移，有左移一个字母和左移一个单词之分，所以需要命名的更具体。
 		// 只有英文才有这种情况。
@@ -2350,11 +2368,19 @@ define([ "dojo/_base/declare",
 				this._moveRightToMsupBaseStart(node);
 				return;
 			}
+			if(nodeName === "mfence" && offset === 0){
+				this._moveRightToMfenceInnerStart(node);
+				return;
+			}
 			
 			// TODO:需不需要将token与layout的代码合并起来
 			// FIXME:需要统一layout部件的处理逻辑。
 			// 这里需要切换到下一个节点，下一个节点是什么类型的节点，需要再做判断。
-			if((nodeName === "msqrt" || nodeName === "mfrac" || nodeName === "mroot" || nodeName === "msup") && offset === 1){
+			if((nodeName === "msqrt" || 
+					nodeName === "mfrac" || 
+					nodeName === "mroot" || 
+					nodeName === "msup" ||
+					nodeName === "mfence") && offset === 1){
 				// 先找下一个节点
 				var next = node.nextSibling;
 				if(next){
@@ -2370,6 +2396,10 @@ define([ "dojo/_base/declare",
 					}
 					if(next.nodeName === "msup"){
 						this._moveRightToMsupBaseStart(next);
+						return;
+					}
+					if(next.nodeName === "mfence"){
+						this._moveRightToMfenceInnerStart(next);
 						return;
 					}
 					
@@ -2411,6 +2441,10 @@ define([ "dojo/_base/declare",
 					this._moveToTopRight(parentNode);
 					return;
 				}
+				if(this._isLastFenceChildMrow(parentNode)){
+					this._moveToTopRight(parentNode);
+					return;
+				}
 				
 				if(parentNode){
 					this.anchor.node = parentNode;
@@ -2437,6 +2471,10 @@ define([ "dojo/_base/declare",
 					}
 					if(next.nodeName === "msup"){
 						this._moveRightToMsupBaseStart(next);
+						return;
+					}
+					if(next.nodeName === "mfence"){
+						this._moveRightToMfenceInnerStart(next);
 						return;
 					}
 					
@@ -2475,6 +2513,10 @@ define([ "dojo/_base/declare",
 					return;
 				}
 				if(this._isSupSuperscriptMrow(parentNode)){
+					this._moveToTopRight(parentNode);
+					return;
+				}
+				if(this._isLastFenceChildMrow(parentNode)){
 					this._moveToTopRight(parentNode);
 					return;
 				}

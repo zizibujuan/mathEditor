@@ -2,7 +2,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 
 	// summary:
 	//		在括号上左移光标（目前只支持一个mrow子节点）
-	//		左移进括号，
+	//		左移进括号
 	//		1. 括号后没有任何节点，括号内最后一个节点是token节点
 	//		2. 括号后没有任何节点，括号内最后一个节点是layout节点
 	//		3. 括号后有一个token节点，从token后左移进括号内的最后一个节点，最后一个节点是token节点
