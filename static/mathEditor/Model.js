@@ -1353,8 +1353,14 @@ define([ "dojo/_base/declare",
 		
 		_isLastFenceChildMrow: function(node /*mrow*/){
 			// summary:
-			//		判断当前节点是不是括号中的第一个mrow节点
+			//		判断当前节点是不是括号中的最后一个mrow节点
 			return node && node.nodeName === "mrow" && node.parentNode.nodeName === "mfence" && node.nextSibling==null;
+		},
+		
+		_isFirstChildFenceChildMrow: function(node /*mrow*/){
+			// summary:
+			//		判断当前节点是不是括号中的第一个mrow节点
+			return node && node.nodeName === "mrow" && node.parentNode.nodeName === "mfence" && node.previousSibling==null;
 		},
 		
 		_moveLeftDenominatorToNumerator: function(denominatorMrow/*分母*/){
@@ -1715,6 +1721,21 @@ define([ "dojo/_base/declare",
 			this.anchor.offset = 0;
 		},
 		
+		_moveLeftToMfenceInnerEnd: function(node /*mfence*/){
+			// summary:
+			//		左移，移到fence里面的结尾处。
+			var mrow = node.lastChild;
+			this.path.push({nodeName: mrow.nodeName, offset: 1});
+			var lastChild = mrow.lastChild;
+			this.path.push({nodeName: lastChild.nodeName, offset: mrow.childNodes.length})
+			this.anchor.node = lastChild;
+			if(this._isTokenNode(lastChild.nodeName)){
+				this.anchor.offset = this._getTextLength(lastChild);
+			}else{
+				this.anchor.offset = 1;
+			}
+		},
+		
 		
 		// TODO:重命名，因为左移，有左移一个字母和左移一个单词之分，所以需要命名的更具体。
 		// 只有英文才有这种情况。
@@ -1824,6 +1845,10 @@ define([ "dojo/_base/declare",
 				this._moveLeftToMsupSuperscriptEnd(node);
 				return;
 			}
+			if(nodeName === "mfence" && offset === 1){
+				this._moveLeftToMfenceInnerEnd(node);
+				return;
+			}
 			
 			// TODO:需不需要将token与layout的代码合并起来
 			if(this._isTokenNode(nodeName) && offset === 0){
@@ -1842,6 +1867,10 @@ define([ "dojo/_base/declare",
 					}
 					if(prev.nodeName === "msup"){
 						this._moveLeftToMsupSuperscriptEnd(prev);
+						return;
+					}
+					if(prev.nodeName === "mfence"){
+						this._moveLeftToMfenceInnerEnd(prev);
 						return;
 					}
 				}
@@ -1888,6 +1917,10 @@ define([ "dojo/_base/declare",
 					this._moveToTopLeft(parentNode);
 					return;
 				}
+				if(this._isFirstChildFenceChildMrow(parentNode)){
+					this._moveToTopLeft(parentNode);
+					return;
+				}
 				
 				
 				if(parentNode){
@@ -1898,7 +1931,11 @@ define([ "dojo/_base/declare",
 			}
 			
 			// TODO：尝试是否可将mfrac改为所有的layout节点名称
-			if((nodeName === "mfrac" || nodeName === "msqrt" || nodeName === "mroot" || nodeName === "msup") && offset === 0){
+			if((nodeName === "mfrac" || 
+					nodeName === "msqrt" || 
+					nodeName === "mroot" || 
+					nodeName === "msup" ||
+					nodeName === "mfence") && offset === 0){
 				var prev = node.previousSibling;
 				if(prev){
 					this._movePathToPreviousSibling(prev);
@@ -1913,6 +1950,10 @@ define([ "dojo/_base/declare",
 					}
 					if(prev.nodeName === "msup"){
 						this._moveLeftToMsupSuperscriptEnd(prev);
+						return;
+					}
+					if(prev.nodeName === "mfence"){
+						this._moveLeftToMfenceInnerEnd(prev);
 						return;
 					}
 				}
@@ -1958,6 +1999,11 @@ define([ "dojo/_base/declare",
 					this._moveToTopLeft(parentNode);
 					return;
 				}
+				if(this._isFirstChildFenceChildMrow(parentNode)){
+					this._moveToTopLeft(parentNode);
+					return;
+				}
+				
 				
 				
 				
