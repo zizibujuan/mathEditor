@@ -1337,14 +1337,14 @@ define([ "dojo/_base/declare",
 				rootBaseMrow.nextSibling;
 		},
 		
-		_isMsupSuperscriptMrow: function(node /*mrow*/){
+		_isSupSuperscriptMrow: function(node /*mrow*/){
 			// summary:
 			//		判断当前节点是不是根式的根数所在的mrow节点
 			//		<msup>base superscript</msup>
 			return node && node.nodeName === "mrow" && node.parentNode.nodeName === "msup" && node.previousSibling;
 		},
 		
-		_isMsupBaseMrow: function(node /*mrow*/){
+		_isSupBaseMrow: function(node /*mrow*/){
 			// summary:
 			//		判断当前节点是不是上标式子中的base节点
 			//		<msup>base superscript</msup>
@@ -1442,6 +1442,15 @@ define([ "dojo/_base/declare",
 			}else{
 				this.anchor.offset = 1;
 			}
+		},
+		
+		_moveRightMsupBaseToSuperscript: function(baseMrow){
+			var superscriptMrow = baseMrow.nextSibling;
+			this._movePathToNextSibling(superscriptMrow);
+			var firstChild = superscriptMrow.firstChild;
+			this.path.push({nodeName: firstChild.nodeName, offset: 1});
+			this.anchor.node = firstChild;
+			this.anchor.offset = 0;
 		},
 		
 		_getTextLength: function(tokenNode){
@@ -1678,6 +1687,17 @@ define([ "dojo/_base/declare",
 			}
 		},
 		
+		_moveRightToMsupBaseStart: function(node /*msup*/){
+			// summary:
+			//		右移，移到到sup的base最前面。约定：msup中有且只有两个mrow节点
+			var baseMrow = node.firstChild;
+			this.path.push({nodeName: baseMrow.nodeName, offset: 1});
+			var firstChild = baseMrow.firstChild;
+			this.path.push({nodeName: firstChild.nodeName, offset: 1});
+			this.anchor.node = firstChild;
+			this.anchor.offset = 0;
+		},
+		
 		// TODO:重命名，因为左移，有左移一个字母和左移一个单词之分，所以需要命名的更具体。
 		// 只有英文才有这种情况。
 		moveLeft: function(){
@@ -1842,11 +1862,11 @@ define([ "dojo/_base/declare",
 					this._moveToTopLeft(parentNode);
 					return;
 				}
-				if(this._isMsupSuperscriptMrow(parentNode)){
+				if(this._isSupSuperscriptMrow(parentNode)){
 					this._moveLeftMsupSuperscriptToBase(parentNode);
 					return;
 				}
-				if(this._isMsupBaseMrow(parentNode)){
+				if(this._isSupBaseMrow(parentNode)){
 					this._moveToTopLeft(parentNode);
 					return;
 				}
@@ -1912,11 +1932,11 @@ define([ "dojo/_base/declare",
 					this._moveToTopLeft(parentNode);
 					return;
 				}
-				if(this._isMsupSuperscriptMrow(parentNode)){
+				if(this._isSupSuperscriptMrow(parentNode)){
 					this._moveLeftMsupSuperscriptToBase(parentNode);
 					return;
 				}
-				if(this._isMsupBaseMrow(parentNode)){
+				if(this._isSupBaseMrow(parentNode)){
 					this._moveToTopLeft(parentNode);
 					return;
 				}
@@ -2326,11 +2346,15 @@ define([ "dojo/_base/declare",
 				this._moveRightToMrootIndexStart(node);
 				return;
 			}
+			if(nodeName === "msup" && offset === 0){
+				this._moveRightToMsupBaseStart(node);
+				return;
+			}
 			
 			// TODO:需不需要将token与layout的代码合并起来
 			// FIXME:需要统一layout部件的处理逻辑。
 			// 这里需要切换到下一个节点，下一个节点是什么类型的节点，需要再做判断。
-			if((nodeName === "msqrt" || nodeName === "mfrac" || nodeName === "mroot") && offset === 1){
+			if((nodeName === "msqrt" || nodeName === "mfrac" || nodeName === "mroot" || nodeName === "msup") && offset === 1){
 				// 先找下一个节点
 				var next = node.nextSibling;
 				if(next){
@@ -2344,6 +2368,11 @@ define([ "dojo/_base/declare",
 						this._moveRightToMrootIndexStart(next);
 						return;
 					}
+					if(next.nodeName === "msup"){
+						this._moveRightToMsupBaseStart(next);
+						return;
+					}
+					
 				}
 				
 				// 往外层移动
@@ -2374,6 +2403,14 @@ define([ "dojo/_base/declare",
 					this._moveToTopRight(parentNode);
 					return;
 				}
+				if(this._isSupBaseMrow(parentNode)){
+					this._moveRightMsupBaseToSuperscript(parentNode);
+					return;
+				}
+				if(this._isSupSuperscriptMrow(parentNode)){
+					this._moveToTopRight(parentNode);
+					return;
+				}
 				
 				if(parentNode){
 					this.anchor.node = parentNode;
@@ -2396,6 +2433,10 @@ define([ "dojo/_base/declare",
 					}
 					if(next.nodeName === "mroot"){
 						this._moveRightToMrootIndexStart(next);
+						return;
+					}
+					if(next.nodeName === "msup"){
+						this._moveRightToMsupBaseStart(next);
 						return;
 					}
 					
@@ -2426,6 +2467,14 @@ define([ "dojo/_base/declare",
 					return;
 				}
 				if(this._isRootBaseMrow(parentNode)){
+					this._moveToTopRight(parentNode);
+					return;
+				}
+				if(this._isSupBaseMrow(parentNode)){
+					this._moveRightMsupBaseToSuperscript(parentNode);
+					return;
+				}
+				if(this._isSupSuperscriptMrow(parentNode)){
 					this._moveToTopRight(parentNode);
 					return;
 				}
