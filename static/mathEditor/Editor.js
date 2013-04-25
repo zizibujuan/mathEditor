@@ -156,10 +156,7 @@ define(["dojo/_base/declare",
 					//this.model.removeLeft();
 					this.model.doDelete(); // TODO:使用removeLeft代替doDelete
 				}else if(e.altKey && e.keyCode === 191){
-					// ALT+/ 弹出提示信息
-					this.contentAssist.open();
-					event.stop(e);
-					this.view.focus();
+					// ALT+/ 弹出提示信息,因为是根据用户输入，自动弹出提示框，所以不需要这个方法
 				}else if(e.altKey){
 					if(e.keyCode === 18){
 						console.log("Alt =");
