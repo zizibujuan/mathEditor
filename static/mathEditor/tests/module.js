@@ -50,10 +50,15 @@ define([ "mathEditor/tests/layer/Cursor",
          "mathEditor/tests/model/moveRight/sup",
          "mathEditor/tests/model/moveRight/fence",
          
-         "mathEditor/tests/model/removeLeft/mn",
-         
          "mathEditor/tests/model/moveLeft",
+         
+         "mathEditor/tests/model/removeLeft/mn",
+         "mathEditor/tests/model/removeLeft/text",
+         
          "mathEditor/tests/model/removeLeft",
+         
+         "mathEditor/tests/model/removeRight/text",
+         
          "mathEditor/tests/lang",
          "mathEditor/tests/View",
          "mathEditor/tests/string",

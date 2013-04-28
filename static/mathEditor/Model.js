@@ -1123,9 +1123,49 @@ define([ "dojo/_base/declare",
 			}
 		},
 		
+		removeRight: function(){
+			// summary:
+			//		删除光标右边的字符或节点
+			
+			var offset = this.anchor.offset;
+			var node = this.anchor.node;
+			
+			if(this._isTokenNode(node.nodeName)){
+				var contentLength = this._getTextLength(node);
+				if(contentLength > 1){
+					var oldText = node.textContent;
+					var removed = oldText.charAt(offset);
+					var newText = dripString.insertAtOffset(oldText, offset+1, "", 1);
+					node.textContent = newText;
+					// anchor.node和anchor.offset的值都不变，path的值也都不变。
+					return removed;
+				}else if(contentLength == 1){
+					var next = node.nextSibling;
+					if(next){
+						this.anchor.node = next;
+						this._movePathToNextSibling(next);
+//						if(this._isTokenNode(prev.nodeName)){
+//							this.anchor.offset = this._getTextLength(prev);
+//						}else{
+							this.anchor.offset = 0;
+//						}
+						node.parentNode.removeChild(node);
+						return node.textContent;
+					}
+					// 若找不到前一个兄弟节点，则找父节点, FIXME：这里的逻辑还不严谨
+					this.path.pop();
+					this.anchor.node = node.parentNode;
+					// FIXME：是0还是1呢？
+					this.anchor.offset = 0;//如果是line的话为0
+					node.parentNode.removeChild(node);
+					return node.textContent;
+				}
+			}
+		},
+		
 		removeLeft: function(){
 			// summary:
-			//		删除当前聚焦点的前一个字符.
+			//		删除光标左边的字符或节点
 			//		TODO：实现逻辑可不可以调整为，先调用moveLeft移动光标，然后执行一次删除操作。
 			// return:String|node
 			//		删除的内容，如果是token节点，则是字符；如果是layout节点，则是节点。
