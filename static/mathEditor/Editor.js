@@ -153,18 +153,24 @@ define(["dojo/_base/declare",
 						this.model.moveDown();
 					}
 				}else if(e.keyCode === keys.BACKSPACE){
-					//this.model.removeLeft();
-					this.model.doDelete(); // TODO:使用removeLeft代替doDelete
+					// FIXME:将onChanged的方法调用放在removeLeft中。
+					//		但是，因为在有的情况下，调用removeLeft时，并不需要触发这个事件。如在setData中调用时。
+					var removed = this.model.removeLeft();
+					if(removed != ""){
+						this.model.onChanged();
+					}
+				}else if(e.keyCode === keys.DELETE){
+					var removed = this.model.removeRight();
+					if(removed != ""){
+						this.model.onChanged();
+					}
 				}else if(e.altKey && e.keyCode === 191){
 					// ALT+/ 弹出提示信息,因为是根据用户输入，自动弹出提示框，所以不需要这个方法
-				}else if(e.altKey){
-					if(e.keyCode === 18){
-						console.log("Alt =");
-						this.model.toMathMLMode();
-						this.model.onChanged();
-						event.stop(e);
-					}
-					
+				}else if(e.altKey && e.keyCode === 187){
+					console.log("Alt =");
+					this.model.toMathMLMode();
+					this.model.onChanged();
+					event.stop(e);
 				}else if(e.keyCode === keys.ENTER){
 					if(this.contentAssist.opened){
 						this.contentAssist.enter(e);

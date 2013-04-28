@@ -1115,14 +1115,6 @@ define([ "dojo/_base/declare",
 			this.anchor.offset = offset;
 		},
 		
-		doDelete: function(){
-			// 暂时让do系列方法作为共有接口暴露，当_removeLeft调通之后，使用removeLeft作为公用接口
-			var removed = this.removeLeft();
-			if(removed != ""){
-				this.onChanged();
-			}
-		},
-		
 		removeRight: function(){
 			// summary:
 			//		删除光标右边的字符或节点
