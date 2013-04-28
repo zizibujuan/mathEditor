@@ -54,10 +54,12 @@ define([ "mathEditor/tests/layer/Cursor",
          
          "mathEditor/tests/model/removeLeft/mn",
          "mathEditor/tests/model/removeLeft/text",
+         "mathEditor/tests/model/removeLeft/line",
          
          "mathEditor/tests/model/removeLeft",
          
          "mathEditor/tests/model/removeRight/text",
+         "mathEditor/tests/model/removeRight/line",
          
          "mathEditor/tests/lang",
          "mathEditor/tests/View",
