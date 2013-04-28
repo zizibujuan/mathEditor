@@ -1161,10 +1161,33 @@ define([ "dojo/_base/declare",
 			//		TODO：实现逻辑可不可以调整为，先调用moveLeft移动光标，然后执行一次删除操作。
 			// return:String|node
 			//		删除的内容，如果是token节点，则是字符；如果是layout节点，则是节点。
+			//		FIXME：如何表示已删除的内容呢？或者什么也不返回。删除一行，则使用换行符标识返回值
 			
 			var offset = this.anchor.offset;
 			var node = this.anchor.node;
 			var oldText = node.textContent;
+			
+			var line = this._isLineStart(this.anchor);
+			if(line){
+				var prev = line.previousSibling;
+				if(prev){
+					this._movePathToPreviousSibling(prev);
+					this._moveLineEnd(prev);
+					if(line.childNodes.length > 0){
+						// TODO：合并
+						if(prev.lastChild.nodeName === "text" && line.firstChild.nodeName === "text"){
+							prev.lastChild.textContent = prev.lastChild.textContent + line.firstChild.textContent;
+						}else{
+							dripLang.insertNodeAfter(line.firstChild, prev.lastChild)
+						}
+					}
+					line.parentNode.removeChild(line);
+				}else{
+					// 如果是第一行，则什么也不做
+					this._moveLineStart(line);
+				}
+				return;
+			}
 			
 			if(xmlUtil.isPlaceHolder(node)){
 				this.anchor.node = node.parentNode;
@@ -1207,6 +1230,7 @@ define([ "dojo/_base/declare",
 				}
 				return;
 			}
+			
 			
 			console.log("removeLeft", node, offset);
 			
@@ -1597,7 +1621,7 @@ define([ "dojo/_base/declare",
 			//		3. 行中第一个节点是math节点，并且offset的值为0
 			//
 			//		在判断逻辑中调节path。
-			// 		如果不是行尾，则返回false；如果是行尾则返回当前行。
+			// 		如果不是行首，则返回false；如果是行尾则返回当前行。
 			//		FIXME:在这个方法中处理了两个逻辑，为的是减少条件判断。寻找更好的重构手段。
 			
 			var node = anchor.node;
