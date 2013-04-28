@@ -1142,6 +1142,40 @@ define([ "dojo/_base/declare",
 				return;
 			}
 			
+			if(this._isTokenNode(node.nodeName)){
+				var contentLength = this._getTextLength(node);
+				if(contentLength > 1){
+					var oldText = node.textContent;
+					var removed = oldText.charAt(offset - 1);
+					newText = dripString.insertAtOffset(oldText, offset, "", 1);
+					node.textContent = newText;
+					// path不变，anchor.node不变
+					this.anchor.offset--;
+					return removed;
+				}else if(contentLength == 1){
+					// 先找前一个兄弟节点
+					var prev = node.previousSibling;
+					if(prev){
+						this.anchor.node = prev;
+						this._movePathToPreviousSibling(prev);
+//						if(this._isTokenNode(prev.nodeName)){
+//							this.anchor.offset = this._getTextLength(prev);
+//						}else{
+							this.anchor.offset = 1;
+//						}
+						node.parentNode.removeChild(node);
+						return node.textContent;
+					}
+					// 若找不到前一个兄弟节点，则找父节点, FIXME：这里的逻辑还不严谨
+					this.path.pop();
+					this.anchor.node = node.parentNode;
+					this.anchor.offset = 0;
+					node.parentNode.removeChild(node);
+					return node.textContent;
+				}
+				return;
+			}
+			
 			console.log("removeLeft", node, offset);
 			
 			// TODO:如果是text节点（dom的），则把值先split为数组，然后再删除
