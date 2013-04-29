@@ -1060,7 +1060,7 @@ define([ "dojo/_base/declare",
 						// FIXME：将推断逻辑，放在这里是不是不太合适呢？
 						// 因为需要将推导的值，与提示的值进行比较。
 						var tri = this.findTrigonometric(this.anchor, data, nodeName);
-						this.onChanging(tri);
+						//this.onChanging(tri); FIXME：如何提示三角函数
 						if(tri){
 							this.anchor = this.removeExistTrigonometricPart(this.anchor, tri);
 							this.anchor = this.insertTrigonometric(this.anchor, tri.functionName, nodeName);
@@ -1221,14 +1221,6 @@ define([ "dojo/_base/declare",
 				return;
 			}
 			
-			if(xmlUtil.isPlaceHolder(node)){
-				this.anchor.node = node.parentNode;
-				this.anchor.offset = 0;
-				this.path.pop();
-				node.parentNode.removeChild(node);
-				return;
-			}
-			
 			if(this._isTokenNode(node.nodeName)){
 				var contentLength = this._getTextLength(node);
 				if(contentLength > 1){
@@ -1259,6 +1251,13 @@ define([ "dojo/_base/declare",
 					this.anchor.offset = 0;
 					node.parentNode.removeChild(node);
 					return node.textContent;
+				}else if(contentLength == 0){
+					// 现在只有为占位符的时候，长度才为0
+					this.anchor.node = node.parentNode;
+					this.anchor.offset = 0;
+					this.path.pop();
+					node.parentNode.removeChild(node);
+					return;
 				}
 				return;
 			}
