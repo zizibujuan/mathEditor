@@ -262,7 +262,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				var model = this.model;
 				model.loadData("<root>" +
 						"<line><math><mn>12</mn></math></line>" +
-						"<line><math><mn>34</mn></math></line>" +
+						"<line><math><mn>34</mn></math><text>a</text></line>" +
 				"</root>");
 				var line = model.getLineAt(1);
 				model.anchor.node = line.firstChild;
@@ -276,7 +276,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				t.is("math", focusNode.nodeName);
 				t.is(1, model.getOffset());
 				t.is(1, model.getLineCount());
-				t.is(2, model.getLineAt(0).childNodes.length);
+				t.is(3, model.getLineAt(0).childNodes.length);
 			},
 			tearDown: function(){
 				

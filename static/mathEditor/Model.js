@@ -1122,6 +1122,35 @@ define([ "dojo/_base/declare",
 			var offset = this.anchor.offset;
 			var node = this.anchor.node;
 			
+			var line = this._isLineEnd(this.anchor);
+			if(line){
+				var next = line.nextSibling;
+				if(next){
+					if(next.childNodes.length == 0){
+						next.parentNode.removeChild(next);
+					}else{
+						if(line.childNodes.length ==0){
+							// 当前行为空行，则删除当前行，让下一行的初始位置获取焦点
+							this._moveLineStart(next);
+							line.parentNode.removeChild(line);
+						}else{
+							this._moveLineEnd(line);
+							if(line.lastChild.nodeName === "text" && next.firstChild.nodeName === "text"){
+								line.lastChild.textContent = line.lastChild.textContent + next.firstChild.textContent;
+								next.removeChild(next.firstChild);
+							}
+							var nextChildLength = next.childNodes.length;
+							for(var i = 0; i < nextChildLength; i++){
+								line.appendChild(next.firstChild);
+							}
+							next.parentNode.removeChild(next);
+						}
+					}
+				}else{
+					this._moveLineEnd(line);
+				}
+				return;
+			}
 			if(this._isTokenNode(node.nodeName)){
 				var contentLength = this._getTextLength(node);
 				if(contentLength > 1){
@@ -1174,11 +1203,14 @@ define([ "dojo/_base/declare",
 					this._movePathToPreviousSibling(prev);
 					this._moveLineEnd(prev);
 					if(line.childNodes.length > 0){
-						// TODO：合并
+						// FIXME：解决多个节点都复制的问题
 						if(prev.lastChild.nodeName === "text" && line.firstChild.nodeName === "text"){
 							prev.lastChild.textContent = prev.lastChild.textContent + line.firstChild.textContent;
-						}else{
-							dripLang.insertNodeAfter(line.firstChild, prev.lastChild)
+							line.removeChild(line.firstChild);
+						}
+						var childLength = line.childNodes.length;
+						for(var i = 0; i < childLength; i++){
+							prev.appendChild(line.firstChild);
 						}
 					}
 					line.parentNode.removeChild(line);
