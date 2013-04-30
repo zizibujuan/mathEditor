@@ -555,6 +555,11 @@ background-position: -480px -90px;
 	padding: 1px;
 	*/
 }
+/*占位符的另一种表示形式，不再插入mn，而是对于mrow节点没有字节点时，应用一种样式。
+可在空的mrow中插入内容
+.mrow{
+	border: 1px dotted black;
+}*/
 
 /*输入框的样式*/
 .drip_text_input {

@@ -1225,6 +1225,88 @@ define([ "dojo/_base/declare",
 				return;
 			}
 			
+			if(this._isEmptyDenominator(node)){
+				this.path.pop();// 弹出占位符
+				this.path.pop();// 弹出mrow
+				var pos = this.path.pop();// 弹出mfrac
+				// 获取分子的最后一个节点
+				var numeratorMrow = node.parentNode.previousSibling;
+				var lastChild = numeratorMrow.lastChild;
+				pos.nodeName = lastChild.nodeName; // offset保持不变
+				this.path.push(pos);
+				this.anchor.node = lastChild;
+				// FIXME：重构出一个方法叫做计算出offset
+				if(this._isTokenNode(lastChild.nodeName)){
+					this.anchor.offset = this._getTextLength(lastChild);
+				}else{
+					this.anchor.offset = 1;
+				}
+				
+				// 进行实际的删除操作
+				// 将分子中的内容移到mfrac之前，然后删除mfrac节点
+				var len = numeratorMrow.childNodes.length;
+				var mfrac = numeratorMrow.parentNode;
+				var parentNode = mfrac.parentNode;
+				for(var i = 0; i < len; i++){
+					parentNode.insertBefore(numeratorMrow.firstChild, mfrac);
+				}
+				parentNode.removeChild(mfrac);
+				return;
+			}
+			
+			if(this._isEmptyNumerator(node)){
+				this.path.pop();// 弹出占位符
+				this.path.pop();// 弹出mrow
+				var pos = this.path.pop();// 弹出mfrac
+				// 获取分母的第一个节点（暂时决定，将光标放在第一个字母的前面，而不是前一个节点的后面）
+				var denominatorMrow = node.parentNode.nextSibling;
+				var firstChild = denominatorMrow.firstChild;
+				pos.nodeName = firstChild.nodeName; // offset保持不变,与之前mfrac的相同
+				this.path.push(pos);
+				this.anchor.node = firstChild;
+				this.anchor.offset = 0;
+				
+				// 进行实际的删除操作
+				// 将分母中的内容移到mfrac之前，然后删除mfrac节点
+				var len = denominatorMrow.childNodes.length;
+				var mfrac = denominatorMrow.parentNode;
+				var parentNode = mfrac.parentNode;
+				for(var i = 0; i < len; i++){
+					parentNode.insertBefore(denominatorMrow.firstChild, mfrac);
+				}
+				parentNode.removeChild(mfrac);
+				return;
+			}
+			
+			// 将所有需要切换到占位符的逻辑，都放在这里。第一个版本在model中使用显式占位符
+			if(node.parentNode.nodeName === "mrow" && node.parentNode.childNodes.length == 1/*只有一个子节点*/){
+				var canReplaceWithPlaceHolder = false;
+				if(this._isTokenNode(node.nodeName)){
+					var contentLength = this._getTextLength(node);
+					if(contentLength == 1 && offset == 1){
+						canReplaceWithPlaceHolder = true;
+					}
+				}else{
+					// 布局节点
+					if(offset == 1){
+						canReplaceWithPlaceHolder = true;
+					}
+				}
+				
+				if(canReplaceWithPlaceHolder){
+					var pos = this.path.pop();
+					var placeHolder = xmlUtil.getPlaceHolder(this.doc);
+					pos.nodeName = placeHolder.nodeName;
+					this.path.push(pos);
+					this.anchor.node = placeHolder;
+					this.anchor.offset = 0;
+					
+					node.parentNode.insertBefore(placeHolder, node);
+					node.parentNode.removeChild(node);
+					return;
+				}
+			}
+			
 			if(this._isTokenNode(node.nodeName)){
 				var contentLength = this._getTextLength(node);
 				if(contentLength > 1){
@@ -1273,7 +1355,17 @@ define([ "dojo/_base/declare",
 					node.parentNode.removeChild(node);
 				}else if(node.previousSibling){
 					var prev = node.previousSibling;
-					this._moveToPreviousEnd(prev);
+					this._moveToPreviousSiblingEnd(prev);
+					node.parentNode.removeChild(node);
+				}else if(node.nextSibling){
+					var next = node.nextSibling;
+					// 注意，因为这里要把后一个节点删除掉，所以偏移量不能+1
+					// TODO:重构到一个方法中，暂时还没有想到一个好的方法名
+					var pos = this.path.pop();
+					pos.nodeName = next.nodeName;
+					this.path.push(pos);
+					this.anchor.node = next;
+					this.anchor.offset = 0;
 					node.parentNode.removeChild(node);
 				}
 				return;
@@ -1439,6 +1531,18 @@ define([ "dojo/_base/declare",
 		
 		_isTokenNode: function(nodeName){
 			return dripLang.isMathTokenName(nodeName) || nodeName === "text";
+		},
+		
+		_isEmptyDenominator: function(node /*mn 占位符*/){
+			// summary:
+			//		判断是不是空的分母
+			return xmlUtil.isPlaceHolder(node) && this._isDenominatorMrow(node.parentNode);
+		},
+		
+		_isEmptyNumerator: function(node /*mn 占位符*/){
+			// summary:
+			//		判断是不是空的分子
+			return xmlUtil.isPlaceHolder(node) && this._isNumeratorMrow(node.parentNode);
 		},
 		
 		_isDenominatorMrow: function(node/*mrow*/){
@@ -1681,9 +1785,9 @@ define([ "dojo/_base/declare",
 			this.anchor.offset = 0; // 往上移动时，节点为layout节点。
 		},
 		
-		_moveToPreviousEnd: function(prev){
+		_moveToPreviousSiblingEnd: function(prev){
 			// summary:
-			//		将光标移到钱一个节点的后面， 这个方法目前只在math节点中测试过。
+			//		将光标移到前一个节点的后面， 这个方法目前只在math节点中测试过。
 			
 			this._movePathToPreviousSibling(prev);
 			this.anchor.node = prev;
@@ -1692,6 +1796,15 @@ define([ "dojo/_base/declare",
 			}else{
 				this.anchor.offset = 1;
 			}
+		},
+		
+		_moveToNextSiblingStart: function(next){
+			// summary:
+			//		将光标移到后一个节点的前面， 这个方法目前只在math节点中测试过。
+			
+			this._movePathToNextSibling(next);
+			this.anchor.node = next;
+			this.anchor.offset = 0;
 		},
 		
 		_moveLeftDenominatorToNumerator: function(denominatorMrow/*分母*/){
