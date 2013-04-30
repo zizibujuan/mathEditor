@@ -1114,7 +1114,12 @@ define([ "dojo/_base/declare",
 			this.anchor.node = focusNode;
 			this.anchor.offset = offset;
 		},
+
 		
+		// TODO：因为在输入根式或分数完成后，会让其中的某个节点获取焦点，这个时候删除的时候，就不能快速
+		// 删除整个的分数了，所以要进行判断，如果是个空的分数或根式，则就可以直接删除掉整个分数/根式
+		// 不要敲两次键盘才删除一个布局节点，在移到布局节点时，就高亮显示整个节点，然后点击珊瑚时，直接删除即可。
+
 		removeRight: function(){
 			// summary:
 			//		删除光标右边的字符或节点
@@ -1194,7 +1199,6 @@ define([ "dojo/_base/declare",
 			
 			var offset = this.anchor.offset;
 			var node = this.anchor.node;
-			var oldText = node.textContent;
 			
 			var line = this._isLineStart(this.anchor);
 			if(line){
@@ -1258,6 +1262,19 @@ define([ "dojo/_base/declare",
 					this.path.pop();
 					node.parentNode.removeChild(node);
 					return;
+				}
+				return;
+			}else if(dripLang.isMathLayoutNode(node)){
+				// 如果是mathml layout节点
+				
+				// 当父节点中只有一个子节点时
+				if(node.parentNode.childNodes.length == 1){
+					this._moveToTopLeft(node);
+					node.parentNode.removeChild(node);
+				}else if(node.previousSibling){
+					var prev = node.previousSibling;
+					this._moveToPreviousEnd(prev);
+					node.parentNode.removeChild(node);
 				}
 				return;
 			}
@@ -1493,108 +1510,6 @@ define([ "dojo/_base/declare",
 			return node && node.nodeName === "mrow" && node.parentNode.nodeName === "mfence" && node.previousSibling==null;
 		},
 		
-		_moveLeftDenominatorToNumerator: function(denominatorMrow/*分母*/){
-			// summary
-			//		左移，从分母最前面，移动到分子最后面
-
-			// 移到分子中
-			// 如果遇到mrow，则停止往左外层走，开始找分子节点
-			var numeratorMrow = denominatorMrow.previousSibling;
-			this._movePathToPreviousSibling(numeratorMrow);
-			var lastChild = numeratorMrow.lastChild;
-			if(this._isTokenNode(lastChild.nodeName)){
-				this.path.push({nodeName: lastChild.nodeName, offset:numeratorMrow.childNodes.length});
-				this.anchor.node = lastChild;
-				this.anchor.offset = this._getTextLength(lastChild);
-			}else{
-				if(lastChild.nodeName === "mstyle"){
-					lastChild = lastChild.lastChild;
-				}
-				this.path.push({nodeName: lastChild.nodeName, offset:lastChild.parentNode.childNodes.length});
-				this.anchor.node = lastChild;
-				this.anchor.offset = 1;
-			}
-		},
-		
-		_moveRightNumeratorToDenominator: function(numeratorMrow/*分子*/){
-			// summary
-			//		右移，从分子最后面，移动到分母最前面
-			
-			var denominatorMrow = numeratorMrow.nextSibling;
-			this._movePathToNextSibling(denominatorMrow);
-			var firstChild = denominatorMrow.firstChild;
-			if(this._isTokenNode(firstChild.nodeName)){
-				
-			}else{
-				if(firstChild.nodeName === "mstyle"){
-					firstChild = firstChild.firstChild;
-				}
-			}
-			this.path.push({nodeName: firstChild.nodeName, offset: 1});
-			this.anchor.node = firstChild;
-			this.anchor.offset = 0;
-		},
-		
-		_moveToTopRight: function(node/*mrow*/){
-			// summary:
-			//		往右上外层移动
-			this.path.pop();
-			this.anchor.node = node.parentNode;
-			this.anchor.offset = 1; // 往上移动时，节点为layout节点。
-		},
-		
-		_moveToTopLeft: function(node/*mrow*/){
-			// summary:
-			//		往左上内层移动
-			this.path.pop();
-			this.anchor.node = node.parentNode;
-			this.anchor.offset = 0; // 往上移动时，节点为layout节点。
-		},
-		
-		_moveRightMrootIndexToBase: function(rootIndexMrow/*mroot index mrow*/){
-			var rootBaseMrow = rootIndexMrow.previousSibling;
-			this._movePathToPreviousSibling(rootBaseMrow);
-			var firstChild = rootBaseMrow.firstChild;
-			this.path.push({nodeName: firstChild.nodeName, offset: 1});
-			this.anchor.node = firstChild;
-			this.anchor.offset = 0;
-		},
-
-		_moveLeftMrootBaseToIndex: function(rootBaseMrow){
-			var rootIndexMrow = rootBaseMrow.nextSibling;
-			this._movePathToNextSibling(rootBaseMrow);
-			var lastChild = rootIndexMrow.lastChild;
-			this.path.push({nodeName: lastChild.nodeName, offset: rootIndexMrow.childNodes.length});
-			this.anchor.node = lastChild;
-			if(this._isTokenNode(lastChild.nodeName)){
-				this.anchor.offset = this._getTextLength(lastChild);
-			}else{
-				this.anchor.offset = 1;
-			}
-		},
-		
-		_moveLeftMsupSuperscriptToBase: function(superscriptMrow){
-			var msupBaseMrow = superscriptMrow.previousSibling;
-			this._movePathToPreviousSibling(msupBaseMrow);
-			var lastChild = msupBaseMrow.lastChild;
-			this.path.push({nodeName: lastChild.nodeName, offset: msupBaseMrow.childNodes.length});
-			this.anchor.node = lastChild;
-			if(this._isTokenNode(lastChild.nodeName)){
-				this.anchor.offset = this._getTextLength(lastChild);
-			}else{
-				this.anchor.offset = 1;
-			}
-		},
-		
-		_moveRightMsupBaseToSuperscript: function(baseMrow){
-			var superscriptMrow = baseMrow.nextSibling;
-			this._movePathToNextSibling(superscriptMrow);
-			var firstChild = superscriptMrow.firstChild;
-			this.path.push({nodeName: firstChild.nodeName, offset: 1});
-			this.anchor.node = firstChild;
-			this.anchor.offset = 0;
-		},
-		
 		_getTextLength: function(tokenNode){
 			// summary:
 			//		获取节点中有效符号的个数，注意这个长度不是字符的长度。
@@ -1617,27 +1532,7 @@ define([ "dojo/_base/declare",
 			return length;
 		},
 		
-		_movePathToNextSibling: function(nextSibling){
-			// summary:
-			//		将path的值设为下一个兄弟节点。
-			//		注意：在一个token节点中移动光标时，不需要调整path的值。
-			
-			var pos = this.path.pop();
-			pos.offset++;
-			pos.nodeName = nextSibling.nodeName;
-			this.path.push(pos);
-		},
 		
-		_movePathToPreviousSibling: function(nextSibling){
-			// summary:
-			//		将path的值设为下一个兄弟节点。
-			//		注意：在一个token节点中移动光标时，不需要调整path的值。
-			
-			var pos = this.path.pop();
-			pos.offset--;
-			pos.nodeName = nextSibling.nodeName;
-			this.path.push(pos);
-		},
 		
 		_isLineNode: function(node){
 			return node.nodeName === "line";
@@ -1690,6 +1585,28 @@ define([ "dojo/_base/declare",
 			}
 			
 			return false;
+		},
+		
+		_movePathToNextSibling: function(nextSibling){
+			// summary:
+			//		将path的值设为下一个兄弟节点。
+			//		注意：在一个token节点中移动光标时，不需要调整path的值。
+			
+			var pos = this.path.pop();
+			pos.offset++;
+			pos.nodeName = nextSibling.nodeName;
+			this.path.push(pos);
+		},
+		
+		_movePathToPreviousSibling: function(nextSibling){
+			// summary:
+			//		将path的值设为下一个兄弟节点。
+			//		注意：在一个token节点中移动光标时，不需要调整path的值。
+			
+			var pos = this.path.pop();
+			pos.offset--;
+			pos.nodeName = nextSibling.nodeName;
+			this.path.push(pos);
 		},
 		
 		_moveLineStart: function(line){
@@ -1748,6 +1665,122 @@ define([ "dojo/_base/declare",
 			console.error("没有添加最后一个节点是"+lastChildNodeName+"时，进入行尾的逻辑");
 		},
 		
+		_moveToTopRight: function(node/*mrow*/){
+			// summary:
+			//		往右上外层移动
+			this.path.pop();
+			this.anchor.node = node.parentNode;
+			this.anchor.offset = 1; // 往上移动时，节点为layout节点。
+		},
+		
+		_moveToTopLeft: function(node/*mrow*/){
+			// summary:
+			//		往左上内层移动
+			this.path.pop();
+			this.anchor.node = node.parentNode;
+			this.anchor.offset = 0; // 往上移动时，节点为layout节点。
+		},
+		
+		_moveToPreviousEnd: function(prev){
+			// summary:
+			//		将光标移到钱一个节点的后面， 这个方法目前只在math节点中测试过。
+			
+			this._movePathToPreviousSibling(prev);
+			this.anchor.node = prev;
+			if(this._isTokenNode(prev.nodeName)){
+				this.anchor.offset = this._getTextLength(prev);
+			}else{
+				this.anchor.offset = 1;
+			}
+		},
+		
+		_moveLeftDenominatorToNumerator: function(denominatorMrow/*分母*/){
+			// summary
+			//		左移，从分母最前面，移动到分子最后面
+
+			// 移到分子中
+			// 如果遇到mrow，则停止往左外层走，开始找分子节点
+			var numeratorMrow = denominatorMrow.previousSibling;
+			this._movePathToPreviousSibling(numeratorMrow);
+			var lastChild = numeratorMrow.lastChild;
+			// TODO:将这个方法提取出来
+			if(this._isTokenNode(lastChild.nodeName)){
+				this.path.push({nodeName: lastChild.nodeName, offset:numeratorMrow.childNodes.length});
+				this.anchor.node = lastChild;
+				this.anchor.offset = this._getTextLength(lastChild);
+			}else{
+				if(lastChild.nodeName === "mstyle"){
+					lastChild = lastChild.lastChild;
+				}
+				this.path.push({nodeName: lastChild.nodeName, offset:lastChild.parentNode.childNodes.length});
+				this.anchor.node = lastChild;
+				this.anchor.offset = 1;
+			}
+		},
+		
+		_moveRightNumeratorToDenominator: function(numeratorMrow/*分子*/){
+			// summary
+			//		右移，从分子最后面，移动到分母最前面
+			
+			var denominatorMrow = numeratorMrow.nextSibling;
+			this._movePathToNextSibling(denominatorMrow);
+			var firstChild = denominatorMrow.firstChild;
+			if(this._isTokenNode(firstChild.nodeName)){
+				
+			}else{
+				if(firstChild.nodeName === "mstyle"){
+					firstChild = firstChild.firstChild;
+				}
+			}
+			this.path.push({nodeName: firstChild.nodeName, offset: 1});
+			this.anchor.node = firstChild;
+			this.anchor.offset = 0;
+		},
+				
+		_moveRightMrootIndexToBase: function(rootIndexMrow/*mroot index mrow*/){
+			var rootBaseMrow = rootIndexMrow.previousSibling;
+			this._movePathToPreviousSibling(rootBaseMrow);
+			var firstChild = rootBaseMrow.firstChild;
+			this.path.push({nodeName: firstChild.nodeName, offset: 1});
+			this.anchor.node = firstChild;
+			this.anchor.offset = 0;
+		},
+
+		_moveLeftMrootBaseToIndex: function(rootBaseMrow){
+			var rootIndexMrow = rootBaseMrow.nextSibling;
+			this._movePathToNextSibling(rootBaseMrow);
+			var lastChild = rootIndexMrow.lastChild;
+			this.path.push({nodeName: lastChild.nodeName, offset: rootIndexMrow.childNodes.length});
+			this.anchor.node = lastChild;
+			if(this._isTokenNode(lastChild.nodeName)){
+				this.anchor.offset = this._getTextLength(lastChild);
+			}else{
+				this.anchor.offset = 1;
+			}
+		},
+		
+		_moveLeftMsupSuperscriptToBase: function(superscriptMrow){
+			var msupBaseMrow = superscriptMrow.previousSibling;
+			this._movePathToPreviousSibling(msupBaseMrow);
+			var lastChild = msupBaseMrow.lastChild;
+			this.path.push({nodeName: lastChild.nodeName, offset: msupBaseMrow.childNodes.length});
+			this.anchor.node = lastChild;
+			if(this._isTokenNode(lastChild.nodeName)){
+				this.anchor.offset = this._getTextLength(lastChild);
+			}else{
+				this.anchor.offset = 1;
+			}
+		},
+		
+		_moveRightMsupBaseToSuperscript: function(baseMrow){
+			var superscriptMrow = baseMrow.nextSibling;
+			this._movePathToNextSibling(superscriptMrow);
+			var firstChild = superscriptMrow.firstChild;
+			this.path.push({nodeName: firstChild.nodeName, offset: 1});
+			this.anchor.node = firstChild;
+			this.anchor.offset = 0;
+		},
+				
 		_canMoveRightWithInToken: function(anchor){
 			var node = anchor.node;
 			if(xmlUtil.isPlaceHolder(node))return false;
