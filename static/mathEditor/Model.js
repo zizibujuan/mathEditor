@@ -1116,6 +1116,109 @@ define([ "dojo/_base/declare",
 		},
 
 		
+		_removeEmptyDenominator: function(node/*占位符*/){
+			this.path.pop();// 弹出占位符
+			this.path.pop();// 弹出mrow
+			var pos = this.path.pop();// 弹出mfrac
+			// 获取分子的最后一个节点
+			var numeratorMrow = node.parentNode.previousSibling;
+			var lastChild = numeratorMrow.lastChild;
+			pos.nodeName = lastChild.nodeName; // offset保持不变
+			this.path.push(pos);
+			this.anchor.node = lastChild;
+			// FIXME：重构出一个方法叫做计算出offset
+			if(this._isTokenNode(lastChild.nodeName)){
+				this.anchor.offset = this._getTextLength(lastChild);
+			}else{
+				this.anchor.offset = 1;
+			}
+			
+			// 进行实际的删除操作
+			// 将分子中的内容移到mfrac之前，然后删除mfrac节点
+			var len = numeratorMrow.childNodes.length;
+			var mfrac = numeratorMrow.parentNode;
+			var parentNode = mfrac.parentNode;
+			for(var i = 0; i < len; i++){
+				parentNode.insertBefore(numeratorMrow.firstChild, mfrac);
+			}
+			parentNode.removeChild(mfrac);
+		},
+		
+		_removeEmptyNumerator: function(node/*占位符*/){
+			this.path.pop();// 弹出占位符
+			this.path.pop();// 弹出mrow
+			var pos = this.path.pop();// 弹出mfrac
+			// 获取分母的第一个节点（暂时决定，将光标放在第一个字母的前面，而不是前一个节点的后面）
+			var denominatorMrow = node.parentNode.nextSibling;
+			var firstChild = denominatorMrow.firstChild;
+			pos.nodeName = firstChild.nodeName; // offset保持不变,与之前mfrac的相同
+			this.path.push(pos);
+			this.anchor.node = firstChild;
+			this.anchor.offset = 0;
+			
+			// 进行实际的删除操作
+			// 将分母中的内容移到mfrac之前，然后删除mfrac节点
+			var len = denominatorMrow.childNodes.length;
+			var mfrac = denominatorMrow.parentNode;
+			var parentNode = mfrac.parentNode;
+			for(var i = 0; i < len; i++){
+				parentNode.insertBefore(denominatorMrow.firstChild, mfrac);
+			}
+			parentNode.removeChild(mfrac);
+		},
+		
+		_replaceNodeWithPlaceHolder: function(node){
+			var pos = this.path.pop();
+			var placeHolder = xmlUtil.getPlaceHolder(this.doc);
+			pos.nodeName = placeHolder.nodeName;
+			this.path.push(pos);
+			this.anchor.node = placeHolder;
+			this.anchor.offset = 0;
+			
+			node.parentNode.insertBefore(placeHolder, node);
+			node.parentNode.removeChild(node);
+		},
+		
+		_canRemoveLeftNode: function(node, offset){
+			// summary:
+			//		满足左删除时，将节点删掉的条件
+			var canRemove = false;
+			if(this._isTokenNode(node.nodeName)){
+				var contentLength = this._getTextLength(node);
+				if(contentLength == 1 && offset == 1){
+					canRemove = true;
+				}
+			}else{
+				// 布局节点
+				if(offset == 1){
+					canRemove = true;
+				}
+			}
+			return canRemove;
+		},
+		
+		_canRemoveRightNode: function(node, offset){
+			var canRemove = false;
+			if(this._isTokenNode(node.nodeName)){
+				var contentLength = this._getTextLength(node);
+				if(contentLength == 1 && offset == 0){
+					canRemove = true;
+				}
+			}else{
+				// 布局节点
+				if(offset == 0){
+					canRemove = true;
+				}
+			}
+			return canRemove;
+		},
+		
+		_isSoleChildInMrow: function(node){
+			// summary:
+			//		判断node是mrow节点中的唯一一个子节点
+			return node.parentNode.nodeName === "mrow" && node.parentNode.childNodes.length == 1
+		},
+		
 		// TODO：因为在输入根式或分数完成后，会让其中的某个节点获取焦点，这个时候删除的时候，就不能快速
 		// 删除整个的分数了，所以要进行判断，如果是个空的分数或根式，则就可以直接删除掉整个分数/根式
 		// 不要敲两次键盘才删除一个布局节点，在移到布局节点时，就高亮显示整个节点，然后点击珊瑚时，直接删除即可。
@@ -1157,6 +1260,24 @@ define([ "dojo/_base/declare",
 				return;
 			}
 			
+			if(this._isEmptyDenominator(node)){
+				this._removeEmptyDenominator(node);
+				return;
+			}
+			
+			if(this._isEmptyNumerator(node)){
+				this._removeEmptyNumerator(node);
+				return;
+			}
+			// 将所有需要切换到占位符的逻辑，都放在这里。第一个版本在model中使用显式占位符
+			if(this._isSoleChildInMrow(node)/*只有一个子节点*/){
+				if(this._canRemoveRightNode(node, offset)){
+					this._replaceNodeWithPlaceHolder(node);
+					return;
+				}
+			}
+			
+			
 			if(this._isTokenNode(node.nodeName)){
 				var contentLength = this._getTextLength(node);
 				if(contentLength > 1){
@@ -1194,6 +1315,31 @@ define([ "dojo/_base/declare",
 					node.parentNode.removeChild(node);
 					return;
 				}
+			}else if(dripLang.isMathLayoutNode(node)){
+				// 如果是mathml layout节点
+				
+				// 当父节点中只有一个子节点时
+				if(node.parentNode.childNodes.length == 1){
+					this._moveToTopLeft(node);
+					node.parentNode.removeChild(node);
+				}else if(node.nextSibling){
+					var next = node.nextSibling;
+					// 注意，因为这里要把前一个节点删除掉，所以偏移量不变
+					// TODO:重构到一个方法中，暂时还没有想到一个好的方法名
+					//  FIXME：重构，下面的实现，与removeLeft中的实现一样
+					var pos = this.path.pop();
+					pos.nodeName = next.nodeName;
+					this.path.push(pos);
+					this.anchor.node = next;
+					this.anchor.offset = 0;
+					node.parentNode.removeChild(node);
+				}else if(node.previousSibling){
+					// FIXME：重构，与removeLeft中的代码一样
+					var prev = node.previousSibling;
+					this._moveToPreviousSiblingEnd(prev);
+					node.parentNode.removeChild(node);
+				}
+				return;
 			}
 		},
 		
@@ -1234,83 +1380,19 @@ define([ "dojo/_base/declare",
 			}
 			
 			if(this._isEmptyDenominator(node)){
-				this.path.pop();// 弹出占位符
-				this.path.pop();// 弹出mrow
-				var pos = this.path.pop();// 弹出mfrac
-				// 获取分子的最后一个节点
-				var numeratorMrow = node.parentNode.previousSibling;
-				var lastChild = numeratorMrow.lastChild;
-				pos.nodeName = lastChild.nodeName; // offset保持不变
-				this.path.push(pos);
-				this.anchor.node = lastChild;
-				// FIXME：重构出一个方法叫做计算出offset
-				if(this._isTokenNode(lastChild.nodeName)){
-					this.anchor.offset = this._getTextLength(lastChild);
-				}else{
-					this.anchor.offset = 1;
-				}
-				
-				// 进行实际的删除操作
-				// 将分子中的内容移到mfrac之前，然后删除mfrac节点
-				var len = numeratorMrow.childNodes.length;
-				var mfrac = numeratorMrow.parentNode;
-				var parentNode = mfrac.parentNode;
-				for(var i = 0; i < len; i++){
-					parentNode.insertBefore(numeratorMrow.firstChild, mfrac);
-				}
-				parentNode.removeChild(mfrac);
+				this._removeEmptyDenominator(node);
 				return;
 			}
 			
 			if(this._isEmptyNumerator(node)){
-				this.path.pop();// 弹出占位符
-				this.path.pop();// 弹出mrow
-				var pos = this.path.pop();// 弹出mfrac
-				// 获取分母的第一个节点（暂时决定，将光标放在第一个字母的前面，而不是前一个节点的后面）
-				var denominatorMrow = node.parentNode.nextSibling;
-				var firstChild = denominatorMrow.firstChild;
-				pos.nodeName = firstChild.nodeName; // offset保持不变,与之前mfrac的相同
-				this.path.push(pos);
-				this.anchor.node = firstChild;
-				this.anchor.offset = 0;
-				
-				// 进行实际的删除操作
-				// 将分母中的内容移到mfrac之前，然后删除mfrac节点
-				var len = denominatorMrow.childNodes.length;
-				var mfrac = denominatorMrow.parentNode;
-				var parentNode = mfrac.parentNode;
-				for(var i = 0; i < len; i++){
-					parentNode.insertBefore(denominatorMrow.firstChild, mfrac);
-				}
-				parentNode.removeChild(mfrac);
+				this._removeEmptyNumerator(node);
 				return;
 			}
 			
 			// 将所有需要切换到占位符的逻辑，都放在这里。第一个版本在model中使用显式占位符
-			if(node.parentNode.nodeName === "mrow" && node.parentNode.childNodes.length == 1/*只有一个子节点*/){
-				var canReplaceWithPlaceHolder = false;
-				if(this._isTokenNode(node.nodeName)){
-					var contentLength = this._getTextLength(node);
-					if(contentLength == 1 && offset == 1){
-						canReplaceWithPlaceHolder = true;
-					}
-				}else{
-					// 布局节点
-					if(offset == 1){
-						canReplaceWithPlaceHolder = true;
-					}
-				}
-				
-				if(canReplaceWithPlaceHolder){
-					var pos = this.path.pop();
-					var placeHolder = xmlUtil.getPlaceHolder(this.doc);
-					pos.nodeName = placeHolder.nodeName;
-					this.path.push(pos);
-					this.anchor.node = placeHolder;
-					this.anchor.offset = 0;
-					
-					node.parentNode.insertBefore(placeHolder, node);
-					node.parentNode.removeChild(node);
+			if(this._isSoleChildInMrow(node)/*只有一个子节点*/){
+				if(this._canRemoveLeftNode(node, offset)){
+					this._replaceNodeWithPlaceHolder(node);
 					return;
 				}
 			}
