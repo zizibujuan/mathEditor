@@ -56,6 +56,8 @@ define([ "mathEditor/tests/layer/Cursor",
          "mathEditor/tests/model/removeLeft/text",
          "mathEditor/tests/model/removeLeft/line",
          "mathEditor/tests/model/removeLeft/frac",
+         "mathEditor/tests/model/removeLeft/sqrt",
+         "mathEditor/tests/model/removeLeft/root",
          
          "mathEditor/tests/model/removeLeft",
          
@@ -63,6 +65,8 @@ define([ "mathEditor/tests/layer/Cursor",
          "mathEditor/tests/model/removeRight/text",
          "mathEditor/tests/model/removeRight/line",
          "mathEditor/tests/model/removeRight/frac",
+         "mathEditor/tests/model/removeRight/sqrt",
+         "mathEditor/tests/model/removeRight/root",
          
          "mathEditor/tests/lang",
          "mathEditor/tests/View",
