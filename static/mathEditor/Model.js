@@ -1167,6 +1167,58 @@ define([ "dojo/_base/declare",
 			parentNode.removeChild(mfrac);
 		},
 		
+		_removeEmptyRootBase: function(node /*占位符*/){
+			// summary:
+			//		删除空的根式中的base
+			this.path.pop(); // 弹出占位符
+			this.path.pop(); // 弹出mrow
+			var pos = this.path.pop();
+			// 获取根次的最后一个节点
+			var indexMrow = node.parentNode.nextSibling;
+			var lastChild = indexMrow.lastChild;
+			pos.nodeName = lastChild.nodeName;
+			this.path.push(pos);
+			this.anchor.node = lastChild;
+			if(this._isTokenNode(lastChild.nodeName)){
+				this.anchor.offset = this._getTextLength(lastChild);
+			}else{
+				this.anchor.offset = 1;
+			}
+			// 进行实际的删除操作
+			// 将根次中的内容移到mroot之前，然后删除mroot节点
+			var len = indexMrow.childNodes.length;
+			var mroot = indexMrow.parentNode;
+			var parentNode = mroot.parentNode;
+			for(var i = 0; i < len; i++){
+				parentNode.insertBefore(indexMrow.firstChild, mroot);
+			}
+			parentNode.removeChild(mroot);
+		},
+		
+		_removeEmptyRootIndex: function(node /*mn 占位符*/){
+			// summary:
+			//		删除根式中的空的index节点，同时将根式删除
+			this.path.pop();// 弹出占位符
+			this.path.pop();// 弹出mrow
+			var pos = this.path.pop();
+			// 获取根数中的第一个节点
+			var baseMrow = node.parentNode.previousSibling;
+			var firstChild = baseMrow.firstChild;
+			pos.nodeName = firstChild.nodeName;
+			this.path.push(pos);
+			this.anchor.node = firstChild;
+			this.anchor.offset = 0;
+			// 进行实际的删除操作
+			// 将根数中的内容移到mroot之前，然后删除mroot节点
+			var len = baseMrow.childNodes.length;
+			var mroot = baseMrow.parentNode;
+			var parentNode = mroot.parentNode;
+			for(var i = 0; i < len; i++){
+				parentNode.insertBefore(baseMrow.firstChild, mroot);
+			}
+			parentNode.removeChild(mroot);
+		},
+		
 		_removeLeftMathLayoutNode: function(node /*math layout node*/){
 			// 当父节点中只有一个子节点时
 			if(node.parentNode.childNodes.length == 1){
@@ -1431,6 +1483,16 @@ define([ "dojo/_base/declare",
 				return;
 			}
 			
+			if(this._isEmptyRootBase(node)){
+				this._removeEmptyRootBase(node);
+				return;
+			}
+			
+			if(this._isEmptyRootIndex(node)){
+				this._removeEmptyRootIndex(node);
+				return;
+			}
+			
 			// 将所有需要切换到占位符的逻辑，都放在这里。第一个版本在model中使用显式占位符
 			if(this._isSoleChildInMrow(node)/*只有一个子节点*/){
 				if(this._canRemoveLeftNode(node, offset)){
@@ -1662,6 +1724,18 @@ define([ "dojo/_base/declare",
 			// summary:
 			//		判断平方根中的根数是否没有内容
 			return xmlUtil.isPlaceHolder(node) && this._isSqrtBaseMrow(node.parentNode);
+		},
+		
+		_isEmptyRootBase: function(node /*mn 占位符*/){
+			// summary:
+			//		判断根式中的根数是否没有任何内容，即只有占位符
+			return xmlUtil.isPlaceHolder(node) && this._isRootBaseMrow(node.parentNode);
+		},
+		
+		_isEmptyRootIndex: function(node /*mn 占位符*/){
+			// summary:
+			//		判断根式中的根次中没有任何内容，即只有占位符
+			return xmlUtil.isPlaceHolder(node) && this._isRootIndexMrow(node.parentNode);
 		},
 		
 		_isDenominatorMrow: function(node/*mrow*/){
