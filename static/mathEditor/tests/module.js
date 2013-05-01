@@ -59,6 +59,7 @@ define([ "mathEditor/tests/layer/Cursor",
          
          "mathEditor/tests/model/removeLeft",
          
+         "mathEditor/tests/model/removeRight/mn",
          "mathEditor/tests/model/removeRight/text",
          "mathEditor/tests/model/removeRight/line",
          "mathEditor/tests/model/removeRight/frac",

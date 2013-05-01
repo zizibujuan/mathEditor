@@ -1156,6 +1156,7 @@ define([ "dojo/_base/declare",
 				}
 				return;
 			}
+			
 			if(this._isTokenNode(node.nodeName)){
 				var contentLength = this._getTextLength(node);
 				if(contentLength > 1){
@@ -1185,6 +1186,13 @@ define([ "dojo/_base/declare",
 					this.anchor.offset = 0;//如果是line的话为0
 					node.parentNode.removeChild(node);
 					return node.textContent;
+				}else if(contentLength == 0){
+					// 现在只有为占位符的时候，长度才为0
+					this.anchor.node = node.parentNode;
+					this.anchor.offset = 0;
+					this.path.pop();
+					node.parentNode.removeChild(node);
+					return;
 				}
 			}
 		},
