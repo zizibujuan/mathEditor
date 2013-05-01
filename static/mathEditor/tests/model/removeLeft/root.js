@@ -1,20 +1,25 @@
 define([ "doh","mathEditor/Model" ], function(doh,Model) {
 
 	// summary:
-	//		1.根式中的根数为空时，左删除时，删掉整个根式，同时将根次中的内容放在之前的根式前,最后一个节点是token节点
-	//		2.根式中的根数为空时，左删除时，删掉整个根式，同时将根次中的内容放在之前的根式前,最后一个节点是layout节点
+	//		1.根式中的根数为空时，左删除时，删掉整个根式，同时将根次中的内容放在之前的根式前,根式最后一个节点是token节点
+	//		2.根式中的根数为空时，左删除时，删掉整个根式，同时将根次中的内容放在之前的根式前,根式最后一个节点是layout节点
 	//		3.根式中的根次为空时，左删除时，删掉整个根式，同时将根数中的内容放在之前的根式前,根数中最前一个节点是token节点
 	//		4.根式中的根次为空时，左删除时，删掉整个根式，同时将根数中的内容放在之前的根式前,根数中最前一个节点是layout节点
 	doh.register("Model.removeLeft.root 左删除根式",[
 	    {
-	    	name: "左删除删除根数，根式中的根数为空时，左删除时，删掉整个根式，同时将根次中的内容放在之前的根式前,最后一个节点是token节点",
+	    	name: "左删除删除根数，根式中的根数为空时，左删除时，删掉整个根式，同时将根次中的内容放在之前的根式前,根式最后一个节点是token节点",
   			setUp: function(){
   				this.model = new Model({});
   			},
   			runTest: function(t){
   				var model = this.model;
   				model.loadData("<root><line>" +
-  						"<math><mroot><mrow><mn class=\"drip_placeholder_box\">8</mn></mrow><mrow><mn>12</mn></mrow></mroot></math>" +
+  						"<math>" +
+	  						"<mroot>" +
+		  						"<mrow><mn class=\"drip_placeholder_box\">8</mn></mrow>" +
+		  						"<mrow><mn>12</mn></mrow>" +
+	  						"</mroot>" +
+  						"</math>" +
   				"</line></root>");
   				model.mode = "mathml";
   				var line = model.getLineAt(0);
@@ -41,7 +46,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				
   			}
 	    },{
-	    	name: "左删除删除根数，根式中的根数为空时，左删除时，删掉整个根式，同时将根次中的内容放在之前的根式前,最后一个节点是layout节点",
+	    	name: "左删除删除根数，根式中的根数为空时，左删除时，删掉整个根式，同时将根次中的内容放在之前的根式前,根式最后一个节点是layout节点",
   			setUp: function(){
   				this.model = new Model({});
   			},
