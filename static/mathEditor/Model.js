@@ -1167,6 +1167,52 @@ define([ "dojo/_base/declare",
 			parentNode.removeChild(mfrac);
 		},
 		
+		_removeLeftMathLayoutNode: function(node /*math layout node*/){
+			// 当父节点中只有一个子节点时
+			if(node.parentNode.childNodes.length == 1){
+				this._moveToTopLeft(node);
+				node.parentNode.removeChild(node);
+			}else if(node.previousSibling){
+				var prev = node.previousSibling;
+				this._moveToPreviousSiblingEnd(prev);
+				node.parentNode.removeChild(node);
+			}else if(node.nextSibling){
+				var next = node.nextSibling;
+				// 注意，因为这里要把后一个节点删除掉，所以偏移量不能+1
+				// TODO:重构到一个方法中，暂时还没有想到一个好的方法名
+				var pos = this.path.pop();
+				pos.nodeName = next.nodeName;
+				this.path.push(pos);
+				this.anchor.node = next;
+				this.anchor.offset = 0;
+				node.parentNode.removeChild(node);
+			}
+		},
+		
+		_removeRightMathLayoutNode: function(node /*math layout node*/){
+			// 当父节点中只有一个子节点时
+			if(node.parentNode.childNodes.length == 1){
+				this._moveToTopLeft(node);
+				node.parentNode.removeChild(node);
+			}else if(node.nextSibling){
+				var next = node.nextSibling;
+				// 注意，因为这里要把前一个节点删除掉，所以偏移量不变
+				// TODO:重构到一个方法中，暂时还没有想到一个好的方法名
+				//  FIXME：重构，下面的实现，与removeLeft中的实现一样
+				var pos = this.path.pop();
+				pos.nodeName = next.nodeName;
+				this.path.push(pos);
+				this.anchor.node = next;
+				this.anchor.offset = 0;
+				node.parentNode.removeChild(node);
+			}else if(node.previousSibling){
+				// FIXME：重构，与removeLeft中的代码一样
+				var prev = node.previousSibling;
+				this._moveToPreviousSiblingEnd(prev);
+				node.parentNode.removeChild(node);
+			}
+		},
+		
 		_replaceNodeWithPlaceHolder: function(node){
 			var pos = this.path.pop();
 			var placeHolder = xmlUtil.getPlaceHolder(this.doc);
@@ -1269,6 +1315,15 @@ define([ "dojo/_base/declare",
 				this._removeEmptyNumerator(node);
 				return;
 			}
+			
+			if(this._isEmptySqrtBase(node)){
+				this.path.pop(); // 弹出mn占位符
+				this.path.pop(); // 弹出mrow
+				var msqrt = node.parentNode.parentNode;
+				this._removeRightMathLayoutNode(msqrt);
+				return;
+			}
+			
 			// 将所有需要切换到占位符的逻辑，都放在这里。第一个版本在model中使用显式占位符
 			if(this._isSoleChildInMrow(node)/*只有一个子节点*/){
 				if(this._canRemoveRightNode(node, offset)){
@@ -1317,28 +1372,7 @@ define([ "dojo/_base/declare",
 				}
 			}else if(dripLang.isMathLayoutNode(node)){
 				// 如果是mathml layout节点
-				
-				// 当父节点中只有一个子节点时
-				if(node.parentNode.childNodes.length == 1){
-					this._moveToTopLeft(node);
-					node.parentNode.removeChild(node);
-				}else if(node.nextSibling){
-					var next = node.nextSibling;
-					// 注意，因为这里要把前一个节点删除掉，所以偏移量不变
-					// TODO:重构到一个方法中，暂时还没有想到一个好的方法名
-					//  FIXME：重构，下面的实现，与removeLeft中的实现一样
-					var pos = this.path.pop();
-					pos.nodeName = next.nodeName;
-					this.path.push(pos);
-					this.anchor.node = next;
-					this.anchor.offset = 0;
-					node.parentNode.removeChild(node);
-				}else if(node.previousSibling){
-					// FIXME：重构，与removeLeft中的代码一样
-					var prev = node.previousSibling;
-					this._moveToPreviousSiblingEnd(prev);
-					node.parentNode.removeChild(node);
-				}
+				this._removeRightMathLayoutNode(node);
 				return;
 			}
 		},
@@ -1386,6 +1420,14 @@ define([ "dojo/_base/declare",
 			
 			if(this._isEmptyNumerator(node)){
 				this._removeEmptyNumerator(node);
+				return;
+			}
+			
+			if(this._isEmptySqrtBase(node)){
+				this.path.pop(); // 弹出mn占位符
+				this.path.pop(); // 弹出mrow
+				var msqrt = node.parentNode.parentNode;
+				this._removeLeftMathLayoutNode(msqrt);
 				return;
 			}
 			
@@ -1438,26 +1480,7 @@ define([ "dojo/_base/declare",
 				return;
 			}else if(dripLang.isMathLayoutNode(node)){
 				// 如果是mathml layout节点
-				
-				// 当父节点中只有一个子节点时
-				if(node.parentNode.childNodes.length == 1){
-					this._moveToTopLeft(node);
-					node.parentNode.removeChild(node);
-				}else if(node.previousSibling){
-					var prev = node.previousSibling;
-					this._moveToPreviousSiblingEnd(prev);
-					node.parentNode.removeChild(node);
-				}else if(node.nextSibling){
-					var next = node.nextSibling;
-					// 注意，因为这里要把后一个节点删除掉，所以偏移量不能+1
-					// TODO:重构到一个方法中，暂时还没有想到一个好的方法名
-					var pos = this.path.pop();
-					pos.nodeName = next.nodeName;
-					this.path.push(pos);
-					this.anchor.node = next;
-					this.anchor.offset = 0;
-					node.parentNode.removeChild(node);
-				}
+				this._removeLeftMathLayoutNode(node);
 				return;
 			}
 			
@@ -1633,6 +1656,12 @@ define([ "dojo/_base/declare",
 			// summary:
 			//		判断是不是空的分子
 			return xmlUtil.isPlaceHolder(node) && this._isNumeratorMrow(node.parentNode);
+		},
+		
+		_isEmptySqrtBase: function(node /*mn 占位符*/){
+			// summary:
+			//		判断平方根中的根数是否没有内容
+			return xmlUtil.isPlaceHolder(node) && this._isSqrtBaseMrow(node.parentNode);
 		},
 		
 		_isDenominatorMrow: function(node/*mrow*/){
