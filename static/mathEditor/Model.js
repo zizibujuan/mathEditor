@@ -1376,6 +1376,16 @@ define([ "dojo/_base/declare",
 				return;
 			}
 			
+			if(this._isEmptyRootBase(node)){
+				this._removeEmptyRootBase(node);
+				return;
+			}
+			
+			if(this._isEmptyRootIndex(node)){
+				this._removeEmptyRootIndex(node);
+				return;
+			}
+			
 			// 将所有需要切换到占位符的逻辑，都放在这里。第一个版本在model中使用显式占位符
 			if(this._isSoleChildInMrow(node)/*只有一个子节点*/){
 				if(this._canRemoveRightNode(node, offset)){

@@ -52,6 +52,7 @@ define([ "mathEditor/tests/layer/Cursor",
          
          "mathEditor/tests/model/moveLeft",
          
+         "mathEditor/tests/model/removeLeft/math",
          "mathEditor/tests/model/removeLeft/mn",
          "mathEditor/tests/model/removeLeft/text",
          "mathEditor/tests/model/removeLeft/line",
@@ -61,6 +62,7 @@ define([ "mathEditor/tests/layer/Cursor",
          
          "mathEditor/tests/model/removeLeft",
          
+         "mathEditor/tests/model/removeRight/math",
          "mathEditor/tests/model/removeRight/mn",
          "mathEditor/tests/model/removeRight/text",
          "mathEditor/tests/model/removeRight/line",
