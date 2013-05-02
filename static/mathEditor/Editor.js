@@ -10,7 +10,7 @@ define(["dojo/_base/declare",
         "dojo/dom-style",
         "dojo/dom-class",
         "mathEditor/Model",
-        "mathEditor/View",
+        "mathEditor/MathJaxView",
         "mathEditor/ContentAssist"],function(
         		 declare,
         		 lang,
@@ -168,8 +168,13 @@ define(["dojo/_base/declare",
 				}else if(e.altKey && e.keyCode === 191){
 					// ALT+/ 弹出提示信息,因为是根据用户输入，自动弹出提示框，所以不需要这个方法
 				}else if(e.altKey && e.keyCode === keys.EQUAL){
+					// TODO:测试界面上，text和mathml模式之间的切换。
+					// 如果是mathml模式，安小alt =，则切换到text模式。
+					// 按下alt =，添加math节点；再次按下，则删除math节点
+					// 如果已输入公式，则将光标移到公式的后面。
+					
 					console.log("Alt =");
-					this.model.toMathMLMode();
+					this.model.switchMode();
 					this.model.onChanged();
 					event.stop(e);
 				}else if(e.keyCode === keys.ENTER){

@@ -122,6 +122,17 @@ define([ "dojo/_base/declare",
 			return this.mode === "mathml";
 		},
 		
+		switchMode: function(){
+			// summary:
+			//		在text模式和mathml模式之间切换
+			if(this.isTextMode()){
+				this.toMathMLMode();
+			}else if(this.isMathMLMode()){
+				this.toTextMode();
+			}
+		},
+		
+		// TODO:将为私有函数，需要修改测试用例中的调用代码
 		toTextMode: function(){
 			this.mode = "text";
 			
@@ -130,19 +141,24 @@ define([ "dojo/_base/declare",
 				this.anchor = this.mathMLToTextMode(this.anchor);
 			}
 		},
-		
+		// TODO:将为私有函数，需要修改测试用例中的调用代码
 		toMathMLMode: function(){
+			// summary:
+			//		新插入节点的逻辑：
+			//		在line节点里；如果offset为0，则在text节点前，如果0<offset<contentLength，则在text中；
+			//		如果offset==contentLength,则在text节点后，加入一个空的math节点。
+			
 			this.mode = "mathml";
 			
 			var nodeName = this.anchor.node.nodeName;
 			if(nodeName == "line" || nodeName == "text"){
 				this.anchor = this.textToMathMLMode(this.anchor, "math");
-				// 在mathml中添加占位符
-				var placeHolder = xmlUtil.getPlaceHolder(this.doc);
-				this.anchor.node.appendChild(placeHolder);
-				this.anchor.node = placeHolder;
-				//this.anchor.offset = 0; 因为值没有变，所以不再赋值。
-				this.path.push({nodeName:placeHolder.nodeName, offset:1});
+//				// 在mathml中添加占位符
+//				var placeHolder = xmlUtil.getPlaceHolder(this.doc);
+//				this.anchor.node.appendChild(placeHolder);
+//				this.anchor.node = placeHolder;
+//				//this.anchor.offset = 0; 因为值没有变，所以不再赋值。
+//				this.path.push({nodeName:placeHolder.nodeName, offset:1});
 			}
 		},
 		

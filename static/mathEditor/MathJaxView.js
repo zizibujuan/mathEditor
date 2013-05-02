@@ -31,7 +31,7 @@ define(["dojo/_base/declare",
 	
 	var ELEMENT = 1, TEXT = 3;
 	
-	return declare("mathEditor.View",null,{
+	return declare("mathEditor.MathJaxView",null,{
 		model : null,
 		editorDiv : null,
 		parentNode : null,
