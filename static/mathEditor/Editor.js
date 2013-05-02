@@ -49,6 +49,7 @@ define(["dojo/_base/declare",
 	    
 		postCreate : function(){
 			this.inherited(arguments);
+			keys.EQUAL = sniff("chrome")?187 : 61;// =
 			
 			domStyle.set(this.domNode, {position: "relative"});
 			var textarea = this.textarea = domConstruct.create("textarea",{style:{position:"absolute"/*,top:"-10000px",left:'-10000px'*/}}, this.domNode);
@@ -166,7 +167,7 @@ define(["dojo/_base/declare",
 					}
 				}else if(e.altKey && e.keyCode === 191){
 					// ALT+/ 弹出提示信息,因为是根据用户输入，自动弹出提示框，所以不需要这个方法
-				}else if(e.altKey && e.keyCode === 187){
+				}else if(e.altKey && e.keyCode === keys.EQUAL){
 					console.log("Alt =");
 					this.model.toMathMLMode();
 					this.model.onChanged();
