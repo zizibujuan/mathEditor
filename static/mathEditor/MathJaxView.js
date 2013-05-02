@@ -2,6 +2,7 @@ define(["dojo/_base/declare",
         "dojo/_base/lang",
         "dojo/_base/array",
         "dojo/_base/event",
+        "dojo/_base/window",
         "dojo/dom",
         "dojo/dom-style",
         "dojo/dom-class",
@@ -16,6 +17,7 @@ define(["dojo/_base/declare",
 		lang,
 		array,
 		event,
+		win,
 		dom,
 		domStyle,
 		domClass,
@@ -38,6 +40,8 @@ define(["dojo/_base/declare",
 		textarea : null,
 		
 		readOnly: false, // 有时，编辑状态和只读状态显示的样式，是不一样的。暂时还没有区分对待。
+		
+		mathBound: null,
 		
 		// focused: Boolean
 		//		判断当前视图是否已获取焦点
@@ -118,7 +122,8 @@ define(["dojo/_base/declare",
 		showCursor: function(){
 			console.log("Typeset完成后执行此方法");
 			console.log(this.editorDiv);
-			var cursorConfig = this._getCursorConfig();
+			var focusInfo = this._getFocusInfo();
+			var cursorConfig = this._getCursorConfig(focusInfo);
 			this.cursor.move(cursorConfig);
 			
 			// 每一次移动光标，都移动textarea
@@ -129,6 +134,42 @@ define(["dojo/_base/declare",
 				console.warn(this.declaredClass,"this.textarea为null");
 			}
 			
+			// 如果math获取焦点，则将math周围添加一个边框
+			if(this.model.isMathMLMode()){
+				var mathNode = focusInfo.mathNode;
+				var firstMrow = mathNode.firstChild;
+				for(var i = 0; i < 4; i++){
+					firstMrow = firstMrow.firstChild;
+				}
+
+				// TODO：使用math节点下的mrow节点的样式
+				var mathPosition =  domGeom.position(firstMrow);
+				var area = this._getMathBound();
+				var positionStyle = {left:mathPosition.x+"px",
+					top:mathPosition.y+"px",
+					width:mathPosition.w+"px",
+					height:mathPosition.h+"px"};
+				if(focusInfo.node == mathNode){
+					positionStyle["background-color"] = "rgb(204, 203, 203)";
+					domStyle.set(area, positionStyle);
+				}else{
+					// 如果获取了焦点，则去掉背景色。如果math中已经输入内容，则不添加背景色
+					positionStyle["background-color"] = "";
+					domStyle.set(area, positionStyle);
+				}
+				
+			}
+		},
+		
+		_getMathBound: function(){
+			if(this.mathBound)return this.mathBound;
+			this.mathBound = domConstruct.create("div", null, win.body());
+			var style = {
+					position:"absolute",
+					border:"solid 1px green",
+					"z-index":"-1"};
+			domStyle.set(this.mathBound,style);
+			return this.mathBound;
 		},
 		
 		moveLeft: function(){
@@ -149,6 +190,7 @@ define(["dojo/_base/declare",
 			var focusDomNode = this.textLayer;
 			var elementJax = null;
 			var mrowNode = null;
+			var mathNode = null;
 			// 如果是math节点，则需要先
 			array.forEach(pathes, function(path, index){
 				// 移除root
@@ -168,6 +210,8 @@ define(["dojo/_base/declare",
 						var scriptNode = focusDomNode.nextSibling;
 						elementJax = scriptNode.MathJax.elementJax.root;
 						elementJax = elementJax.data[0];// 假定math下必有一个mrow
+						
+						mathNode = focusDomNode;
 					}
 				}else{
 					// 假定在mathJax中math，mstyle和mfrac下面必有mrow
@@ -232,16 +276,15 @@ define(["dojo/_base/declare",
 			if(this.model.getFocusNode().nodeName == "mo" && offset != 0){
 				offset = focusNode.textContent.length;
 			}
-			return {node:focusDomNode, offset:offset, mrowNode:mrowNode};
+			return {node: focusDomNode, offset: offset, mrowNode: mrowNode, mathNode: mathNode};
 		},
 		
-		_getCursorConfig: function(){
+		_getCursorConfig: function(focusInfo){
 			// summary:
 			//		使用坐标值表示光标的位置。
 			//		使用_getCursorPosition获取的信息进行计算。
 			
 			var top = 0, left = 0, height = 0, width = 0;
-			var focusInfo = this._getFocusInfo();
 			var node = focusInfo.node;
 			var offset = focusInfo.offset;
 			var position = null;
