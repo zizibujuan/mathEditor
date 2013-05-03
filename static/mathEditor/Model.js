@@ -1006,8 +1006,39 @@ define([ "dojo/_base/declare",
 				// 如果节点不在text模式下，则切换到text节点下。
 				
 				var node = this.anchor.node;
-				if(node.nodeName != "text" && node.nodeName != "line"){
-					this.anchor = this.mathMLToTextMode(this.anchor);
+				var offset = this.anchor.offset;
+				// 如果已经到了math节点的右边界，则在math后追加一个text节点
+				if(node.nodeName === "math"){
+					if(offset === 0){
+						var prev = node.previousSibling;
+						var pos = this.path.pop();
+						if(!prev || prev.nodeName != "text"){
+							var xmlDoc = this.doc;
+							prev = xmlDoc.createElement("text");
+							dripLang.insertNodeBefore(prev, node);
+						}else{
+							pos.offset--;
+						}
+						pos.nodeName = prev.nodeName;
+						this.path.push(pos);
+						if(prev.nodeName === "text"){
+							this.anchor.node = prev;
+							this.anchor.offset = prev.textContent.length;
+						}
+					}else if(offset === 1){
+						// 先获取下一个text节点，如果没有获取到，则插入一个空白的text节点。
+						var next = node.nextSibling;
+						if(!next || next.nodeName != "text"){
+							var xmlDoc = this.doc;
+							next = xmlDoc.createElement("text");
+							dripLang.insertNodeAfter(next, node);
+						}
+						if(next.nodeName === "text"){
+							this._movePathToNextSibling(next);
+							this.anchor.node = next;
+							this.anchor.offset = 0;
+						}
+					}
 				}
 				
 				this.anchor = this.insertText(this.anchor, data);
@@ -2251,6 +2282,7 @@ define([ "dojo/_base/declare",
 		// TODO:重命名，因为左移，有左移一个字母和左移一个单词之分，所以需要命名的更具体。
 		// 只有英文才有这种情况。
 		moveLeft: function(){
+			console.log("左移前", this.anchor);
 			var node = this.anchor.node;
 			var offset = this.anchor.offset;
 			
@@ -2447,6 +2479,9 @@ define([ "dojo/_base/declare",
 				if(parentNode){
 					this.anchor.node = parentNode;
 					// this.anchor.offset = 0;
+					if(parentNode.nodeName === "math"){
+						this.mode = "text";
+					}
 				}
 				return;
 			}
@@ -2525,13 +2560,15 @@ define([ "dojo/_base/declare",
 					return;
 				}
 				
-				
-				
-				
 				if(parentNode){
 					
 					this.anchor.node = parentNode;
 					// this.anchor.offset = 0;
+					
+					// 如果parentNode是math节点，表示右移出math
+					if(parentNode.nodeName === "math"){
+						this.mode = "text";
+					}
 				}
 				return;
 			}
@@ -2600,6 +2637,8 @@ define([ "dojo/_base/declare",
 			//	12. ……
 			
 			// 当需要换行时。
+			console.log("右移前", this.anchor);
+			
 			var line = this._isLineEnd(this.anchor);
 			if(line){
 				var next = line.nextSibling;
@@ -2773,6 +2812,11 @@ define([ "dojo/_base/declare",
 				if(parentNode){
 					this.anchor.node = parentNode;
 					// this.anchor.offset = 1;
+					
+					// 如果parentNode是math节点，表示右移出math
+					if(parentNode.nodeName === "math"){
+						this.mode = "text";
+					}
 				}
 				return;
 			}
@@ -2853,6 +2897,9 @@ define([ "dojo/_base/declare",
 				if(parentNode){
 					this.anchor.node = parentNode;
 					this.anchor.offset = 1;
+					if(parentNode.nodeName === "math"){
+						this.mode = "text";
+					}
 				}
 				return;
 			}

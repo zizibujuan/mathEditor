@@ -93,7 +93,6 @@ define(["dojo/_base/declare",
 				caret.style.visibility = "hidden";
 	            self.timeoutId = setTimeout(function() {
 	            	caret.style.visibility = "";
-	            	console.log(self.timeoutId);
 	            }, 400);
 			},1000);
 		},
