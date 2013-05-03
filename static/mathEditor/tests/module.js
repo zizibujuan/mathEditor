@@ -2,6 +2,7 @@ define([ "mathEditor/tests/layer/Cursor",
          "mathEditor/tests/dataUtil",
          
          "mathEditor/tests/model/loadData",
+         "mathEditor/tests/model/switchMode",
          
          "mathEditor/tests/model/setData",
          "mathEditor/tests/model/setData/emptyModel",

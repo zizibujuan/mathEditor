@@ -142,7 +142,7 @@ define(["dojo/_base/declare",
 					firstMrow = firstMrow.firstChild;
 				}
 
-				// TODO：使用math节点下的mrow节点的样式
+				// 使用math节点下的mrow节点的样式
 				var mathPosition =  domGeom.position(firstMrow);
 				var area = this._getMathBound();
 				var positionStyle = {left:mathPosition.x+"px",
@@ -158,6 +158,9 @@ define(["dojo/_base/declare",
 					domStyle.set(area, positionStyle);
 				}
 				
+			}else{
+				var area = this._getMathBound();
+				domStyle.set(area, {left:"-10000px"});
 			}
 		},
 		

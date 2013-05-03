@@ -20,6 +20,8 @@ define([ "dojo/_base/declare",
 	
 	var STRING_FUNCTION_APPLICATION = dripLang.STRING_FUNCTION_APPLICATION;
 	
+	var layoutOffset = {before:0, after:1, select:2 /*当前节点处于选中状态*/};
+	
 	return declare(null,{
 		// summary:
 		//		存储当前聚焦点的完整路径
@@ -54,7 +56,7 @@ define([ "dojo/_base/declare",
 		// offset：
 		//		offset的值，根据三种类型，各有不同的计算逻辑。
 		//		1. 如果是token节点，offset指光标在node节点中文本的偏移量；
-		//		2. 如果是layout节点，offset只有两个值，0表示在node之前，1表示在node之后；
+		//		2. 如果是layout节点，offset只有两个值，0表示在node之前，1表示在node之后，2表示在node内部（或是node处于选中状态）；
 		//		3. 如果是line节点，则offset的值永远为0。
 		//
 		//		layout节点本来应该遵循与token节点相同的方式，但是那样就多饶了一道，还需要计算出实际获取焦点的节点。
@@ -153,12 +155,6 @@ define([ "dojo/_base/declare",
 			var nodeName = this.anchor.node.nodeName;
 			if(nodeName == "line" || nodeName == "text"){
 				this.anchor = this.textToMathMLMode(this.anchor, "math");
-//				// 在mathml中添加占位符
-//				var placeHolder = xmlUtil.getPlaceHolder(this.doc);
-//				this.anchor.node.appendChild(placeHolder);
-//				this.anchor.node = placeHolder;
-//				//this.anchor.offset = 0; 因为值没有变，所以不再赋值。
-//				this.path.push({nodeName:placeHolder.nodeName, offset:1});
 			}
 		},
 		
@@ -166,21 +162,41 @@ define([ "dojo/_base/declare",
 			var node = anchor.node;
 			var offset = anchor.offset;
 			
-			var pos = null;
-			do{
-				pos = this.path.pop();
-			}while(pos && pos.nodeName != "math");
-			var textSpanNode = this.doc.createElement("text");
-			
-			// 获取math节点，然后将新节点插入到math节点之后
+			if(node.nodeName === "math" && node.childNodes.length == 0){
+				// 删除math
+				var parentNode = node.parentNode;
+				var focusNode = null;
+				if(parentNode.childNodes.length == 1){
+					this.path.pop();
+					focusNode = parentNode;
+					offset = 0;
+				}else if(node.previousSibling){
+					var prev = node.previousSibling;
+					focusNode = prev;
+					if(this._isTokenNode(prev.nodeName)){
+						offset = this._getTextLength(prev);
+					}else{
+						offset = 1;
+					}
+					this._movePathToPreviousSibling(prev);
+				}else if(node.nextSibling){
+					var pos = this.path.pop();
+					var next = node.nextSibling;
+					focusNode = next
+					offset = 0;
+					pos.nodeName = next.nodeName;
+					this.path.push(pos);
+				}
+				parentNode.removeChild(node);
+				return {node: focusNode, offset: offset};
+			}
+
 			var mathNode = node;
 			while(mathNode.nodeName != "math"){
 				mathNode = mathNode.parentNode;
+				this.path.pop();
 			}
-			
-			dripLang.insertNodeAfter(textSpanNode, mathNode);
-			this.path.push({nodeName:"text", offset:pos.offset+1});
-			return {node: textSpanNode, offset:0};
+			return {node: mathNode, offset:1};
 		},
 		
 		textToMathMLMode: function(anchor, nodeName){
@@ -198,7 +214,7 @@ define([ "dojo/_base/declare",
 				node.appendChild(mathNode);
 				this.path.push({nodeName:"math", offset:1});
 				node = mathNode;
-				offset = 0;
+				offset = layoutOffset.select;
 			}else if(this._isTextNode(node)){
 				// FIXME:调通代码，并添加更多的测试用例
 				this._splitNodeIfNeed(nodeName);
@@ -217,7 +233,7 @@ define([ "dojo/_base/declare",
 				}
 				this.path.push({nodeName: "math", offset: pathOffset});
 				node = mathNode;
-				offset = 0;
+				offset = layoutOffset.select;
 			}
 			return {node: node, offset: offset};
 		},
