@@ -2384,6 +2384,16 @@ define([ "dojo/_base/declare",
 						this._moveLeftToMfenceInnerEnd(prev);
 						return;
 					}
+					
+					// 下面是处理token节点的逻辑
+					this.anchor.node = prev;
+					var len = this._getTextLength(prev);
+					if(len > 0){
+						this.anchor.offset = len - 1;
+					}else{
+						 this.anchor.offset = 0;
+					}
+					return;
 				}
 				
 				// 如果没有前一个兄弟节点，则往上寻找。
@@ -2624,6 +2634,7 @@ define([ "dojo/_base/declare",
 				return;
 			}
 			// math到text
+			// math获取焦点，添加边框样式的时机是根据mode的值决定的。
 			if(next && node.nodeName === "math" && next.nodeName === "text"){
 				this._movePathToNextSibling(next);
 				this.anchor.node = next;
@@ -2791,6 +2802,10 @@ define([ "dojo/_base/declare",
 						return;
 					}
 					
+					// 下面是处理token节点的逻辑
+					this.anchor.node = next;
+					this.anchor.offset = 1;
+					return;
 				}
 				
 				// 没有找到下一个节点，开始往上需找父节点，以下的逻辑都是处理父节点的逻辑

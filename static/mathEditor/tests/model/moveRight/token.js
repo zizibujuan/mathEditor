@@ -8,16 +8,15 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 			},
 			runTest: function(t){
 				var model = this.model;
-				model.toMathMLMode();
-				model.setData({data:"1"});
-				model.setData({data:"+"});
-				model.moveLeft();
-				model.moveLeft();
-				
-				model.moveRight();
-				t.is("/root/line[1]/math[1]/mn[1]", model.getPath());
-				t.is("mn", model.getFocusNode().nodeName);
-				t.is(1, model.getOffset());
+				model.loadData("<root><line><math><mn>1</mn><mo>+</mo></math></line></root>");
+				model.mode = "mathml";
+				var line = model.getLineAt(0);
+				model.anchor.node = line.firstChild.firstChild;
+				model.anchor.offset = 1;
+				model.path.push({nodeName:"root"});
+				model.path.push({nodeName:"line", offset:1});
+				model.path.push({nodeName:"math", offset:1});
+				model.path.push({nodeName:"mn", offset:1});
 				
 				model.moveRight();
 				t.is("/root/line[1]/math[1]/mo[2]", model.getPath());

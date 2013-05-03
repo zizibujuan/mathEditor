@@ -15,6 +15,11 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 	//		4.如果math中没有内容，则删除math节点，math前是一个text节点
 	//		5.如果math中没有内容，则删除math节点，math前是一个math节点
 	//		6.如果math中有内容，则将光标放在math之后，即offset=1
+	//		右移进math节点
+	//		1.
+	//		右移出math节点
+	//		左移进math节点
+	//		左移出math节点
 	doh.register("Model.switchMode",[
 	    {
 	    	name: "从text模式切换到mathml模式，line中没有任何内容，则在line中插入一个math节点。",

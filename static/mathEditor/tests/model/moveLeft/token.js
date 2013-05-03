@@ -8,24 +8,21 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 			},
 			runTest: function(t){
 				var model = this.model;
-				model.toMathMLMode();
-				model.setData({data:"11"});
-				t.is("11", model.getFocusNode().textContent);
-				model.setData({data:"+"});
-				model.moveLeft();
-				t.is("/root/line[1]/math[1]/mo[2]", model.getPath());
-				t.is("mo", model.getFocusNode().nodeName);
-				t.is(0, model.getOffset());
+				model.loadData("<root><line><math><mn>12</mn><mo>+</mo></math></line></root>");
+				model.mode = "mathml";
+				var line = model.getLineAt(0);
+				model.anchor.node = line.firstChild.lastChild;
+				model.anchor.offset = 0;
+				model.path.push({nodeName:"root"});
+				model.path.push({nodeName:"line", offset:1});
+				model.path.push({nodeName:"math", offset:1});
+				model.path.push({nodeName:"mo", offset:2});
 				
 				model.moveLeft();
-				t.is("/root/line[1]/math[1]/mn[1]", model.getPath());
-				t.is("mn", model.getFocusNode().nodeName);
-				t.is(1, model.getOffset());
 				
-				model.moveLeft();
 				t.is("/root/line[1]/math[1]/mn[1]", model.getPath());
 				t.is("mn", model.getFocusNode().nodeName);
-				t.is(0, model.getOffset());
+				t.is(1, model.getOffset());// 光标应该放在1之后，2之前
 			},
 			tearDown: function(){
 				
