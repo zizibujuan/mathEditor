@@ -212,7 +212,105 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   			tearDown: function(){
   				
   			}
-  		}
+  		},{
+	    	name: "在mn中间插入mo节点",
+  			setUp: function(){
+  				this.model = new Model({});
+  			},
+  			runTest: function(t){
+  				var model = this.model;
+  				model.loadData("<root><line>" +
+	  						"<math>" +
+		  						"<mn>12</mn>" +
+	  						"</math>" +
+  						"</line></root>");
+  				model.mode = "mathml";
+  				var line = model.getLineAt(0);
+  				model.anchor.node = line.firstChild.firstChild;
+  				model.anchor.offset = 1;
+  				model.path.push({nodeName:"root"});
+  				model.path.push({nodeName:"line", offset:1});
+  				model.path.push({nodeName:"math", offset:1});
+  				model.path.push({nodeName:"mn", offset:1});
+  				model.setData({data:"+"});
+  				// 光标的位置保持不变，依然停留在mo的前面，但是输入的值追加在mn最后
+  				t.is("/root/line[1]/math[1]/mo[2]", model.getPath());
+  				var focusNode = model.getFocusNode();
+  				t.is("mo", focusNode.nodeName);
+  				t.is(1, model.getOffset());
+  				t.is("+", focusNode.textContent);
+  				t.is(3, focusNode.parentNode.childNodes.length);
+  				t.is("1", focusNode.previousSibling.textContent);
+  				t.is("2", focusNode.nextSibling.textContent);
+  			},
+  			tearDown: function(){
+  				
+  			}
+	    },{
+	    	name: "在mn前插入mo节点",
+  			setUp: function(){
+  				this.model = new Model({});
+  			},
+  			runTest: function(t){
+  				var model = this.model;
+  				model.loadData("<root><line>" +
+	  						"<math>" +
+		  						"<mn>12</mn>" +
+	  						"</math>" +
+  						"</line></root>");
+  				model.mode = "mathml";
+  				var line = model.getLineAt(0);
+  				model.anchor.node = line.firstChild.firstChild;
+  				model.anchor.offset = 0;
+  				model.path.push({nodeName:"root"});
+  				model.path.push({nodeName:"line", offset:1});
+  				model.path.push({nodeName:"math", offset:1});
+  				model.path.push({nodeName:"mn", offset:1});
+  				model.setData({data:"+"});
+  				// 光标的位置不变
+  				t.is("/root/line[1]/math[1]/mn[2]", model.getPath());
+  				var focusNode = model.getFocusNode();
+  				t.is("mn", focusNode.nodeName);
+  				t.is(0, model.getOffset());
+  				t.is("+", focusNode.previousSibling.textContent);
+  				t.is(2, focusNode.parentNode.childNodes.length);
+  			},
+  			tearDown: function(){
+  				
+  			}
+	    },{
+	    	name: "在mn后插入mo节点",
+  			setUp: function(){
+  				this.model = new Model({});
+  			},
+  			runTest: function(t){
+  				var model = this.model;
+  				model.loadData("<root><line>" +
+	  						"<math>" +
+		  						"<mn>12</mn>" +
+	  						"</math>" +
+  						"</line></root>");
+  				model.mode = "mathml";
+  				var line = model.getLineAt(0);
+  				model.anchor.node = line.firstChild.firstChild;
+  				model.anchor.offset = 2;
+  				model.path.push({nodeName:"root"});
+  				model.path.push({nodeName:"line", offset:1});
+  				model.path.push({nodeName:"math", offset:1});
+  				model.path.push({nodeName:"mn", offset:1});
+  				model.setData({data:"+"});
+  				t.is("/root/line[1]/math[1]/mo[2]", model.getPath());
+  				var focusNode = model.getFocusNode();
+  				t.is("mo", focusNode.nodeName);
+  				t.is(1, model.getOffset());
+  				t.is("+", focusNode.textContent);
+  				t.is(2, focusNode.parentNode.childNodes.length);
+  				t.is("12", focusNode.previousSibling.textContent);
+  			},
+  			tearDown: function(){
+  				
+  			}
+	    }
 	                             
 	]);
 });

@@ -227,11 +227,11 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				model.path.push({nodeName:"mo", offset:2});
   				model.setData({data:"1"});
   				// 光标的位置保持不变，依然停留在mo的前面，但是输入的值追加在mn最后
-  				t.is("/root/line[1]/math[1]/mn[2]", model.getPath());
+  				t.is("/root/line[1]/math[1]/mo[3]", model.getPath());
   				var focusNode = model.getFocusNode();
-  				t.is("mn", focusNode.nodeName);
-  				t.is(1, model.getOffset());
-  				t.is("1", focusNode.textContent);
+  				t.is("mo", focusNode.nodeName);
+  				t.is(0, model.getOffset());
+  				t.is("1", focusNode.previousSibling.textContent);
   				t.is(3, focusNode.parentNode.childNodes.length);
   			},
   			tearDown: function(){

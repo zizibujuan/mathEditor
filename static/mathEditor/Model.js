@@ -555,22 +555,74 @@ define([ "dojo/_base/declare",
 				offset = 1; // mi的offset要么是1，要么是0
 			}else{
 				// 以下只处理node也为mi节点的情况，FIXME：等需要的时候加上这个条件约束
-				var newNode = xmlDoc.createElement(nodeName);
-				newNode.textContent = miContext;
 				if(offset == 0){
-					var pos = this.path.pop();
-					// 也就是没有改变，可以不做这一步操作
-					this.path.push({nodeName:nodeName, offset:pos.offset});
-					dripLang.insertNodeBefore(newNode,node);
-				}else if(offset == 1){
+					return this._insertNewTokenNodeBefore(nodeName, miContext, node);
+				}else{
+					// mn中的内容是可以拆分的。mi和mo的最大长度总是为1，所以不专门处理offset==length的情况，因为都是追加
+					if(node.nodeName === "mn" && 0 < offset && offset < this._getTextLength(node)){
+						// 如果是可拆分的节点
+						this._splitNodeIfNeed(nodeName);
+					}
+					var newNode = xmlDoc.createElement(nodeName);
+					newNode.textContent = miContext;
+					dripLang.insertNodeAfter(newNode,node);
+					
+					node = newNode;
+					offset = 1;
+					
 					var pos = this.path.pop();
 					this.path.push({nodeName:nodeName, offset:pos.offset+1});
-					dripLang.insertNodeAfter(newNode,node);
 				}
-				node = newNode;
-				offset = 1;
+//				node = newNode;
+//				offset = 1;
 			}
 			return {node:node, offset:offset};
+		},
+		
+		insertMo: function(anchor, moContent, nodeName){
+			var node = anchor.node;
+			var offset = anchor.offset;
+			var xmlDoc = this.doc;
+
+			if(node.nodeName == "math"){
+				// FIXME:是否需要根据offset定位插入点呢？等写了相应的测试用例之后，再添加这个逻辑
+				//console.error("测试这段代码有没有被执行过");
+				var newNode = xmlDoc.createElement(nodeName);
+				newNode.textContent = moContent;
+				node.appendChild(newNode);
+				this.path.push({nodeName:nodeName, offset:1});
+				node = newNode;
+				offset = 1; // 操作符号的offset要么是1，要么是0
+			}else{
+				// 所有的操作符，都是一个单独的符号，用一个mo封装。
+				if(moContent == "=" && node.nodeName == "mo" && node.textContent == "="){
+					node.textContent += "=";
+				}else if(moContent == "=" && node.nodeName == "mo" && node.textContent == "!"){
+					node.textContent += "=";
+				}else{
+					if(offset == 0){
+						// 放在节点前面
+						return this._insertNewTokenNodeBefore(nodeName, moContent, node);
+					}else{
+						// mn中的内容是可以拆分的。mi和mo的最大长度总是为1，所以不专门处理offset==length的情况，因为都是追加
+						if(node.nodeName === "mn" && 0 < offset && offset < this._getTextLength(node)){
+							// 如果是可拆分的节点
+							this._splitNodeIfNeed(nodeName);
+						}
+						var newNode = xmlDoc.createElement(nodeName);
+						newNode.textContent = moContent;
+						dripLang.insertNodeAfter(newNode,node);
+						
+						node = newNode;
+						offset = 1;
+						
+						var pos = this.path.pop();
+						this.path.push({nodeName:nodeName, offset:pos.offset+1});
+					}
+				}
+			}
+			
+			return {node: node, offset: offset};
 		},
 		
 		insertMn: function(anchor, mnContent, nodeName){
@@ -612,7 +664,7 @@ define([ "dojo/_base/declare",
 							prev.textContent = prev.textContent + mnContent;
 						}else{
 							// 在node前插入一个mn节点
-							return this._insertNewMnNodeBefore(mnContent, node);
+							return this._insertNewTokenNodeBefore(nodeName, mnContent, node);
 						}
 					}else if(offset == this._getTextLength(node)){
 						// path和anchor保持不变
@@ -651,55 +703,19 @@ define([ "dojo/_base/declare",
 			offset = content.length;// 这里的算法只适用于mn
 			return {node:node, offset:offset};
 		},
-		_insertNewMnNodeBefore:  function(content,existNode){
-			var newNodeName = "mn";
-			var tokenNode = this.doc.createElement(newNodeName);
+		
+		_insertNewTokenNodeBefore:  function(nodeName, content,existNode){
+			var tokenNode = this.doc.createElement(nodeName);
 			tokenNode.textContent = content;
 			
 			dripLang.insertNodeBefore(tokenNode, existNode);
 			
 			var pos = this.path.pop();
-			pos.nodeName = newNodeName;// offset保持不变
+			pos.offset++// nodeName保持不变
 			this.path.push(pos);
 			
-			node = tokenNode;
-			offset = content.length;// 这里的算法只适用于mn
-			return {node:node, offset:offset};
-		},
-		
-		insertMo: function(anchor, moContent, nodeName){
-			var node = anchor.node;
-			var offset = anchor.offset;
-			var xmlDoc = this.doc;
-
-			if(node.nodeName == "math"){
-				// FIXME:是否需要根据offset定位插入点呢？等写了相应的测试用例之后，再添加这个逻辑
-				var newNode = xmlDoc.createElement(nodeName);
-				newNode.textContent = moContent;
-				node.appendChild(newNode);
-				this.path.push({nodeName:nodeName, offset:1});
-				node = newNode;
-				offset = 1; // 操作符号的offset要么是1，要么是0
-			}else{
-				// 所有的操作符，都是一个单独的符号，用一个mo封装。
-				if(moContent == "=" && node.nodeName == "mo" && node.textContent == "="){
-					node.textContent += "=";
-				}else if(moContent == "=" && node.nodeName == "mo" && node.textContent == "!"){
-					node.textContent += "=";
-				}else{
-					var newNode = xmlDoc.createElement(nodeName);
-					newNode.textContent = moContent;
-					dripLang.insertNodeAfter(newNode,node);
-					
-					node = newNode;
-					offset = 1;
-					
-					var pos = this.path.pop();
-					this.path.push({nodeName:nodeName, offset:pos.offset+1});
-				}
-			}
-			
-			return {node: node, offset: offset};
+			// anchor保持不变
+			return this.anchor;
 		},
 		
 		insertFenced: function(anchor, fencedContent, nodeName){
