@@ -604,16 +604,29 @@ define([ "dojo/_base/declare",
 				offset = mnContent.length;
 			}else{
 				if(node.nodeName != nodeName){
-					var mnNode = xmlDoc.createElement(nodeName);
-					mnNode.textContent = mnContent;
-					
-					dripLang.insertNodeAfter(mnNode,node);
-					
-					var pos = this.path.pop();
-					this.path.push({nodeName:nodeName, offset:pos.offset+1});
-					
-					node = mnNode;
-					offset = mnContent.length;
+					if(offset == 0){
+						var prev = node.previousSibling;
+						if(prev && prev.nodeName === "mn"){
+							// path和anchor保持不变
+							// 修改prev中的值
+							prev.textContent = prev.textContent + mnContent;
+						}else{
+							// 在node前插入一个mn节点
+							return this._insertNewMnNodeBefore(mnContent, node);
+						}
+					}else if(offset == this._getTextLength(node)){
+						// path和anchor保持不变
+						// 修改prev中的值
+						var next = node.nextSibling;
+						if(next && next.nodeName === "mn"){
+							next.textContent = mnContent + next.textContent;
+						}else{
+							// 在node后追加一个mn节点
+							return this._insertNewMnNodeAfter(mnContent, node);
+						}
+					}else{
+						// 什么也不做，因为不会在mi和mo的内容中插入mn
+					}
 				}else{
 					var oldText = node.textContent;
 					node.textContent = dripString.insertAtOffset(oldText, offset, mnContent);
@@ -621,6 +634,36 @@ define([ "dojo/_base/declare",
 				}
 			}
 			
+			return {node:node, offset:offset};
+		},
+		
+		_insertNewMnNodeAfter: function(content,existNode){
+			var newNodeName = "mn";
+			var tokenNode = this.doc.createElement(newNodeName);
+			tokenNode.textContent = content;
+			
+			dripLang.insertNodeAfter(tokenNode, existNode);
+			
+			var pos = this.path.pop();
+			this.path.push({nodeName:newNodeName, offset:pos.offset+1});
+			
+			node = tokenNode;
+			offset = content.length;// 这里的算法只适用于mn
+			return {node:node, offset:offset};
+		},
+		_insertNewMnNodeBefore:  function(content,existNode){
+			var newNodeName = "mn";
+			var tokenNode = this.doc.createElement(newNodeName);
+			tokenNode.textContent = content;
+			
+			dripLang.insertNodeBefore(tokenNode, existNode);
+			
+			var pos = this.path.pop();
+			pos.nodeName = newNodeName;// offset保持不变
+			this.path.push(pos);
+			
+			node = tokenNode;
+			offset = content.length;// 这里的算法只适用于mn
 			return {node:node, offset:offset};
 		},
 		

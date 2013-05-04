@@ -164,8 +164,8 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				model.toMathMLMode();
   				model.setData({data:"1"});
   				model.removeLeft();
-  				t.is("/root/line[1]", model.getPath());
-  				t.is(model.getFocusNode().nodeName, "line");
+  				t.is("/root/line[1]/math[1]", model.getPath());
+  				t.is("math", model.getFocusNode().nodeName);
   				t.is(0, model.getOffset());
   				
   				model.setData({data:"2"});
