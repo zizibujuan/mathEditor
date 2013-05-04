@@ -139,13 +139,13 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 			runTest: function(t){
 				var model = this.model;
 				model.toMathMLMode();
-				t.is("/root/line[1]/math[1]/mn[1]", model.getPath());
+				t.is("/root/line[1]/math[1]", model.getPath());
 				
 				model.setData({data:"\n"});
-				t.is("/root/line[1]/math[1]/mn[1]", model.getPath());
+				t.is("/root/line[1]/math[1]", model.getPath());
 				t.is(1, model.getLineCount());
-				t.is("mn", model.getFocusNode().nodeName);
-  				t.is(0, model.getOffset())
+				t.is("math", model.getFocusNode().nodeName);
+  				t.is(2, model.getOffset());// 2表示当前处于选中状态
 			},
 			tearDown: function(){
 				

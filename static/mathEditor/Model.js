@@ -1159,8 +1159,8 @@ define([ "dojo/_base/declare",
 				this.onChanging(modelChangingEvent);
 				var newData = modelChangingEvent.newData;
 				if(newData){
-					data = newData.data;// 在onChanging事件中变化输入的值。
-					nodeName = newData.nodeName;
+					//data = newData.data;// 在onChanging事件中变化输入的值。
+					//nodeName = newData.nodeName;
 				}
 //				if(canceled){
 //					return;
