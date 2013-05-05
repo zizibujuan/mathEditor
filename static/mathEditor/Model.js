@@ -1533,6 +1533,29 @@ define([ "dojo/_base/declare",
 			
 			if(this._isTokenNode(node.nodeName)){
 				var contentLength = this._getTextLength(node);
+				if(contentLength == offset){
+					if(xmlUtil.isPlaceHolder(node)){
+						this.anchor.node = node.parentNode;
+						this.anchor.offset = 0;
+						this.path.pop();
+						node.parentNode.removeChild(node);
+						return;
+					}
+					var next = node.nextSibling;
+					if(next){
+						var nextLength = this._getTextLength(next);
+						if(nextLength == 1){
+							// path和anchor的值都不变
+							// 删除节点
+							next.parentNode.removeChild(next);
+						}else{
+							next.textContent = next.textContent.substring(1, nextLength);
+						}
+					}
+					
+					return;
+				}
+				
 				if(contentLength > 1){
 					var oldText = node.textContent;
 					var removed = oldText.charAt(offset);
@@ -1562,11 +1585,7 @@ define([ "dojo/_base/declare",
 					return node.textContent;
 				}else if(contentLength == 0){
 					// 现在只有为占位符的时候，长度才为0
-					this.anchor.node = node.parentNode;
-					this.anchor.offset = 0;
-					this.path.pop();
-					node.parentNode.removeChild(node);
-					return;
+					
 				}
 			}else if(dripLang.isMathLayoutNode(node)){
 				// 如果是mathml layout节点
