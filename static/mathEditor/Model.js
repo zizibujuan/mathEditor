@@ -1732,11 +1732,11 @@ define([ "dojo/_base/declare",
 					if(prev){
 						this.anchor.node = prev;
 						this._movePathToPreviousSibling(prev);
-//							if(this._isTokenNode(prev.nodeName)){
-//								this.anchor.offset = this._getTextLength(prev);
-//							}else{
+						if(this._isTokenNode(prev.nodeName)){
+							this.anchor.offset = this._getTextLength(prev);
+						}else{
 							this.anchor.offset = 1;
-//							}
+						}
 						node.parentNode.removeChild(node);
 						return node.textContent;
 					}
