@@ -58,7 +58,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				
 			}
 		},{
-			name: "mathml模式下，输入平方根，然后在平方根下输入一个数字",
+			name: "在平方根下输入数字",
 			setUp: function(){
 				this.model = new Model({});
 			},
@@ -78,6 +78,68 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				t.is("mn", node.nodeName);
 				t.is(1, model.getOffset());
 				t.is("1", node.textContent);
+			},
+			tearDown: function(){
+				
+			}
+		},{
+			name: "在平方根下输入变量",
+			setUp: function(){
+				this.model = new Model({});
+			},
+			runTest: function(t){
+				var model = this.model;
+				model.toMathMLMode();
+				model.setData({data:"", nodeName:"msqrt"});
+				model.setData({data:"x"});
+				t.is("/root/line[1]/math[1]/msqrt[1]/mi[1]", model.getPath());
+				
+				var node = model.getFocusNode();
+				t.is("mi", node.nodeName);
+				t.is(1, model.getOffset());
+				t.is("x", node.textContent);
+			},
+			tearDown: function(){
+				
+			}
+		},{
+			name: "在平方根下输入mathml操作符",
+			setUp: function(){
+				this.model = new Model({});
+			},
+			runTest: function(t){
+				var model = this.model;
+				model.toMathMLMode();
+				model.setData({data:"", nodeName:"msqrt"});
+				model.setData({data:"+"});
+				t.is("/root/line[1]/math[1]/msqrt[1]/mo[1]", model.getPath());
+				
+				var node = model.getFocusNode();
+				t.is("mo", node.nodeName);
+				t.is(1, model.getOffset());
+				t.is("+", node.textContent);
+			},
+			tearDown: function(){
+				
+			}
+		},{
+			name: "在平方根下输入平方根",
+			setUp: function(){
+				this.model = new Model({});
+			},
+			runTest: function(t){
+				var model = this.model;
+				model.toMathMLMode();
+				model.setData({data:"", nodeName:"msqrt"});
+				model.setData({data:"", nodeName:"msqrt"});
+				t.is("/root/line[1]/math[1]/msqrt[1]/msqrt[1]/mn[1]", model.getPath());
+				
+				var node = model.getFocusNode();
+				t.is("mn", node.nodeName);
+				t.is("drip_placeholder_box", node.getAttribute("class"));
+				t.is(0, model.getOffset());
+				
+				// 确保占位符放在
 			},
 			tearDown: function(){
 				

@@ -555,7 +555,8 @@ define([ "dojo/_base/declare",
 			var offset = anchor.offset;
 			var xmlDoc = this.doc;
 			
-			if(node.nodeName === "math"){
+			if(node.nodeName === "math" || node.nodeName === "msqrt"){
+				// FIXME：应该修改为offset == layoutOffset.select的情况
 				// FIXME: math下的节点的处理代码，大多是一样的，需要重构
 				var newNode = xmlDoc.createElement(nodeName);
 				newNode.textContent = miContext;
@@ -594,7 +595,7 @@ define([ "dojo/_base/declare",
 			var offset = anchor.offset;
 			var xmlDoc = this.doc;
 
-			if(node.nodeName == "math"){
+			if(node.nodeName === "math" || node.nodeName === "msqrt"){
 				// FIXME:是否需要根据offset定位插入点呢？等写了相应的测试用例之后，再添加这个逻辑
 				//console.error("测试这段代码有没有被执行过");
 				var newNode = xmlDoc.createElement(nodeName);
@@ -893,7 +894,7 @@ define([ "dojo/_base/declare",
 			
 			var xmlDoc = this.doc;
 			
-			if(node.nodeName == "math"){
+			if(node.nodeName === "math" || node.nodeName === "msqrt"){
 				this.path.push({nodeName:"msqrt", offset:1});
 				this.path.push({nodeName:"mn", offset:1});
 				
