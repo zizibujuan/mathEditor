@@ -251,7 +251,70 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   			tearDown: function(){
   				
   			}
-  		}
+  		},{
+	    	// 在这里把带有推荐词条的输入模式走通。有两种应用推荐词条的方法，一是直接调用apply方法，另一个是在输入完全之后自动应用。
+	    	name: "在空的math节点中，输入三角函数sin，输入的时候会给出推荐词条",
+  			setUp: function(){
+  				this.model = new Model({});
+  			},
+  			runTest: function(t){
+  				var model = this.model;
+  				model.loadData("<root><line>" +
+	  						"<math>" +
+	  						"</math>" +
+  						"</line></root>");
+  				model.mode = "mathml";
+  				var line = model.getLineAt(0);
+  				model.anchor.node = line.firstChild;
+  				model.anchor.offset = 2;// math处于选中状态
+  				model.path.push({nodeName:"root"});
+  				model.path.push({nodeName:"line", offset:1});
+  				model.path.push({nodeName:"math", offset:1});
+//  				aspect.after(model, "onChanging", function(e){
+//  					if(e.data == "s"){
+//  						e.newData = {data: "", nodeName: "msqrt"};
+//  					}else if(e.data == "i"){
+//  						e.newData = {data: "sin", nodeName: "mi"};
+//  					}else if(e.data == "n"){
+//  						e.newData = {data: "sin", nodeName: "mi", match: true};
+//  					}
+//  				},true);
+  				
+  				model.setData({data:"s"});
+  				t.is("/root/line[1]/math[1]/mi[1]", model.getPath());
+  				var focusNode = model.getFocusNode();
+  				t.is("mi", focusNode.nodeName);
+  				t.is(1, model.getOffset());
+  				t.is("s", focusNode.textContent);
+  				t.is(1, line.firstChild.childNodes.length);
+  				
+  				model.setData({data:"i"});
+  				t.is("/root/line[1]/math[1]/mi[2]", model.getPath());
+  				var focusNode = model.getFocusNode();
+  				t.is("mi", focusNode.nodeName);
+  				t.is(1, model.getOffset());
+  				t.is("i", focusNode.textContent);
+  				t.is(2, line.firstChild.childNodes.length);
+  				
+  				model.setData({data:"n"});
+  				t.is("/root/line[1]/math[1]/mrow[3]/mn[1]", model.getPath());
+  				var node = model.getFocusNode();
+  				t.is("mn", node.nodeName);
+  				t.is("drip_placeholder_box", node.getAttribute("class"));
+  				t.is(0, model.getOffset());
+  				
+  				var funNode = node.parentNode.previousSibling;
+  				t.is("mo",funNode.nodeName);
+  				t.is("&#x2061;",funNode.textContent);
+  				
+  				var triNode = funNode.previousSibling;
+  				t.is("mi", triNode.nodeName);
+  				t.is("sin", triNode.textContent);
+  			},
+  			tearDown: function(){
+  				
+  			}
+	    }
   		
 	]);
 });

@@ -488,15 +488,25 @@ define([ "dojo/_base/declare",
 			var preLength = tri.preMis.length;
 			if(preLength == 2){
 				var willFocusNode = node.previousSibling.previousSibling;
+				
+				if(willFocusNode){
+					var pos = this.path.pop();
+					pos.offset-=2;
+					this.path.push(pos);
+				}else{
+					willFocusNode = node.parentNode;
+					var pos = this.path.pop();
+				}
 				node.parentNode.removeChild(node.previousSibling);
 				node.parentNode.removeChild(node);
 				
-				var pos = this.path.pop();
-				pos.offset-=2;
-				this.path.push(pos);
+				
 				
 				node = willFocusNode;
-				if(node.nodeName == "mi" || node.nodeName == "mo"){
+				if(dripLang.isMathLayoutNode(node)){
+					offset = layoutOffset.select;
+				}
+				else if(node.nodeName == "mi" || node.nodeName == "mo"){
 					offset = 1;
 				}else{
 					offset = node.textContent.length;
@@ -1158,9 +1168,10 @@ define([ "dojo/_base/declare",
 				// event.canceled
 				this.onChanging(modelChangingEvent);
 				var newData = modelChangingEvent.newData;
-				if(newData){
-					//data = newData.data;// 在onChanging事件中变化输入的值。
-					//nodeName = newData.nodeName;
+				if(newData && newData.match){// 判断输入的值，与推荐字条是否匹配
+//					data = newData.data;// 在onChanging事件中变化输入的值。
+//					nodeName = newData.nodeName;
+					
 				}
 //				if(canceled){
 //					return;

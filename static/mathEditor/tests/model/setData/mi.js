@@ -1,5 +1,5 @@
 // 输入英文字母
-define([ "doh","mathEditor/Model" ], function(doh,Model) {
+define([ "doh", "dojo/aspect", "mathEditor/Model" ], function(doh,aspect,Model) {
 	
 	// 现在的逻辑改为，如果在一个节点之前插入一个新节点，则光标的位置保持不变，即还是在原来节点之前，而不是调整到新节点之后。
 	// FIXME:到底是选哪种好呢？
