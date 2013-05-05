@@ -125,7 +125,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				var removed = model.removeRight();
   				var focusNode = model.getFocusNode();
   				t.is("a", removed);
-  				t.is("/root/line[1]/math[2]", model.getPath());
+  				t.is("/root/line[1]/math[1]", model.getPath());
   				t.is("math", focusNode.nodeName);
   				t.is(0, model.getOffset());
   				t.is(1, line.childNodes.length);

@@ -1554,39 +1554,65 @@ define([ "dojo/_base/declare",
 					}
 					
 					return;
-				}
-				
-				if(contentLength > 1){
+				}else if(offset == 0){
+					if(contentLength == 1){
+						// 要删除这个节点
+						
+						// 先找后一个节点，
+						var next = node.nextSibling;
+						if(next){
+							// offset保持不变
+							// nodeName的值改变
+							var pos = this.path.pop();
+							pos.nodeName = next.nodeName;
+							this.path.push(pos);
+							this.anchor.node = next;
+							this.anchor.offset = 0;
+							node.parentNode.removeChild(node);
+							return node.textContent;
+						}
+						// 找不到后一个节点，则找前一个节点
+						var prev = node.previousSibling;
+						if(prev){
+							this._moveToPreviousSiblingEnd(prev);
+							node.parentNode.removeChild(node);
+							return;
+						}
+						
+						// 找不到前一个节点，则找父节点
+						// FIXME：这里的逻辑还不严谨
+						this.path.pop();
+						this.anchor.node = node.parentNode;
+						// FIXME：是0还是1呢？
+						if(node.parentNode.nodeName === "math"){
+							this.anchor.offset = layoutOffset.select;
+						}else{
+							this.anchor.offset = 0;//如果是line的话为0
+						}
+						var removed = null;
+						if(this._isTokenNode(node.nodeName)){
+							removed = node.textContent;
+						}
+						node.parentNode.removeChild(node);
+						return removed;
+					}else{
+						var oldText = node.textContent;
+						var removed = oldText.charAt(offset);
+						var newText = dripString.insertAtOffset(oldText, offset+1, "", 1);
+						node.textContent = newText;
+						// anchor.node和anchor.offset的值都不变，path的值也都不变。
+						return removed;
+					}
+				}else{
+					// 在之间
 					var oldText = node.textContent;
 					var removed = oldText.charAt(offset);
 					var newText = dripString.insertAtOffset(oldText, offset+1, "", 1);
 					node.textContent = newText;
 					// anchor.node和anchor.offset的值都不变，path的值也都不变。
 					return removed;
-				}else if(contentLength == 1){
-					var next = node.nextSibling;
-					if(next){
-						this.anchor.node = next;
-						this._movePathToNextSibling(next);
-//						if(this._isTokenNode(prev.nodeName)){
-//							this.anchor.offset = this._getTextLength(prev);
-//						}else{
-							this.anchor.offset = 0;
-//						}
-						node.parentNode.removeChild(node);
-						return node.textContent;
-					}
-					// 若找不到前一个兄弟节点，则找父节点, FIXME：这里的逻辑还不严谨
-					this.path.pop();
-					this.anchor.node = node.parentNode;
-					// FIXME：是0还是1呢？
-					this.anchor.offset = 0;//如果是line的话为0
-					node.parentNode.removeChild(node);
-					return node.textContent;
-				}else if(contentLength == 0){
-					// 现在只有为占位符的时候，长度才为0
-					
 				}
+				return;
 			}else if(dripLang.isMathLayoutNode(node)){
 				// 如果是mathml layout节点
 				this._removeRightMathLayoutNode(node);
