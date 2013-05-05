@@ -14,14 +14,14 @@ define([ "dojo/_base/array" ], function(array) {
 			label: "除号", // 在提示菜单中显示的值
 			iconClass: "drip_equation_icon drip_division", // 在提示菜单中显示的图标
 			single: true
-		},{
+		}/*,{
 			input: "/",
 			map: "/",
 			nodeName: "text",
 			freq: 0,
 			label: "/",
 			iconClass: ""
-		},{
+		}*/,{
 			// <mfrac> numerator(分子) denominator(分母) </mfrac>
 			// 当是分数，需要推断出分子时，如果可能有多种情况，则给出一个列表，让用户去选择。
 			input: "/",

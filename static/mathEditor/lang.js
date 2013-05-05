@@ -16,7 +16,7 @@ define(["dojo/_base/array"],function(array){
 	},
 	
 	lang.isOperator = function(text){
-		if(/\+|-|=|==|<|>|!|!=|&#xD7;|&#xF7;|&#x2A7E;|&#x226B;|&#x2A7D;|&#x226A;|&#x2260;|&#x2248;/.test(text))return true;
+		if(/\+|-|\/|=|==|<|>|!|!=|&#xD7;|&#xF7;|&#x2A7E;|&#x226B;|&#x2A7D;|&#x226A;|&#x2260;|&#x2248;/.test(text))return true;
 		return false;
 	},
 	
