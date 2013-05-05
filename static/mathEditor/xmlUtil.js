@@ -98,15 +98,13 @@ define({
 	
 	createEmptyMsqrt: function(xmlDoc){
 		// summary:
-		//		创建一个平方根
+		//		创建一个平方根。注意，msqrt中包含一个隐含的mrow节点，所以不需要显式添加mrow节点。
 		// <msqrt> base </msqrt>
 		// <mroot> base index </mroot>
 
 		var msqrt = xmlDoc.createElement("msqrt");
-		var mrow1 = xmlDoc.createElement("mrow");
 		var base = this.getPlaceHolder(xmlDoc);
-		msqrt.appendChild(mrow1);
-		mrow1.appendChild(base);
+		msqrt.appendChild(base);
 		return {rootNode:msqrt,focusNode:base};
 	},
 	

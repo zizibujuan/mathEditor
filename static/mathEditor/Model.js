@@ -656,7 +656,9 @@ define([ "dojo/_base/declare",
 			// FIXME: 在进入mathml模式时，应该不再在line和text节点中。
 			// 暂时先放在这里处理，但是这里的逻辑还是添加一个math节点。
 			
-			if(node.nodeName === "math" || node.nodeName === "mrow"){
+			if(node.nodeName === "math" || node.nodeName === "mrow" || node.nodeName === "msqrt"){
+				// 这里的节点有一个共同的特点，要么是mrow或者包含隐式的mrow，所以这里要表达的含义，应该是
+				// 在节点内容追加。TODO：进一步重构中，看是否可以使用layoutOffset.select来表示这段逻辑
 				// FIXME:是否需要根据offset定位插入点呢？等写了相应的测试用例之后，再添加这个逻辑
 				var newNode = xmlDoc.createElement(nodeName);
 				newNode.textContent = mnContent;
@@ -883,6 +885,9 @@ define([ "dojo/_base/declare",
 		},
 		
 		insertMsqrt: function(anchor, data, nodeName){
+			// summary
+			//		插入msqrt节点
+			//		注意，msqrt中包含一个隐含的mrow节点，所以不需要显式添加mrow节点
 			var node = anchor.node;
 			var offset = anchor.offset;
 			
@@ -890,7 +895,6 @@ define([ "dojo/_base/declare",
 			
 			if(node.nodeName == "math"){
 				this.path.push({nodeName:"msqrt", offset:1});
-				this.path.push({nodeName:"mrow", offset:1});
 				this.path.push({nodeName:"mn", offset:1});
 				
 				var sqrtData = xmlUtil.createEmptyMsqrt(xmlDoc);
@@ -904,7 +908,6 @@ define([ "dojo/_base/declare",
 				
 				this.path.pop();
 				this.path.push({nodeName:"msqrt", offset:offset+1});
-				this.path.push({nodeName:"mrow", offset:1});
 				this.path.push({nodeName:"mn", offset:1});
 				
 				var parent = node.parentNode;
