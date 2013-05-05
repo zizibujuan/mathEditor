@@ -28,6 +28,69 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   			tearDown: function(){
   				
   			}
+	    },{
+	    	name: "在mi节点前有一个mn节点,mn中只包含一个数字，删除mn节点中的内容",
+  			setUp: function(){
+  				this.model = new Model({});
+  			},
+  			runTest: function(t){
+  				var model = this.model;
+  				model.loadData("<root><line>" +
+  						"<math>" +
+	  						"<mn>1</mn>" +
+	  						"<mi>x</mi>" +
+  						"</math></line></root>");
+  				model.mode = "mathml";
+  				var line = model.getLineAt(0);
+  				model.anchor.node = line.firstChild.lastChild;
+  				model.anchor.offset = 0;
+  				model.path.push({nodeName: "root"});
+  				model.path.push({nodeName: "line", offset: 1});
+  				model.path.push({nodeName: "math", offset: 1});
+  				model.path.push({nodeName: "mi", offset: 2});
+  				model.removeLeft();
+  				
+  				var focusNode = model.getFocusNode();
+  				t.is("/root/line[1]/math[1]/mi[1]", model.getPath());
+  				t.is("mi", focusNode.nodeName);
+  				t.is(0, model.getOffset());
+  				t.is(1, focusNode.parentNode.childNodes.length);
+  			},
+  			tearDown: function(){
+  				
+  			}
+	    },{
+	    	name: "在mi节点前有一个mn节点,mn中包含两个数字，删除mn节点中的内容",
+  			setUp: function(){
+  				this.model = new Model({});
+  			},
+  			runTest: function(t){
+  				var model = this.model;
+  				model.loadData("<root><line>" +
+  						"<math>" +
+	  						"<mn>12</mn>" +
+	  						"<mi>x</mi>" +
+  						"</math></line></root>");
+  				model.mode = "mathml";
+  				var line = model.getLineAt(0);
+  				model.anchor.node = line.firstChild.lastChild;
+  				model.anchor.offset = 0;
+  				model.path.push({nodeName: "root"});
+  				model.path.push({nodeName: "line", offset: 1});
+  				model.path.push({nodeName: "math", offset: 1});
+  				model.path.push({nodeName: "mi", offset: 2});
+  				model.removeLeft();
+  				// 删除时，光标的位置还是放在当前节点的最前面。
+  				var focusNode = model.getFocusNode();
+  				t.is("/root/line[1]/math[1]/mi[2]", model.getPath());
+  				t.is("mi", focusNode.nodeName);
+  				t.is(0, model.getOffset());
+  				t.is(2, focusNode.parentNode.childNodes.length);
+  				t.is("1", focusNode.previousSibling.textContent);
+  			},
+  			tearDown: function(){
+  				
+  			}
 	    }
 	                             
 	]);

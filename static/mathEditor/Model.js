@@ -1649,6 +1649,30 @@ define([ "dojo/_base/declare",
 			
 			if(this._isTokenNode(node.nodeName)){
 				var contentLength = this._getTextLength(node);
+				if(offset == 0){
+					if(xmlUtil.isPlaceHolder(node)){
+						this.anchor.node = node.parentNode;
+						this.anchor.offset = 0;
+						this.path.pop();
+						node.parentNode.removeChild(node);
+						return;
+					}
+					var prev = node.previousSibling;
+					if(prev){
+						var prevLength = this._getTextLength(prev);
+						if(prevLength == 1){
+							var pos = this.path.pop();
+							pos.offset--;//只修改偏移量
+							this.path.push(pos);
+							// 删除节点
+							prev.parentNode.removeChild(prev);
+						}else{
+							prev.textContent = prev.textContent.substring(0, prevLength-1);
+						}
+					}
+					return;
+				}
+				
 				if(contentLength > 1){
 					var oldText = node.textContent;
 					var removed = oldText.charAt(offset - 1);
@@ -1663,11 +1687,11 @@ define([ "dojo/_base/declare",
 					if(prev){
 						this.anchor.node = prev;
 						this._movePathToPreviousSibling(prev);
-//						if(this._isTokenNode(prev.nodeName)){
-//							this.anchor.offset = this._getTextLength(prev);
-//						}else{
+//							if(this._isTokenNode(prev.nodeName)){
+//								this.anchor.offset = this._getTextLength(prev);
+//							}else{
 							this.anchor.offset = 1;
-//						}
+//							}
 						node.parentNode.removeChild(node);
 						return node.textContent;
 					}
@@ -1679,11 +1703,6 @@ define([ "dojo/_base/declare",
 					return node.textContent;
 				}else if(contentLength == 0){
 					// 现在只有为占位符的时候，长度才为0
-					this.anchor.node = node.parentNode;
-					this.anchor.offset = 0;
-					this.path.pop();
-					node.parentNode.removeChild(node);
-					return;
 				}
 				return;
 			}else if(dripLang.isMathLayoutNode(node)){
