@@ -137,13 +137,10 @@ define(["dojo/_base/declare",
 			// 如果math获取焦点，则将math周围添加一个边框
 			if(this.model.isMathMLMode()){
 				var mathNode = focusInfo.mathNode;
-				var firstMrow = mathNode.firstChild;
-				for(var i = 0; i < 4; i++){
-					firstMrow = firstMrow.firstChild;
-				}
+				var mathContainer = mathNode.parentNode;
 
 				// 使用math节点下的mrow节点的样式
-				var mathPosition =  domGeom.position(firstMrow);
+				var mathPosition =  domGeom.position(mathContainer);
 				var area = this._getMathBound();
 				var positionStyle = {left:mathPosition.x+"px",
 					top:mathPosition.y+"px",
@@ -202,14 +199,12 @@ define(["dojo/_base/declare",
 					focusDomNode = focusDomNode.childNodes[path.offset - 1];
 				}else if(path.nodeName == "text" || path.nodeName == "math"){
 					var childNodes = focusDomNode.childNodes;
-					var filtered = array.filter(childNodes, function(node, i){
-						return node.nodeName.toLowerCase() == 'span';
-					});
-					focusDomNode = filtered[path.offset - 1];
+					focusDomNode = childNodes[path.offset - 1];
 					// 如果是math，还需要继续往下找节点
 					// 或者根据这个div找到script中的数据，来进行循环
 					// 如果已经定位到设置的层级，但是发现是mrow，则需要继续往下走一步。
 					if(path.nodeName == "math"){
+						focusDomNode = focusDomNode.firstChild;
 						var scriptNode = focusDomNode.nextSibling;
 						elementJax = scriptNode.MathJax.elementJax.root;
 						elementJax = elementJax.data[0];// 假定math下必有一个mrow

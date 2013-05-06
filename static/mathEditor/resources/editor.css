@@ -39,6 +39,10 @@
 	
 }
 
+.drip_math{
+	display: inline-block;
+}
+
 .drip_cursor-layer {
     z-index: 4;
 }
