@@ -2181,12 +2181,44 @@ define([ "dojo/_base/declare",
 			this.anchor.offset = 1; // 往上移动时，节点为layout节点。
 		},
 		
+		// moveOutTopLeft
 		_moveToTopLeft: function(node/*mrow*/){
 			// summary:
 			//		往左上内层移动
 			this.path.pop();
 			this.anchor.node = node.parentNode;
 			this.anchor.offset = 0; // 往上移动时，节点为layout节点。
+		},
+		
+		_moveInNodeStart: function(node/*layout node*/){
+			// summary:
+			//		移到node内的第一个节点前
+			var firstChild = node.firstChild;
+			if(firstChild.nodeName === "mstyle"){
+				firstChild = firstChild.firstChild;
+			}
+			this.path.push({nodeName:firstChild.nodeName, offset:1});
+			this.anchor.node = firstChild;
+			this.anchor.offset = 0;
+		},
+		
+		_moveInNodeEnd: function(node/*layout node*/){
+			// summary:
+			//		移到node内最后一个节点后
+			var lastChild = node.lastChild;
+			if(lastChild.nodeName === "mstyle"){
+				lastChild = lastChild.lastChild;
+			}
+			this.path.push({nodeName: lastChild.nodeName, offset: node.childNodes.length});
+			this.anchor.node = lastChild;
+			if(this._isTokenNode(lastChild.nodeName)){
+				// 往里层走，所以path是追加 moveIn
+				this.anchor.offset = this._getTextLength(lastChild);
+			}else{
+				// 不是token节点，就是layout节点，获取是msytle等节点
+				// 注意，如果是layout节点，往左边移动时，offset会一直保持为1
+				this.anchor.offset = 1;
+			}
 		},
 		
 		_moveToPreviousSiblingEnd: function(prev){
@@ -2450,8 +2482,7 @@ define([ "dojo/_base/declare",
 			var prev = node.previousSibling;
 			if(prev && node.nodeName === "text" && prev.nodeName === "math"){
 				this._movePathToPreviousSibling(prev);
-				this.anchor.node = prev;
-				this.anchor.offset = 1;
+				this._moveInNodeEnd(prev);
 				this.mode = "mathml";
 				return;
 			}
@@ -2459,7 +2490,7 @@ define([ "dojo/_base/declare",
 			if(prev && node.nodeName === "math" && prev.nodeName === "text"){
 				this._movePathToPreviousSibling(prev);
 				this.anchor.node = prev;
-				this.anchor.offset = prev.textContent.length;
+				this.anchor.offset = prev.textContent.length - 1;
 				this.mode = "text";
 				return;
 			}
@@ -2470,20 +2501,8 @@ define([ "dojo/_base/declare",
 			var nodeName = node.nodeName;
 			if(nodeName === "math" && offset === 1){
 				// 往里层移动
-				var lastChild = node.lastChild;
-				if(lastChild.nodeName === "mstyle"){
-					lastChild = lastChild.lastChild;
-				}
-				this.path.push({nodeName: lastChild.nodeName, offset: node.childNodes.length});
-				this.anchor.node = lastChild;
-				if(this._isTokenNode(lastChild.nodeName)){
-					// 往里层走，所以path是追加 moveIn
-					this.anchor.offset = this._getTextLength(lastChild);
-				}else{
-					// 不是token节点，就是layout节点，获取是msytle等节点
-					// 注意，如果是layout节点，往左边移动时，offset会一直保持为1
-					// this.anchor.offset = 1;
-				}
+				this._moveInNodeEnd(node)
+				this.mode = "mathml";
 				return;
 			}
 
@@ -2804,9 +2823,9 @@ define([ "dojo/_base/declare",
 			// text到math
 			var next = node.nextSibling;
 			if(next && node.nodeName === "text" && next.nodeName === "math"){
+				// 光标放在math中的第一个节点前面
 				this._movePathToNextSibling(next);
-				this.anchor.node = next;
-				this.anchor.offset = 0;
+				this._moveInNodeStart(next);
 				this.mode = "mathml";
 				return;
 			}
@@ -2815,27 +2834,16 @@ define([ "dojo/_base/declare",
 			if(next && node.nodeName === "math" && next.nodeName === "text"){
 				this._movePathToNextSibling(next);
 				this.anchor.node = next;
-				this.anchor.offset = 0;
+				//math后，移动一位，移到offset=1
+				this.anchor.offset = 1;
 				this.mode = "text";
 				return;
 			}
 			
 			var nodeName = node.nodeName;
 			if(nodeName === "math" && offset === 0){
-				var firstChild = node.firstChild;
-				if(firstChild.nodeName === "mstyle"){
-					firstChild = firstChild.firstChild;
-				}
-				this.path.push({nodeName: firstChild.nodeName, offset: 1});
-				this.anchor.node = firstChild;
-				if(this._isTokenNode(firstChild.nodeName)){
-					// 往里层走，所以path是追加 moveIn
-					this.anchor.offset = 0;
-				}else{
-					// 不是token节点，就是layout节点，获取是msytle等节点
-					// 注意，如果是layout节点，往右边移动时，offset会一直保持为0
-					// this.anchor.offset = 0;
-				}
+				this._moveInNodeStart(node);
+				this.mode = "mathml";
 				return;
 			}
 			// 移进mfrac
