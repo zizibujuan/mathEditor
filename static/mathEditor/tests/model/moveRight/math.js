@@ -1,5 +1,6 @@
 define([ "doh","mathEditor/Model" ], function(doh,Model) {
 
+	// anchor中只有一个offset值还不够，需要一个标识选中状态的信息，选中的起始和结束节点必须在同一个层级上。
 	doh.register("Model.moveRight.math",[
 	    {
 	    	name: "从math节点前，向右往math内层移动，移到token节点内容的前面",
