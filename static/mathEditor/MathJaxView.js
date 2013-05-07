@@ -134,7 +134,7 @@ define(["dojo/_base/declare",
 				console.warn(this.declaredClass,"this.textarea为null");
 			}
 			
-			// 如果math获取焦点，则将math周围添加一个边框
+			// 如果math获取焦点，则将math周围添加一个边框,FIXME:以下代码和光标无关，应该放在另一个方法中。
 			if(this.model.isMathMLMode()){
 				var mathNode = focusInfo.mathNode;
 				var mathContainer = mathNode.parentNode;
@@ -142,11 +142,15 @@ define(["dojo/_base/declare",
 				// 使用math节点下的mrow节点的样式
 				var mathPosition =  domGeom.position(mathContainer);
 				var area = this._getMathBound();
-				var positionStyle = {left:mathPosition.x+"px",
-					top:mathPosition.y+"px",
-					width:mathPosition.w+"px",
-					height:mathPosition.h+"px"};
-				if(focusInfo.node == mathNode){
+				var positionStyle = {
+						left:mathPosition.x+"px",
+						top:mathPosition.y+"px",
+						width:mathPosition.w+"px",
+						height:mathPosition.h+"px"
+				};
+				// 判断math中没有子节点
+				var focusNode = this.model.getFocusNode();
+				if(focusNode.nodeName === "math" && focusNode.childElementCount ===0/*focusInfo.node == mathNode*/){
 					positionStyle["background-color"] = "rgb(204, 203, 203)";
 					domStyle.set(area, positionStyle);
 				}else{
