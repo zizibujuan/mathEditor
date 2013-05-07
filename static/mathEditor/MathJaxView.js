@@ -122,6 +122,7 @@ define(["dojo/_base/declare",
 		showCursor: function(){
 			console.log("Typeset完成后执行此方法");
 			console.log(this.editorDiv);
+			// TODO:在math占位符上不显示光标，暂时决定显示
 			var focusInfo = this._getFocusInfo();
 			var cursorConfig = this._getCursorConfig(focusInfo);
 			this.cursor.move(cursorConfig);

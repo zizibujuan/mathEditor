@@ -2477,34 +2477,52 @@ define([ "dojo/_base/declare",
 				return;
 			}
 			
-			// 以下是节点之间的移动，现在约定math节点和text节点必须是交替出现的，不会同时出现两个math或两个text
-			// text到math
-			var prev = node.previousSibling;
-			if(prev && node.nodeName === "text" && prev.nodeName === "math"){
-				this._movePathToPreviousSibling(prev);
-				this._moveInNodeEnd(prev);
-				this.mode = "mathml";
-				return;
-			}
-			// math到text
-			if(prev && node.nodeName === "math" && prev.nodeName === "text"){
-				this._movePathToPreviousSibling(prev);
-				this.anchor.node = prev;
-				this.anchor.offset = prev.textContent.length - 1;
-				this.mode = "text";
-				return;
-			}
 			// TODO：从math往里层走。
 			// 先分两种情况考虑，一个是token节点，一个是lyaout节点
 			// 都是在节点之间移动。
 			// 先单个情况具体处理，然后找出共性再提取。
 			var nodeName = node.nodeName;
-			if(nodeName === "math" && offset === 1){
-				// 往里层移动
-				this._moveInNodeEnd(node)
+			if(nodeName === "math"){
+				if(offset === layoutOffset.after){
+					if(node.lastChild){
+						// 往里层移动
+						this._moveInNodeEnd(node)
+					}else{
+						this.anchor.offset = layoutOffset.select;
+					}
+					this.mode = "mathml";
+				}else if(offset === layoutOffset.select){
+					this.anchor.offset = layoutOffset.before;
+					this.mode = "text";
+				}else if(offset === layoutOffset.before){
+					var prev = node.previousSibling;
+					if(prev  && prev.nodeName === "text"){
+						// math到text
+						this._movePathToPreviousSibling(prev);
+						this.anchor.node = prev;
+						this.anchor.offset = prev.textContent.length - 1;
+						this.mode = "text";
+					}
+				}
+				return;
+			}
+			
+			// 以下是节点之间的移动，现在约定math节点和text节点必须是交替出现的，不会同时出现两个math或两个text
+			// text到math
+			var prev = node.previousSibling;
+			if(prev && node.nodeName === "text" && prev.nodeName === "math"){
+				this._movePathToPreviousSibling(prev);
+				if(prev.childElementCount > 0){
+					this._moveInNodeEnd(prev);
+				}else{
+					this.anchor.node = prev;
+					this.anchor.offset = layoutOffset.select;// 因为肯定是layout节点，所以不做token判断。
+				}
 				this.mode = "mathml";
 				return;
 			}
+			
+			
 
 			if(nodeName === "mfrac" && offset ===1){
 				// 往里层走
@@ -2819,33 +2837,53 @@ define([ "dojo/_base/declare",
 			
 			var node = this.anchor.node;
 			var offset = this.anchor.offset;
+			
+			var nodeName = node.nodeName;
+			if(nodeName === "math"){
+				if(offset == layoutOffset.before){
+					if(node.firstChild){
+						this._moveInNodeStart(node);
+					}else{
+						// anchor.node依然是math
+						// path保持不变
+						this.anchor.offset = layoutOffset.select;
+					}
+					this.mode = "mathml";
+				}else if(offset == layoutOffset.select){
+					this.anchor.offset = layoutOffset.after;
+					this.mode = "text";
+				}else if(offset == layoutOffset.after){
+					// math到text
+					// math获取焦点，添加边框样式的时机是根据mode的值决定的。
+					var next = node.nextSibling;
+					if(next && next.nodeName === "text"){
+						this._movePathToNextSibling(next);
+						this.anchor.node = next;
+						//math后，移动一位，移到offset=1
+						this.anchor.offset = 1;
+						this.mode = "text";
+						return;
+					}
+				}
+				
+				return;
+			}
 			// 以下是节点之间的移动，现在约定math节点和text节点必须是交替出现的，不会同时出现两个math或两个text
 			// text到math
 			var next = node.nextSibling;
 			if(next && node.nodeName === "text" && next.nodeName === "math"){
-				// 光标放在math中的第一个节点前面
 				this._movePathToNextSibling(next);
-				this._moveInNodeStart(next);
+				if(next.childElementCount > 0){
+					// 光标放在math中的第一个节点前面
+					this._moveInNodeStart(next);
+				}else{
+					this.anchor.node = next;
+					this.anchor.offset = layoutOffset.select;// 因为肯定是layout节点，所以不做token判断。
+				}
 				this.mode = "mathml";
-				return;
-			}
-			// math到text
-			// math获取焦点，添加边框样式的时机是根据mode的值决定的。
-			if(next && node.nodeName === "math" && next.nodeName === "text"){
-				this._movePathToNextSibling(next);
-				this.anchor.node = next;
-				//math后，移动一位，移到offset=1
-				this.anchor.offset = 1;
-				this.mode = "text";
 				return;
 			}
 			
-			var nodeName = node.nodeName;
-			if(nodeName === "math" && offset === 0){
-				this._moveInNodeStart(node);
-				this.mode = "mathml";
-				return;
-			}
 			// 移进mfrac
 			if(nodeName === "mfrac" && offset ===0){
 				// 往里层走 FIXME：重构方法
