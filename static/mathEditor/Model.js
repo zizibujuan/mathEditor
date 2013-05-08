@@ -1564,10 +1564,15 @@ define([ "dojo/_base/declare",
 				var contentLength = this._getTextLength(node);
 				if(contentLength == offset){
 					if(xmlUtil.isPlaceHolder(node)){
-						this.anchor.node = node.parentNode;
+						var parentNode = node.parentNode;
+						this.anchor.node = parentNode;
 						this.anchor.offset = 0;
 						this.path.pop();
-						node.parentNode.removeChild(node);
+						parentNode.removeChild(node);
+						
+						if(parentNode.nodeName === "math" && parentNode.childElementCount == 0){
+							this.anchor.offset = layoutOffset.select;
+						}
 						return;
 					}
 					var next = node.nextSibling;
@@ -1612,8 +1617,8 @@ define([ "dojo/_base/declare",
 						// FIXME：这里的逻辑还不严谨
 						this.path.pop();
 						this.anchor.node = node.parentNode;
-						// FIXME：是0还是1呢？
-						if(node.parentNode.nodeName === "math"){
+						
+						if(node.parentNode.nodeName === "math" && node.parentNode.childElementCount === 1){
 							this.anchor.offset = layoutOffset.select;
 						}else{
 							this.anchor.offset = 0;//如果是line的话为0
