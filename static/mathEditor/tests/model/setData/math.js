@@ -12,7 +12,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				model.mode = "text";
   				var line = model.getLineAt(0);
   				model.anchor.node = line.firstChild;
-  				model.anchor.offset = 0;// 在空的math中间
+  				model.anchor.offset = 0;// 在math前
   				model.path.push({nodeName: "root"});
   				model.path.push({nodeName: "line", offset: 1});
   				model.path.push({nodeName: "math", offset: 1});

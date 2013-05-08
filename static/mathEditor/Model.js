@@ -1254,12 +1254,19 @@ define([ "dojo/_base/declare",
 
 		
 		_removeEmptyDenominator: function(node/*占位符*/){
+			// summary:
+			//		删除空的分母
 			this.path.pop();// 弹出占位符
 			this.path.pop();// 弹出mrow
 			var pos = this.path.pop();// 弹出mfrac
 			// 获取分子的最后一个节点
 			var numeratorMrow = node.parentNode.previousSibling;
 			var lastChild = numeratorMrow.lastChild;
+			// 如果分子中有mstyle节点，不要删除mstyle节点，因为那是分子的一部分，这里并不修改分子的任何内容。
+			if(lastChild.nodeName == "mstyle"){
+				// mstyle中有且必须要有一个子节点
+				lastChild = lastChild.lastChild;
+			}
 			pos.nodeName = lastChild.nodeName; // offset保持不变
 			this.path.push(pos);
 			this.anchor.node = lastChild;
@@ -1272,8 +1279,13 @@ define([ "dojo/_base/declare",
 			
 			// 进行实际的删除操作
 			// 将分子中的内容移到mfrac之前，然后删除mfrac节点
-			var len = numeratorMrow.childNodes.length;
+			// 要判断mfrac外有没有mstyle节点，如果有，并且mstyle中就只有一个子节点，则也要删掉mstyle
+			
 			var mfrac = numeratorMrow.parentNode;
+			if(mfrac.parentNode.nodeName === "mstyle" && mfrac.parentNode.childElementCount === 1){
+				mfrac = mfrac.parentNode;// 此时已是mstyle节点
+			}
+			var len = numeratorMrow.childNodes.length;
 			var parentNode = mfrac.parentNode;
 			for(var i = 0; i < len; i++){
 				parentNode.insertBefore(numeratorMrow.firstChild, mfrac);
@@ -1357,16 +1369,32 @@ define([ "dojo/_base/declare",
 		},
 		
 		_removeLeftMathLayoutNode: function(node /*math layout node*/){
+			if(node.parentNode.nodeName === "mstyle" && node.parentNode.childElementCount == 1){
+				node = node.parentNode;
+			}
+			
 			// 当父节点中只有一个子节点时
 			if(node.parentNode.childNodes.length == 1){
+				// 判断parentNode是不是mstyle
 				this._moveToTopLeft(node);
-				node.parentNode.removeChild(node);
+				var parentNode = node.parentNode;
+				parentNode.removeChild(node);
+				if(parentNode.nodeName === "math" && parentNode.childElementCount ===0){
+					this.anchor.offset = layoutOffset.select;
+				}
 			}else if(node.previousSibling){
 				var prev = node.previousSibling;
+				if(prev.nodeName === "mstyle"){
+					prev = prev.lastChild;
+				}
 				this._moveToPreviousSiblingEnd(prev);
 				node.parentNode.removeChild(node);
 			}else if(node.nextSibling){
 				var next = node.nextSibling;
+				if(next.nodeName === "mstyle"){
+					// next中必须有子节点，所以不再添加判断
+					next = next.firstChild;
+				}
 				// 注意，因为这里要把后一个节点删除掉，所以偏移量不能+1
 				// TODO:重构到一个方法中，暂时还没有想到一个好的方法名
 				var pos = this.path.pop();
@@ -2025,10 +2053,11 @@ define([ "dojo/_base/declare",
 		},
 		
 		// moveOutTopLeft
-		_moveToTopLeft: function(node/*mrow*/){
+		_moveToTopLeft: function(node){
 			// summary:
 			//		往左上内层移动
 			this.path.pop();
+			var parentNode = node.parentNode;
 			this.anchor.node = node.parentNode;
 			this.anchor.offset = 0; // 往上移动时，节点为layout节点。
 		},

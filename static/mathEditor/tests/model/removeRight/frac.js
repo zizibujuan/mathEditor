@@ -5,6 +5,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 	// 在插入分数时，如果在两个节点交接处，也要判断是追加在前一个节点的后面、放在后一个节点的前面，还是新增一个节点。
 	
 	// summary:
+	//		要测试，mfrac外有mstyle的情况和没有mstyle的情况
 	//		删除整个分数（因为此时，光标已经移到frac上，所以优先从frac后面寻找光标的放置位置）
 	//		1.光标在整个分数之前，右删除删除整个分数，math中只有一个分数节点
 	//		2.光标在整个分数之前，右删除删除整个分数，分数后是一个token节点
@@ -37,6 +38,40 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				model.mode = "mathml";
   				var line = model.getLineAt(0);
   				model.anchor.node = line.firstChild.firstChild;
+  				model.anchor.offset = 0;
+  				model.path.push({nodeName: "root"});
+  				model.path.push({nodeName: "line", offset: 1});
+  				model.path.push({nodeName: "math", offset: 1});
+  				model.path.push({nodeName: "mfrac", offset: 1});
+  				model.removeRight();
+  				// 空的math，在获取焦点时，才显示；否则只占位，不显示。不在空的math中添加mn占位符。
+  				var focusNode = model.getFocusNode();
+  				t.is("/root/line[1]/math[1]", model.getPath());
+  				t.is("math", focusNode.nodeName);
+  				t.is(0, model.getOffset()); // 因为没有内容，所以偏移量为0
+  				t.is(0, focusNode.childNodes.length)// 确保mfrac节点从math中删除
+  			},
+  			tearDown: function(){
+  				
+  			}
+	    },{
+	    	name: "光标在整个分数之前，右删除删除整个分数，math中只有一个分数节点(分数被mstyle封装)",
+  			setUp: function(){
+  				this.model = new Model({});
+  			},
+  			runTest: function(t){
+  				var model = this.model;
+  				model.loadData("<root><line><math>" +
+  						"<mstyle>" +
+	  						"<mfrac>" +
+		  						"<mrow><mn>1</mn></mrow>" +
+		  						"<mrow><mn>2</mn></mrow>" +
+	  						"</mfrac>" +
+  						"</mstyle>" +
+  				"</math></line></root>");
+  				model.mode = "mathml";
+  				var line = model.getLineAt(0);
+  				model.anchor.node = line.firstChild.firstChild.firstChild;
   				model.anchor.offset = 0;
   				model.path.push({nodeName: "root"});
   				model.path.push({nodeName: "line", offset: 1});
