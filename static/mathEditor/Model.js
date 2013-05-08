@@ -1728,7 +1728,12 @@ define([ "dojo/_base/declare",
 						this.anchor.node = node.parentNode;
 						this.anchor.offset = 0;
 						this.path.pop();
-						node.parentNode.removeChild(node);
+						var parentNode = node.parentNode;
+						parentNode.removeChild(node);
+						if(parentNode.nodeName === "math" && parentNode.childElementCount == 0){
+							this.anchor.offset = layoutOffset.select;
+						}
+						
 						return;
 					}
 					var prev = node.previousSibling;
@@ -1771,9 +1776,14 @@ define([ "dojo/_base/declare",
 					}
 					// 若找不到前一个兄弟节点，则找父节点, FIXME：这里的逻辑还不严谨
 					this.path.pop();
-					this.anchor.node = node.parentNode;
-					this.anchor.offset = 0;
-					node.parentNode.removeChild(node);
+					var parentNode = node.parentNode;
+					this.anchor.node = parentNode;
+					if(parentNode.nodeName === "math" && parentNode.childElementCount === 1){
+						this.anchor.offset = layoutOffset.select;
+					}else{
+						this.anchor.offset = 0;
+					}
+					parentNode.removeChild(node);
 					return node.textContent;
 				}else if(contentLength == 0){
 					// 现在只有为占位符的时候，长度才为0
