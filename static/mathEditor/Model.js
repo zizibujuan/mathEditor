@@ -1300,6 +1300,10 @@ define([ "dojo/_base/declare",
 			// 获取分母的第一个节点（暂时决定，将光标放在第一个字母的前面，而不是前一个节点的后面）
 			var denominatorMrow = node.parentNode.nextSibling;
 			var firstChild = denominatorMrow.firstChild;
+			if(firstChild.nodeName == "mstyle"){
+				// mstyle中有且必须要有一个子节点
+				firstChild = firstChild.firstChild;
+			}
 			pos.nodeName = firstChild.nodeName; // offset保持不变,与之前mfrac的相同
 			this.path.push(pos);
 			this.anchor.node = firstChild;
@@ -1309,6 +1313,10 @@ define([ "dojo/_base/declare",
 			// 将分母中的内容移到mfrac之前，然后删除mfrac节点
 			var len = denominatorMrow.childNodes.length;
 			var mfrac = denominatorMrow.parentNode;
+			if(mfrac.parentNode.nodeName === "mstyle" && mfrac.parentNode.childElementCount === 1){
+				mfrac = mfrac.parentNode;// 此时已是mstyle节点
+			}
+			
 			var parentNode = mfrac.parentNode;
 			for(var i = 0; i < len; i++){
 				parentNode.insertBefore(denominatorMrow.firstChild, mfrac);
@@ -1407,12 +1415,24 @@ define([ "dojo/_base/declare",
 		},
 		
 		_removeRightMathLayoutNode: function(node /*math layout node*/){
+			if(node.parentNode.nodeName === "mstyle" && node.parentNode.childElementCount == 1){
+				node = node.parentNode;
+			}
+			
 			// 当父节点中只有一个子节点时
 			if(node.parentNode.childNodes.length == 1){
 				this._moveToTopLeft(node);
-				node.parentNode.removeChild(node);
+				var parentNode = node.parentNode;
+				parentNode.removeChild(node);
+				if(parentNode.nodeName === "math" && parentNode.childElementCount ===0){
+					this.anchor.offset = layoutOffset.select;
+				}
 			}else if(node.nextSibling){
 				var next = node.nextSibling;
+				if(next.nodeName === "mstyle"){
+					// next中必须有子节点，所以不再添加判断
+					next = next.firstChild;
+				}
 				// 注意，因为这里要把前一个节点删除掉，所以偏移量不变
 				// TODO:重构到一个方法中，暂时还没有想到一个好的方法名
 				//  FIXME：重构，下面的实现，与removeLeft中的实现一样
@@ -1425,6 +1445,9 @@ define([ "dojo/_base/declare",
 			}else if(node.previousSibling){
 				// FIXME：重构，与removeLeft中的代码一样
 				var prev = node.previousSibling;
+				if(prev.nodeName === "mstyle"){
+					prev = prev.lastChild;
+				}
 				this._moveToPreviousSiblingEnd(prev);
 				node.parentNode.removeChild(node);
 			}
