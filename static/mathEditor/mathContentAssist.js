@@ -31,6 +31,15 @@ define([ "dojo/_base/array" ], function(array) {
 			label: "分数",
 			iconClass: "drip_equation_icon drip_frac"
 		},{
+			// <mfrac> numerator(分子) denominator(分母) </mfrac>
+			// 当是分数，需要推断出分子时，如果可能有多种情况，则给出一个列表，让用户去选择。
+			input: "fs",
+			map: "",
+			nodeName: "mfrac",
+			freq: 0,
+			label: "分数",
+			iconClass: "drip_equation_icon drip_frac"
+		},{
 			input: "*",
 			map: "&#xD7;",
 			nodeName: "mo",

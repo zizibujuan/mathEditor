@@ -101,12 +101,28 @@ define(["dojo/_base/declare",
 		},
 		
 		_onModelChanged : function(){
+			
+			this.asyncRender();
+			this.asyncShowCursor();
+		},
+		
+		asyncRender: function(){
+			// summary:
+			//		使用mathjax异步绘制所有的mathml脚本
 			var html = this.model.getHTML();
 			this.textLayer.innerHTML = this.model.getHTML();
 			console.log("html:",html);
-			MathJax.Hub.Queue(["Typeset",MathJax.Hub, this.textLayer]);
-			// 因为是异步操作，需要把显示光标的方法放在MathJax的异步函数中。
-			MathJax.Hub.Queue(lang.hitch(this,this.showCursor));
+			this._asyncExecute(["Typeset",MathJax.Hub, this.textLayer]);
+		},
+		
+		_asyncExecute: function(callback){
+			MathJax.Hub.Queue(callback);
+		},
+		
+		asyncShowCursor: function(){
+			// summary:
+			//		因为是异步操作，需要把显示光标的方法放在MathJax的异步函数中。
+			this._asyncExecute(lang.hitch(this,this.showCursor));
 		},
 		
 		// summary
@@ -202,20 +218,23 @@ define(["dojo/_base/declare",
 				if(path.nodeName == 'root')return;
 				if(path.nodeName == "line"){
 					focusDomNode = focusDomNode.childNodes[path.offset - 1];
-				}else if(path.nodeName == "text" || path.nodeName == "math"){
+				}else if(path.nodeName == "text"){
 					var childNodes = focusDomNode.childNodes;
 					focusDomNode = childNodes[path.offset - 1];
+				}else if(path.nodeName == "math"){
+					// math中包含一个隐含的mrow
 					// 如果是math，还需要继续往下找节点
 					// 或者根据这个div找到script中的数据，来进行循环
 					// 如果已经定位到设置的层级，但是发现是mrow，则需要继续往下走一步。
-					if(path.nodeName == "math"){
-						focusDomNode = focusDomNode.firstChild;
-						var scriptNode = focusDomNode.nextSibling;
-						elementJax = scriptNode.MathJax.elementJax.root;
-						elementJax = elementJax.data[0];// 假定math下必有一个mrow
-						
-						mathNode = focusDomNode;
-					}
+					var childNodes = focusDomNode.childNodes;
+					focusDomNode = childNodes[path.offset - 1];
+					
+					focusDomNode = focusDomNode.firstChild;
+					var scriptNode = focusDomNode.nextSibling;
+					elementJax = scriptNode.MathJax.elementJax.root;
+					elementJax = elementJax.data[0];// math下必有一个mrow
+					
+					mathNode = focusDomNode;
 				}else{
 					// 假定在mathJax中math，mstyle和mfrac下面必有mrow
 					if(elementJax){
@@ -236,7 +255,7 @@ define(["dojo/_base/declare",
 						}else */
 						if(domClass.contains(hintNode, "mrow")){
 							if(path.nodeName != "mrow"){
-								var mstyleElementJax = elementJax.data[0];
+								var mstyleElementJax = elementJax.data[path.offset - 1];
 								var nextHintNode = dom.byId("MathJax-Span-"+mstyleElementJax.spanID);
 								if(domClass.contains(nextHintNode, "mstyle")){
 									if(path.nodeName != "mstyle"){

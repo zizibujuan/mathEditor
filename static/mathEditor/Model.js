@@ -889,7 +889,41 @@ define([ "dojo/_base/declare",
 		},
 		
 		insertMfrac: function(anchor, data, nodeName){
+			var node = anchor.node;
+			var offset = anchor.offset;
+			var xmlDoc = this.doc;
 			
+			var nodeName = node.nodeName;
+			if(nodeName === "math" && offset === layoutOffset.select){
+				this.path.push({nodeName:"mfrac", offset:1});
+				this.path.push({nodeName:"mrow", offset:1});
+				this.path.push({nodeName:"mn", offset:1});
+				
+				var fracData = xmlUtil.createEmptyFrac(xmlDoc);
+				node.appendChild(fracData.rootNode);
+				
+				node = fracData.focusNode;
+				offset = 0;
+				return {node: node, offset:offset};
+			}
+
+			// 在节点后插入分数
+			if(this._isMathMLNodeEnd(node, offset)){
+				var pos = this.path.pop();
+				pos.offset++;
+				pos.nodeName = "mfrac";
+				this.path.push(pos);
+				this.path.push({nodeName:"mrow", offset:1});
+				this.path.push({nodeName:"mn", offset:1});
+				
+				var fracData = xmlUtil.createEmptyFrac(xmlDoc);
+				dripLang.insertNodeAfter(fracData.rootNode, node);
+				// 因为是占位符
+				node = fracData.focusNode;
+				offset = 0;
+				
+				return {node: node, offset:offset};
+			}
 		},
 		
 		insertMsqrt: function(anchor, data, nodeName){
@@ -2014,6 +2048,16 @@ define([ "dojo/_base/declare",
 			}
 			
 			return false;
+		},
+		
+		_isMathMLNodeEnd: function(node, offset){
+			return ( dripLang.isMathTokenNode(node) && this._getTextLength(node)===offset) ||
+				(dripLang.isMathLayoutNode(node) && offset === layoutOffset.after);
+		},
+		
+		_isMathMLNodeStart: function(node, offset){
+			if(offset!=0)return false;
+			return dripLang.isMathTokenNode(node) || dripLang.isMathLayoutNode(node);
 		},
 		
 		_movePathToNextSibling: function(nextSibling){
