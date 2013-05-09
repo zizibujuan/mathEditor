@@ -166,7 +166,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				model.removeLeft();
   				t.is("/root/line[1]/math[1]", model.getPath());
   				t.is("math", model.getFocusNode().nodeName);
-  				t.is(0, model.getOffset());
+  				t.is(2, model.getOffset());// layoutOffset.select
   				
   				model.setData({data:"2"});
   				t.is("/root/line[1]/math[1]/mn[1]", model.getPath());

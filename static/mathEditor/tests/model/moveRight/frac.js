@@ -1,4 +1,5 @@
 define([ "doh","mathEditor/Model" ], function(doh,Model) {
+	// 原则：在移动光标时，出现在两个节点之间时，根据移动方向的就近原则来放置，但是不管放在哪里，他们都表示相同的位置。
 	// summary
 	//		右移的测试逻辑有：
 	//		1.在空的分数下
@@ -437,15 +438,15 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				model.moveRight();// 移到分母
   				model.moveRight();// 移到整个分数后面
   				model.moveRight();// 移出数学公式编辑区域
-  				model.toTextMode();
+  				t.t(model.isTextMode());
   				model.setData({data: "a"});
   				model.moveLeft();// 移到a字母前面
-  				model.moveLeft();// 模式切换，移到math节点中
-  				model.moveRight();// 模式切换，移到text节点中
-  				t.is("/root/line[1]/text[2]", model.getPath());
+  				model.moveLeft();// 模式切换，移到mfrac节点后
+  				model.moveRight();// 模式切换，移到math节点后
+  				t.is("/root/line[1]/math[1]", model.getPath());// 遵循就近原则，放置光标
 				var node = model.getFocusNode();
-				t.is("text", node.nodeName);
-				t.is(0, model.getOffset());
+				t.is("math", node.nodeName);
+				t.is(1, model.getOffset());
   			},
   			tearDown: function(){
   				

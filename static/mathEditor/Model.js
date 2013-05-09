@@ -823,7 +823,10 @@ define([ "dojo/_base/declare",
 			return {node: node, offset:offset};
 		},
 		
-		insertMfrac: function(anchor, data, nodeName){
+		insertInferredMfrac: function(anchor, data, nodeName){
+			// summary:
+			//		输入推断的分数，往前寻找光标前的节点，直到遇到操作符，将这些作为分数的分子，然后光标落在空的分母上
+			//		TODO:放在0.0.2版本中完善，0.0.1版本暂不支持
 			var node = anchor.node;
 			var offset = anchor.offset;
 			
@@ -883,6 +886,10 @@ define([ "dojo/_base/declare",
 				offset = 0;
 			}
 			return {node: node, offset: offset};
+		},
+		
+		insertMfrac: function(anchor, data, nodeName){
+			
 		},
 		
 		insertMsqrt: function(anchor, data, nodeName){
@@ -1221,6 +1228,11 @@ define([ "dojo/_base/declare",
 					this.onChanged(data);
 					return;
 				}else if(nodeName === "mfrac"){
+					// 有两种输入分数的方式：
+					//		1.是用户输入'frac'或'fs',输入一个空的分数
+					//		2.是用户输入'/',然后往前找节点，直到遇到操作符号，将这些节点作为分子，光标落在分母上（TODO:0.0.2版本实现）
+					
+					// 当前版本，两种方式都输入一个空的分数，不做推断。
 					this._splitNodeIfNeed(nodeName);
 					this.anchor = this.insertMfrac(this.anchor, data, nodeName);
 					this.onChanged(data);

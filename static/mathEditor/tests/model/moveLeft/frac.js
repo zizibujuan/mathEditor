@@ -390,14 +390,14 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				var model = this.model;
   				model.setData({data: "a"});
   				model.toMathMLMode();
-  				model.setData({data: "", nodeName: "mfrac"});
+  				model.setData({data: "", nodeName: "mfrac"});// 光标停留在分子上
   				model.moveLeft();// 移到分数前
   				model.moveLeft();// 移到math节点前
   				model.moveLeft();// 移到text后
   				t.is("/root/line[1]/text[1]", model.getPath());
 				var node = model.getFocusNode();
 				t.is("text", node.nodeName);
-				t.is(1, model.getOffset());
+				t.is(0, model.getOffset());// 光标应该停留在“a”前面
   			},
   			tearDown: function(){
   				
@@ -436,14 +436,15 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				model.moveRight();// 移到分母
   				model.moveRight();// 移到整个分数后面
   				model.moveRight();// 移出数学公式编辑区域
-  				model.toTextMode();
+  				//model.toTextMode();
+  				t.t(model.isTextMode());
   				model.setData({data: "a"});
   				model.moveLeft();// 移到a字母前面
   				model.moveLeft();// 模式切换，移到math节点中
   				t.t(model.isMathMLMode());
-  				t.is("/root/line[1]/math[1]", model.getPath());
+  				t.is("/root/line[1]/math[1]/mfrac[1]", model.getPath());
 				var node = model.getFocusNode();
-				t.is("math", node.nodeName);
+				t.is("mfrac", node.nodeName);
 				t.is(1, model.getOffset());
   			},
   			tearDown: function(){
