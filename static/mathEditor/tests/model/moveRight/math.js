@@ -17,7 +17,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				var line = model.getLineAt(0);
   				model.anchor.node = line.firstChild;
   				model.anchor.offset = 0;
-  				model.path.push({nodeName: "root"});
+  				model.path = [];model.path.push({nodeName: "root"});
   				model.path.push({nodeName: "line", offset: 1});
   				model.path.push({nodeName: "math", offset: 1});
   				model.moveRight();
@@ -43,7 +43,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				var line = model.getLineAt(0);
   				model.anchor.node = line.firstChild;
   				model.anchor.offset = 3;
-  				model.path.push({nodeName: "root"});
+  				model.path = [];model.path.push({nodeName: "root"});
   				model.path.push({nodeName: "line", offset: 1});
   				model.path.push({nodeName: "text", offset: 1});
   				model.moveRight();
@@ -69,7 +69,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				var line = model.getLineAt(0);
   				model.anchor.node = line.firstChild;
   				model.anchor.offset = 0;
-  				model.path.push({nodeName: "root"});
+  				model.path = [];model.path.push({nodeName: "root"});
   				model.path.push({nodeName: "line", offset: 1});
   				model.path.push({nodeName: "math", offset: 1});
   				model.moveRight();
@@ -95,7 +95,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				var line = model.getLineAt(0);
   				model.anchor.node = line.firstChild;
   				model.anchor.offset = 3;
-  				model.path.push({nodeName: "root"});
+  				model.path = [];model.path.push({nodeName: "root"});
   				model.path.push({nodeName: "line", offset: 1});
   				model.path.push({nodeName: "text", offset: 1});
   				model.moveRight();
@@ -121,7 +121,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				var line = model.getLineAt(0);
   				model.anchor.node = line.firstChild;
   				model.anchor.offset = 0;
-  				model.path.push({nodeName: "root"});
+  				model.path = [];model.path.push({nodeName: "root"});
   				model.path.push({nodeName: "line", offset: 1});
   				model.path.push({nodeName: "math", offset: 1});
   				model.moveRight();
@@ -147,7 +147,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				var line = model.getLineAt(0);
   				model.anchor.node = line.firstChild;
   				model.anchor.offset = 3;
-  				model.path.push({nodeName: "root"});
+  				model.path = [];model.path.push({nodeName: "root"});
   				model.path.push({nodeName: "line", offset: 1});
   				model.path.push({nodeName: "text", offset: 1});
   				model.moveRight();
@@ -172,7 +172,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				var line = model.getLineAt(0);
   				model.anchor.node = line.firstChild;
   				model.anchor.offset = 2;
-  				model.path.push({nodeName: "root"});
+  				model.path = [];model.path.push({nodeName: "root"});
   				model.path.push({nodeName: "line", offset: 1});
   				model.path.push({nodeName: "math", offset: 1});
   				model.moveRight();
@@ -197,7 +197,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				var line = model.getLineAt(0);
   				model.anchor.node = line.lastChild.lastChild;
   				model.anchor.offset = 2;
-  				model.path.push({nodeName: "root"});
+  				model.path = [];model.path.push({nodeName: "root"});
   				model.path.push({nodeName: "line", offset: 1});
   				model.path.push({nodeName: "math", offset: 1});
   				model.path.push({nodeName: "mn", offset: 1});
@@ -223,7 +223,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				var line = model.getLineAt(0);
   				model.anchor.node = line.lastChild.lastChild;
   				model.anchor.offset = 1;
-  				model.path.push({nodeName: "root"});
+  				model.path = [];model.path.push({nodeName: "root"});
   				model.path.push({nodeName: "line", offset: 1});
   				model.path.push({nodeName: "math", offset: 1});
   				model.path.push({nodeName: "mfrac", offset: 1});
@@ -249,7 +249,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				var line = model.getLineAt(0);
   				model.anchor.node = line.lastChild.lastChild.lastChild;
   				model.anchor.offset = 1;
-  				model.path.push({nodeName: "root"});
+  				model.path = [];model.path.push({nodeName: "root"});
   				model.path.push({nodeName: "line", offset: 1});
   				model.path.push({nodeName: "math", offset: 1});
   				model.path.push({nodeName: "mfrac", offset: 1});
@@ -275,7 +275,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				var line = model.getLineAt(0);
   				model.anchor.node = line.firstChild;
   				model.anchor.offset = 1;
-  				model.path.push({nodeName: "root"});
+  				model.path = [];model.path.push({nodeName: "root"});
   				model.path.push({nodeName: "line", offset: 1});
   				model.path.push({nodeName: "math", offset: 1});
   				model.moveRight();
@@ -301,7 +301,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				var line = model.getLineAt(0);
   				model.anchor.node = line.firstChild;
   				model.anchor.offset = 0;
-  				model.path.push({nodeName: "root"});
+  				model.path = [];model.path.push({nodeName: "root"});
   				model.path.push({nodeName: "line", offset: 1});
   				model.path.push({nodeName: "math", offset: 1});
   				model.moveRight();
@@ -326,7 +326,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				var line = model.getLineAt(0);
   				model.anchor.node = line.firstChild;
   				model.anchor.offset = 2;// 在空的math中间
-  				model.path.push({nodeName: "root"});
+  				model.path = [];model.path.push({nodeName: "root"});
   				model.path.push({nodeName: "line", offset: 1});
   				model.path.push({nodeName: "math", offset: 1});
   				model.moveRight();

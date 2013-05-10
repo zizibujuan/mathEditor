@@ -80,20 +80,30 @@ define([ "dojo/_base/declare",
 			lang.mixin(this, options);
 		},
 		
-		_init: function(){
+		_init: function(data){
 			// 注意：在类中列出的属性，都必须在这里进行初始化。
-			this.doc = xmlParser.parse(EMPTY_XML);
+			var xmlData = data;
+			if(!xmlData || xmlData == ""){
+				xmlData = EMPTY_XML;
+			}
+			this.doc = xmlParser.parse(xmlData);
 			this.path = [];
 			this.anchor = {};
-			// FIXME:如何存储呢？
-			
-			this._updateAnchor(this.doc.documentElement.firstChild, 0);
-			
-			this.toTextMode();
-			
+			this.mode = "text";
+
 			this.path.push({nodeName:"root"});
-			// offset 偏移量，从1开始
 			this.path.push({nodeName:"line", offset:1});
+			
+			// 光标默认放在第一行起始位置
+			var firstLine = this.doc.documentElement.firstChild;
+			if(firstLine.childElementCount == 0){
+				this.anchor.node = firstLine;
+			}else{
+				var firstChild = firstLine.firstChild;
+				this.anchor.node = firstChild;
+				this.path.push({nodeName: firstChild.nodeName, offset:1})
+			}
+			this.anchor.offset = 0;
 		},
 		
 		clear: function(){
@@ -104,16 +114,11 @@ define([ "dojo/_base/declare",
 		// 如果没有内容，则创建一个新行
 		// 如果存在内容，则加载内容，并将光标移到最后
 		loadData: function(xmlString){
-			this.clear();
-			var xml = xmlString || "";
-			if(xml === ""){
-				return this._init();
-			}
-			else{
-				this.doc = xmlParser.parse(xmlString);
-				this.path = [];
-				this.anchor = {};
-			}
+			// summary:
+			//		加载数据，加载完数据之后就刷新页面，因为此时数据确实改变了。
+			//		遵循同样的逻辑，处理要一致的原则
+			this._init(xmlString);
+			this.onChanged();
 		},
 		
 		isTextMode: function(){

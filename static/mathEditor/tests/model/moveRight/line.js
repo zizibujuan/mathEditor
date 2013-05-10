@@ -119,6 +119,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				var line = model.getLineAt(0);
 				model.anchor.node = line;
 				model.anchor.offset = 0;
+				model.path = [];
 				model.path.push({nodeName:"root"});
 				model.path.push({nodeName:"line", offset:1});
 				t.t(model._isLineEnd(model.anchor));
@@ -138,6 +139,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				var line = model.getLineAt(0);
 				model.anchor.node = line.firstChild;
 				model.anchor.offset = 2;
+				model.path = [];
 				model.path.push({nodeName:"root"});
 				model.path.push({nodeName:"line", offset:1});
 				model.path.push({nodeName:"text", offset:1});
@@ -158,6 +160,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				var line = model.getLineAt(0);
 				model.anchor.node = line.firstChild;
 				model.anchor.offset = 1;
+				model.path = [];
 				model.path.push({nodeName:"root"});
 				model.path.push({nodeName:"line", offset:1});
 				model.path.push({nodeName:"math", offset:1});
@@ -179,6 +182,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				var line = model.getLineAt(1);
 				model.anchor.node = line;
 				model.anchor.offset = 0;
+				model.path = [];
 				model.path.push({nodeName:"root"});
 				model.path.push({nodeName:"line", offset:2});
 				
@@ -203,6 +207,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				var line = model.getLineAt(1);
 				model.anchor.node = line;
 				model.anchor.offset = 0;
+				model.path = [];
 				model.path.push({nodeName:"root"});
 				model.path.push({nodeName:"line", offset:2});
 				
@@ -229,6 +234,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				var line = model.getLineAt(1);
 				model.anchor.node = line;
 				model.anchor.offset = 0;
+				model.path = [];
 				model.path.push({nodeName:"root"});
 				model.path.push({nodeName:"line", offset:2});
 				

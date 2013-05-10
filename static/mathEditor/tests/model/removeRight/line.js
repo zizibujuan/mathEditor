@@ -25,7 +25,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				var line = model.getLineAt(0);
   				model.anchor.node = line;
   				model.anchor.offset = 0;
-  				model.path.push({nodeName: "root"});
+  				model.path = [];model.path.push({nodeName: "root"});
   				model.path.push({nodeName: "line", offset: 1});
   				model.removeRight();
   				var focusNode = model.getFocusNode();
@@ -47,7 +47,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				var line = model.getLineAt(0);
   				model.anchor.node = line.firstChild;
   				model.anchor.offset = 3;
-  				model.path.push({nodeName: "root"});
+  				model.path = [];model.path.push({nodeName: "root"});
   				model.path.push({nodeName: "line", offset: 1});
   				model.path.push({nodeName: "text", offset: 1});
   				model.removeRight();
@@ -70,7 +70,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				var line = model.getLineAt(0);
   				model.anchor.node = line.firstChild;
   				model.anchor.offset = 1;
-  				model.path.push({nodeName: "root"});
+  				model.path = [];model.path.push({nodeName: "root"});
   				model.path.push({nodeName: "line", offset: 1});
   				model.path.push({nodeName: "math", offset: 1});
   				model.removeRight();
@@ -96,7 +96,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				var line = model.getLineAt(0);
   				model.anchor.node = line;
   				model.anchor.offset = 0;
-  				model.path.push({nodeName: "root"});
+  				model.path = [];model.path.push({nodeName: "root"});
   				model.path.push({nodeName: "line", offset: 1});
   				model.removeRight();
   				var focusNode = model.getFocusNode();
@@ -123,7 +123,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				var line = model.getLineAt(0);
   				model.anchor.node = line;
   				model.anchor.offset = 0;
-  				model.path.push({nodeName: "root"});
+  				model.path = [];model.path.push({nodeName: "root"});
   				model.path.push({nodeName: "line", offset: 1});
   				model.removeRight();
   				var focusNode = model.getFocusNode();
@@ -150,7 +150,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				var line = model.getLineAt(0);
   				model.anchor.node = line;
   				model.anchor.offset = 0;
-  				model.path.push({nodeName: "root"});
+  				model.path = [];model.path.push({nodeName: "root"});
   				model.path.push({nodeName: "line", offset: 1});
   				model.removeRight();
   				var focusNode = model.getFocusNode();
@@ -177,7 +177,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				var line = model.getLineAt(0);
   				model.anchor.node = line.firstChild;
   				model.anchor.offset = 3;
-  				model.path.push({nodeName: "root"});
+  				model.path = [];model.path.push({nodeName: "root"});
   				model.path.push({nodeName: "line", offset: 1});
   				model.path.push({nodeName: "text", offset: 1});
   				model.removeRight();
@@ -206,7 +206,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				var line = model.getLineAt(0);
   				model.anchor.node = line.firstChild;
   				model.anchor.offset = 3;
-  				model.path.push({nodeName: "root"});
+  				model.path = [];model.path.push({nodeName: "root"});
   				model.path.push({nodeName: "line", offset: 1});
   				model.path.push({nodeName: "text", offset: 1});
   				model.removeRight();
@@ -235,7 +235,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				var line = model.getLineAt(0);
   				model.anchor.node = line.firstChild;
   				model.anchor.offset = 1;
-  				model.path.push({nodeName: "root"});
+  				model.path = [];model.path.push({nodeName: "root"});
   				model.path.push({nodeName: "line", offset: 1});
   				model.path.push({nodeName: "math", offset: 1});
   				model.removeRight();
@@ -264,7 +264,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				var line = model.getLineAt(0);
 				model.anchor.node = line.firstChild;
 				model.anchor.offset = 1;
-				model.path.push({nodeName: "root"});
+				model.path = [];model.path.push({nodeName: "root"});
 				model.path.push({nodeName: "line", offset: 1});
 				model.path.push({nodeName: "math", offset: 1});
 				model.removeRight();

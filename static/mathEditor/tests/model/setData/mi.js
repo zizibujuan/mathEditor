@@ -119,6 +119,7 @@ define([ "doh", "dojo/aspect", "mathEditor/Model" ], function(doh,aspect,Model) 
   				var line = model.getLineAt(0);
   				model.anchor.node = line.firstChild.firstChild;
   				model.anchor.offset = 1;
+  				model.path = [];
   				model.path.push({nodeName:"root"});
   				model.path.push({nodeName:"line", offset:1});
   				model.path.push({nodeName:"math", offset:1});
@@ -153,6 +154,7 @@ define([ "doh", "dojo/aspect", "mathEditor/Model" ], function(doh,aspect,Model) 
   				var line = model.getLineAt(0);
   				model.anchor.node = line.firstChild.firstChild;
   				model.anchor.offset = 0;
+  				model.path = [];
   				model.path.push({nodeName:"root"});
   				model.path.push({nodeName:"line", offset:1});
   				model.path.push({nodeName:"math", offset:1});
@@ -186,6 +188,7 @@ define([ "doh", "dojo/aspect", "mathEditor/Model" ], function(doh,aspect,Model) 
   				var line = model.getLineAt(0);
   				model.anchor.node = line.firstChild.firstChild;
   				model.anchor.offset = 2;
+  				model.path = [];
   				model.path.push({nodeName:"root"});
   				model.path.push({nodeName:"line", offset:1});
   				model.path.push({nodeName:"math", offset:1});

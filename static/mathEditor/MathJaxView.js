@@ -101,7 +101,6 @@ define(["dojo/_base/declare",
 		},
 		
 		_onModelChanged : function(){
-			
 			this.asyncRender();
 			this.asyncShowCursor();
 		},
@@ -109,13 +108,13 @@ define(["dojo/_base/declare",
 		asyncRender: function(){
 			// summary:
 			//		使用mathjax异步绘制所有的mathml脚本
-			var html = this.model.getHTML();
 			this.textLayer.innerHTML = this.model.getHTML();
-			console.log("html:",html);
 			this._asyncExecute(["Typeset",MathJax.Hub, this.textLayer]);
 		},
 		
 		_asyncExecute: function(callback){
+			// summary:
+			//		排队执行异步操作， FIXME：重命名函数名
 			MathJax.Hub.Queue(callback);
 		},
 		
@@ -205,6 +204,8 @@ define(["dojo/_base/declare",
 			// TODO:在支持mathml的浏览器上，或者就在这个view中，
 			//	为当前节点添加一个id或者其他标识，就可以快速定位到获取焦点的节点，
 			//	而不是下面这样需要各种循环遍历。
+			// Q：为什么不直接给focus node一个id，然后就可以根据byId获取html节点？
+			// A：在xml上加上节点，但是在序列化的xml字符串中一直没有id标识，待找原因。
 			
 			var pathes = this.model.path;// TODO:重构，想个更好的方法名，getPath已经被使用。
 			
@@ -236,7 +237,7 @@ define(["dojo/_base/declare",
 					
 					mathNode = focusDomNode;
 				}else{
-					// 假定在mathJax中math，mstyle和mfrac下面必有mrow
+					// 在mathJax中math，mstyle和mfrac下面必有mrow
 					if(elementJax){
 						
 						var hintNode = dom.byId("MathJax-Span-"+elementJax.spanID);
@@ -259,11 +260,13 @@ define(["dojo/_base/declare",
 								var nextHintNode = dom.byId("MathJax-Span-"+mstyleElementJax.spanID);
 								if(domClass.contains(nextHintNode, "mstyle")){
 									if(path.nodeName != "mstyle"){
-										elementJax = elementJax.data[0];// 假定mstyle的父容器只有一个子节点，就是mstyle
 										// mstyle下面必有一个mrow
-										elementJax = elementJax.data[0];
-										
-										elementJax = elementJax.data[path.offset - 1];
+										elementJax = mstyleElementJax.data[0];
+										// path中缺少mstyle，会不会逻辑不完整？
+										// 如果不要mstyle的话，这里就需要一个假定：一个mstyle中只能封装一个mfrac
+										// mstyle[1]/mrow/mfrac = mfrac[1]
+										// mstyle[2]/mrow/mfrac = mfrac[2]
+										elementJax = elementJax.data[0];// path.nodeName对应的节点
 										hintNode = dom.byId("MathJax-Span-"+elementJax.spanID);
 									}
 								}else{
@@ -294,6 +297,7 @@ define(["dojo/_base/declare",
 			
 			// 注意，如果是mo操作符的话，model中的offset永远为1，但是其中的字符可能会有2或3个。
 			var offset = this.model.getOffset();
+			// 这里在渲染前需要获取focusNode
 			var focusNode = this.model.getFocusNode();
 			if(this.model.getFocusNode().nodeName == "mo" && offset != 0){
 				offset = focusNode.textContent.length;

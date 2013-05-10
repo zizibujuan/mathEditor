@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>View Test</title>
-<script type="text/javascript" src="/dojo/dojo.js" data-dojo-config="isDebug:true,cacheBust:new Date()"></script>
+<script type="text/javascript" src="/dojo/dojo.js" data-dojo-config="isDebug:true,async:true,cacheBust:new Date()"></script>
 <script type="text/javascript"
    src="/mathJax/MathJax.js?config=MML_HTMLorMML">
 </script>
@@ -22,36 +22,60 @@ require([ "doh",
         		  domClass,
         		  View, 
         		  Model) {
-	doh.register("View", [ {
-		name: "光标在text节点中移动",
+	doh.register("MathJaxView", [ 
+	/*{
+		// TODO：提取到单独的文件中
+		name: "math中包含一个mn节点，光标在mn后,根据id定位",
+		
+		testType: "perf", // Define this as a performance test.  Used to select the runner in D.O.H.
+	    trialDuration: 100, // Define that a trial (test run) of the performance test should run minimally for 100ms (however many runs of the function this means.  It is calibrated).
+	    trialIterations: 100, // Run 100 trials of the test function.
+	    trialDelay: 100, // Wait 100MS between each trial to allow for GC, etc.
+	    
 		setUp: function(){
+			
+		},
+		runTest: function(t){
+			domConstruct.empty("container");
 			this.model = new Model({});
 			var parentNode = dom.byId("container");
 			this.view = new View({model:this.model, parentNode:parentNode});
-		},
-		runTest: function(t){
+			
 			var view = this.view;
 			var model = view.model;
-			view.cursor.show();
-			model.setData({data:"你我他"});
-			// 这里需要让页面飞一会。
+			model.loadData("<root><line><math><mn id=\"math_focus\">12</mn></math></line></root>");
+			model.mode = "mathml";
+			var line = model.getLineAt(0);
+			model.anchor.node = line.firstChild.firstChild;
+			model.anchor.offset = 2;
+			model.path.push({nodeName: "root"});
+			model.path.push({nodeName: "line", offset: 1});
+			model.path.push({nodeName: "math", offset: 1});
+			model.path.push({nodeName: "mn", offset: 1});
+			view.asyncRender();
 			
 			var deferred = new doh.Deferred();
-			// 因为1秒之后，光标是隐藏的，此时移动后，光标应立即可见
-		    setTimeout(deferred.getTestCallback(function(){
-		    	var c1 = parseInt(view.cursor.caret.style.left);
-				view.moveLeft();
-				var c2 = parseInt(view.cursor.caret.style.left);
-				t.t(c1 > c2);
-		    }), 1000);
+		    view._asyncExecute(deferred.getTestCallback(function(){
+		    	//var focusInfo = view._getFocusInfo();
+		    	var a = document.getElementById("math_focus");
+		    	//{node: focusDomNode, offset: offset, mrowNode: mrowNode, mathNode: mathNode};
+		    	
+		    	var focusNode = focusInfo.node;
+		    	t.is("mn", focusNode.className);
+		    	t.is("12", focusNode.textContent);
+		    	t.is(2, focusInfo.offset);
+		    	t.is("MathJax", focusInfo.mathNode.className);// 是不是应该选择class为math的呢，还是已经没有用了呢
+		    	t.is("mrow", focusInfo.mrowNode.className);// 这个mrow是math下面隐含的mrow
+		    	
+		    }));
 		    return deferred;
 		},
 		tearDown: function(){
-			domConstruct.empty("container");
+			
 		}
-	},{
+	},*/{
 		// TODO：提取到单独的文件中
-		name: "测试由xml转换为html后对应的获取焦点的节点信息，math中包含一个mn节点，光标在mn后",
+		name: "math中包含一个mn节点，光标在mn后",
 		setUp: function(){
 			this.model = new Model({});
 			var parentNode = dom.byId("container");
@@ -61,39 +85,93 @@ require([ "doh",
 			var view = this.view;
 			var model = view.model;
 			model.loadData("<root><line><math><mn>12</mn></math></line></root>");
-			model.mode = "mathml";
-			var line = model.getLineAt(0);
-			model.anchor.node = line.firstChild.firstChild;
-			model.anchor.offset = 2;
-			model.path.push({nodeName: "root"});
-			model.path.push({nodeName: "line", offset: 1});
-			model.path.push({nodeName: "math", offset: 1});
-			model.path.push({nodeName: "mn", offset: 1});
-			
-			model.setData({data:"你我他"});
-			// 这里需要让页面飞一会。
-			
-			view.asyncRender();
+			// 因为在loadData时有触发onChange事件，所以不需要显式调用渲染方法
+			//view.asyncRender();
 			
 			var deferred = new doh.Deferred();
-			// 因为1秒之后，光标是隐藏的，此时移动后，光标应立即可见
 		    view._asyncExecute(deferred.getTestCallback(function(){
+		    	// 下面这些代码是设置光标位置的代码
+		    	model.mode = "mathml";
+				var line = model.getLineAt(0);
+				model.anchor.node = line.firstChild.firstChild;
+				model.anchor.node.id="aaaa";
+				model.anchor.offset = 2;
+				model.path = [];
+				model.path.push({nodeName: "root"});
+				model.path.push({nodeName: "line", offset: 1});
+				model.path.push({nodeName: "math", offset: 1});
+				model.path.push({nodeName: "mn", offset: 1});
+				
 		    	var focusInfo = view._getFocusInfo();
 		    	//{node: focusDomNode, offset: offset, mrowNode: mrowNode, mathNode: mathNode};
+		    	
 		    	var focusNode = focusInfo.node;
 		    	t.is("mn", focusNode.className);
 		    	t.is("12", focusNode.textContent);
 		    	t.is(2, focusInfo.offset);
 		    	t.is("MathJax", focusInfo.mathNode.className);// 是不是应该选择class为math的呢，还是已经没有用了呢
 		    	t.is("mrow", focusInfo.mrowNode.className);// 这个mrow是math下面隐含的mrow
+		    	
 		    }));
 		    return deferred;
 		},
 		tearDown: function(){
 			domConstruct.empty("container");
 		}
-	},
-	/*{
+	},{
+		name: "math中包含两个节点，mn和空的mfrac节点，光标在分子后",
+		setUp: function(){
+			this.model = new Model({});
+			var parentNode = dom.byId("container");
+			this.view = new View({model:this.model, parentNode:parentNode});
+		},
+		runTest: function(t){
+			var view = this.view;
+			var model = view.model;
+			model.loadData("<root><line>" +
+					"<math>" +
+						"<mn>12</mn>" +
+						"<mstyle>" +
+							"<mfrac>" +
+								"<mrow><mn class=\"drip_placeholder_box\"></mn></mrow>" +
+								"<mrow><mn class=\"drip_placeholder_box\"></mn></mrow>" +
+							"</mfrac>" +
+						"</mstyle>" +
+					"</math>" +
+					"</line></root>");
+			
+			var deferred = new doh.Deferred();
+		    view._asyncExecute(deferred.getTestCallback(function(){
+		    	model.mode = "mathml";
+				var line = model.getLineAt(0);
+				model.anchor.node = line.firstChild.lastChild.firstChild.firstChild.firstChild;
+				model.anchor.offset = 0;
+				model.path = [];
+				model.path.push({nodeName: "root"});
+				model.path.push({nodeName: "line", offset: 1});
+				model.path.push({nodeName: "math", offset: 1});
+				model.path.push({nodeName: "mfrac", offset: 2});
+				model.path.push({nodeName: "mrow", offset: 1});
+				model.path.push({nodeName: "mn", offset: 1});
+				
+		    	var focusInfo = view._getFocusInfo();
+		    	
+		    	//{node: focusDomNode, offset: offset, mrowNode: mrowNode, mathNode: mathNode};
+		    	var focusNode = focusInfo.node;
+		    	t.t(domClass.contains(focusNode, "mn"));
+		    	t.t(domClass.contains(focusNode, "drip_placeholder_box"));
+		    	t.is(0, focusInfo.offset);
+		    	t.is("MathJax", focusInfo.mathNode.className);// 是不是应该选择class为math的呢，还是已经没有用了呢
+		    	t.is("mrow", focusInfo.mrowNode.className);// 这个mrow是math下面隐含的mrow
+		    	
+		    }));
+		    return deferred;
+		},
+		tearDown: function(){
+			domConstruct.empty("container");
+		}
+	}/*,
+	{
 		name: "在实际的mathjax渲染的dom中找到mathml的token节点对应的dom节点",
 		setUp: function(){
 			this.model = new Model({});
@@ -133,7 +211,7 @@ require([ "doh",
 		tearDown: function(){
 			domConstruct.empty("container");
 		}
-	},*/{
+	},{
 		name:"光标在math的token节点中移动",
 		setUp: function(){
 			this.model = new Model({});
@@ -257,7 +335,7 @@ require([ "doh",
 		tearDown: function(){
 			
 		}
-	}]);
+	}*/]);
 	doh.runOnLoad();
 });
 </script>
