@@ -206,6 +206,134 @@ define([ "doh", "dojo/aspect", "mathEditor/Model" ], function(doh,aspect,Model) 
   			tearDown: function(){
   				
   			}
+	    },{
+	    	name: "在layout节点之后插入变量，layout没有被mstyle封装",
+  			setUp: function(){
+  				this.model = new Model({});
+  			},
+  			runTest: function(t){
+  				var model = this.model;
+  				model.loadData("<root><line>" +
+	  						"<math>" +
+		  						"<mfrac></mfrac>" +
+	  						"</math>" +
+  						"</line></root>");
+  				model.mode = "mathml";
+  				var line = model.getLineAt(0);
+  				model.anchor.node = line.firstChild.firstChild;
+  				model.anchor.offset = 1;
+  				model.path = [];
+  				model.path.push({nodeName:"root"});
+  				model.path.push({nodeName:"line", offset:1});
+  				model.path.push({nodeName:"math", offset:1});
+  				model.path.push({nodeName:"mfrac", offset:1});
+  				model.setData({data:"x"});
+  				t.is("/root/line[1]/math[1]/mi[2]", model.getPath());
+  				var focusNode = model.getFocusNode();
+  				t.is("mi", focusNode.nodeName);
+  				t.is(1, model.getOffset());
+  				t.is("x", focusNode.textContent);
+  				t.is(2, focusNode.parentNode.childElementCount);
+  			},
+  			tearDown: function(){
+  				
+  			}
+	    },{
+	    	name: "在layout节点之后插入变量，layout被mstyle封装",
+  			setUp: function(){
+  				this.model = new Model({});
+  			},
+  			runTest: function(t){
+  				var model = this.model;
+  				model.loadData("<root><line>" +
+  						"<math>" +
+	  						"<mstyle><mfrac></mfrac></mstyle>" +
+  						"</math>" +
+						"</line></root>");
+				model.mode = "mathml";
+				var line = model.getLineAt(0);
+				model.anchor.node = line.firstChild.firstChild.firstChild;
+				model.anchor.offset = 1;
+				model.path = [];
+				model.path.push({nodeName:"root"});
+				model.path.push({nodeName:"line", offset:1});
+				model.path.push({nodeName:"math", offset:1});
+				model.path.push({nodeName:"mfrac", offset:1});
+				model.setData({data:"x"});
+				t.is("/root/line[1]/math[1]/mi[2]", model.getPath());
+				var focusNode = model.getFocusNode();
+				t.is("mi", focusNode.nodeName);
+				t.is(1, model.getOffset());
+				t.is("x", focusNode.textContent);
+				t.is(2, line.firstChild.childElementCount);
+  			},
+  			tearDown: function(){
+  				
+  			}
+	    },{
+	    	name: "在layout节点之前插入变量，layout没有被mstyle封装",
+  			setUp: function(){
+  				this.model = new Model({});
+  			},
+  			runTest: function(t){
+  				var model = this.model;
+  				model.loadData("<root><line>" +
+	  						"<math>" +
+		  						"<mfrac></mfrac>" +
+	  						"</math>" +
+  						"</line></root>");
+  				model.mode = "mathml";
+  				var line = model.getLineAt(0);
+  				model.anchor.node = line.firstChild.firstChild;
+  				model.anchor.offset = 0;
+  				model.path = [];
+  				model.path.push({nodeName:"root"});
+  				model.path.push({nodeName:"line", offset:1});
+  				model.path.push({nodeName:"math", offset:1});
+  				model.path.push({nodeName:"mfrac", offset:1});
+  				model.setData({data:"x"});
+  				t.is("/root/line[1]/math[1]/mfrac[2]", model.getPath());
+  				var focusNode = model.getFocusNode();
+  				t.is("mfrac", focusNode.nodeName);
+  				t.is(0, model.getOffset());
+  				t.is(2, line.firstChild.childElementCount);
+  				t.is(focusNode, line.firstChild.firstChild.nextSibling);
+  			},
+  			tearDown: function(){
+  				
+  			}
+	    },{
+	    	name: "在layout节点之前插入变量，layout被mstyle封装",
+  			setUp: function(){
+  				this.model = new Model({});
+  			},
+  			runTest: function(t){
+  				var model = this.model;
+  				model.loadData("<root><line>" +
+  						"<math>" +
+	  						"<mstyle><mfrac></mfrac></mstyle>" +
+  						"</math>" +
+						"</line></root>");
+				model.mode = "mathml";
+				var line = model.getLineAt(0);
+				model.anchor.node = line.firstChild.firstChild.firstChild;
+				model.anchor.offset = 0;
+				model.path = [];
+				model.path.push({nodeName:"root"});
+				model.path.push({nodeName:"line", offset:1});
+				model.path.push({nodeName:"math", offset:1});
+				model.path.push({nodeName:"mfrac", offset:1});
+				model.setData({data:"x"});
+				t.is("/root/line[1]/math[1]/mfrac[2]", model.getPath());
+  				var focusNode = model.getFocusNode();
+  				t.is("mfrac", focusNode.nodeName);
+  				t.is(0, model.getOffset());
+  				t.is(2, line.firstChild.childElementCount);
+  				t.is(focusNode, line.firstChild.firstChild.nextSibling.firstChild);
+  			},
+  			tearDown: function(){
+  				
+  			}
 	    }
 	                             
 	]);

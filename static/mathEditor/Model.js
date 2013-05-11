@@ -581,7 +581,12 @@ define([ "dojo/_base/declare",
 					}
 					var newNode = xmlDoc.createElement(nodeName);
 					newNode.textContent = miContext;
-					dripLang.insertNodeAfter(newNode,node);
+					var mstyleNode = node.parentNode;
+					if(mstyleNode.nodeName === "mstyle" && mstyleNode.childElementCount === 1){
+						dripLang.insertNodeAfter(newNode,mstyleNode);
+					}else{
+						dripLang.insertNodeAfter(newNode,node);
+					}
 					
 					node = newNode;
 					offset = 1;
