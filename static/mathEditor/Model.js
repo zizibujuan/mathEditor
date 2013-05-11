@@ -1569,6 +1569,7 @@ define([ "dojo/_base/declare",
 				// TODO:重构到一个方法中，暂时还没有想到一个好的方法名
 				var pos = this.path.pop();
 				pos.nodeName = next.nodeName;
+				//pos.offset--;// 获取焦点的节点是next节点
 				this.path.push(pos);
 				this.anchor.node = next;
 				this.anchor.offset = 0;
@@ -1911,6 +1912,7 @@ define([ "dojo/_base/declare",
 				}
 			}
 			
+			// FIXME：如果要删除的是前一个节点，或前一个节点的内容，则要如何处理？
 			if(this._isTokenNode(node.nodeName)){
 				var contentLength = this._getTextLength(node);
 				if(offset == 0){
@@ -1985,7 +1987,33 @@ define([ "dojo/_base/declare",
 				return;
 			}else if(dripLang.isMathLayoutNode(node)){
 				// 如果是mathml layout节点
-				this._removeLeftMathLayoutNode(node);
+				// TODO：考虑删除前一个节点的情况
+				if(offset === layoutOffset.before){
+					if(node.parentNode.nodeName === "mstyle" && node.parentNode.childElementCount == 1){
+						node = node.parentNode;
+					}
+					var prev = node.previousSibling;
+					if(prev){
+						// TODO:提取出一个删除token节点的方法，参考上面的实现
+						// 当prev是token节点时
+						if(this._isTokenNode(prev.nodeName)){
+							var prevLength = this._getTextLength(prev);
+							if(prevLength == 1){
+								var pos = this.path.pop();
+								pos.offset--;//只修改偏移量
+								this.path.push(pos);
+								// 删除节点
+								prev.parentNode.removeChild(prev);
+							}else{
+								prev.textContent = prev.textContent.substring(0, prevLength-1);
+							}
+						}
+						
+						
+					}
+				}else if(offset === layoutOffset.after){
+					this._removeLeftMathLayoutNode(node);
+				}
 				return;
 			}
 		},
