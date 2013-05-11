@@ -1,5 +1,7 @@
 define([ "doh","mathEditor/Model" ], function(doh,Model) {
 
+	// summary:
+	//		model.setData({data:"^"});与model.setData({data:"", nodeName:"msup"});的效果是一样的。
 	doh.register("Model.setData.sup 上标",[
 	    {
 			name: "mathml模式下，在空的数学编辑器上直接输入上标",
@@ -63,7 +65,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 			tearDown: function(){
 				
 			}
-		}{
+		},{
 			name: "mathml模式下，在空的数学编辑器上输入数字和上标",
 			setUp: function(){
 				this.model = new Model({});
@@ -95,7 +97,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				
 			}
 		},{
-			name: "mathml模式下，输入数字，输入^,删除^，然后输入上标",
+			name: "mathml模式下，输入数字，输入^",
 			setUp: function(){
 				this.model = new Model({});
 			},
@@ -108,8 +110,6 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				model.toMathMLMode();
 				model.setData({data:"1"});
 				model.setData({data:"^"});
-				model.removeLeft();
-				model.setData({data:"", nodeName:"msup"});
 				t.is("/root/line[1]/math[1]/msup[1]/mrow[2]/mn[1]", model.getPath());
 				
 				var node = model.getFocusNode();
