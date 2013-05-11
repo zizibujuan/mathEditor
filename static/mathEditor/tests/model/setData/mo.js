@@ -313,6 +313,40 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   			tearDown: function(){
   				
   			}
+	    },{
+	    	name: "在被mstyle封装的layout节点后插入mo节点",
+  			setUp: function(){
+  				this.model = new Model({});
+  			},
+  			runTest: function(t){
+  				var model = this.model;
+  				model.loadData("<root><line>" +
+	  						"<math>" +
+		  						"<mstyle><mfrac><mrow><mn></mn></mrow><mrow><mn></mn></mrow></mfrac></mstyle>" +
+	  						"</math>" +
+  						"</line></root>");
+  				model.mode = "mathml";
+  				var line = model.getLineAt(0);
+  				model.anchor.node = line.firstChild.firstChild.firstChild;
+  				model.anchor.offset = 1;
+  				model.path = [];
+  				model.path.push({nodeName:"root"});
+  				model.path.push({nodeName:"line", offset:1});
+  				model.path.push({nodeName:"math", offset:1});
+  				model.path.push({nodeName:"mfrac", offset:1});
+  				model.setData({data:"+"});
+  				t.is("/root/line[1]/math[1]/mo[2]", model.getPath());
+  				var focusNode = model.getFocusNode();
+  				t.is("mo", focusNode.nodeName);
+  				t.is(1, model.getOffset());
+  				t.is("+", focusNode.textContent);
+  				t.is(2, focusNode.parentNode.childNodes.length);
+  				// 确保mo是mstyle的兄弟节点
+  				t.is(focusNode, line.firstChild.lastChild);
+  			},
+  			tearDown: function(){
+  				
+  			}
 	    }
 	                             
 	]);

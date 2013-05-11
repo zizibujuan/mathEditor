@@ -170,6 +170,55 @@ require([ "doh",
 		tearDown: function(){
 			domConstruct.empty("container");
 		}
+	},{
+		name: "math中包含两个节点，mfrac和mo节点，光标在mo后",
+		setUp: function(){
+			this.model = new Model({});
+			var parentNode = dom.byId("container");
+			this.view = new View({model:this.model, parentNode:parentNode});
+		},
+		runTest: function(t){
+			var view = this.view;
+			var model = view.model;
+			model.loadData("<root><line>" +
+					"<math>" +
+						"<mstyle>" +
+							"<mfrac>" +
+								"<mrow><mn class=\"drip_placeholder_box\"></mn></mrow>" +
+								"<mrow><mn class=\"drip_placeholder_box\"></mn></mrow>" +
+							"</mfrac>" +
+						"</mstyle>" +
+						"<mo>/</mo>" +
+					"</math>" +
+					"</line></root>");
+			
+			var deferred = new doh.Deferred();
+		    view._asyncExecute(deferred.getTestCallback(function(){
+		    	model.mode = "mathml";
+				var line = model.getLineAt(0);
+				model.anchor.node = line.firstChild.lastChild;
+				model.anchor.offset = 1;
+				model.path = [];
+				model.path.push({nodeName: "root"});
+				model.path.push({nodeName: "line", offset: 1});
+				model.path.push({nodeName: "math", offset: 1});
+				model.path.push({nodeName: "mo", offset: 2});
+				
+		    	var focusInfo = view._getFocusInfo();
+		    	
+		    	//{node: focusDomNode, offset: offset, mrowNode: mrowNode, mathNode: mathNode};
+		    	var focusNode = focusInfo.node;
+		    	t.t(domClass.contains(focusNode, "mo"));
+		    	t.is(1, focusInfo.offset);
+		    	t.is("MathJax", focusInfo.mathNode.className);// 是不是应该选择class为math的呢，还是已经没有用了呢
+		    	t.is("mrow", focusInfo.mrowNode.className);// 这个mrow是math下面隐含的mrow
+		    	
+		    }));
+		    return deferred;
+		},
+		tearDown: function(){
+			domConstruct.empty("container");
+		}
 	}/*,
 	{
 		name: "在实际的mathjax渲染的dom中找到mathml的token节点对应的dom节点",
