@@ -1135,25 +1135,6 @@ define([ "dojo/_base/declare",
 				offset = 0;
 				return {node: node, offset:offset};
 			}
-			
-			
-			
-				var newOffset = 1;
-				var position = "last";
-				
-				this.path.pop();
-				this.path.push({nodeName:"mroot", offset:offset+1});
-				this.path.push({nodeName:"mrow", offset:2});
-				this.path.push({nodeName:"mn", offset:1});
-				
-				var parent = node.parentNode;
-				var rootData = xmlUtil.createEmptyMroot(xmlDoc);
-				domConstruct.place(rootData.rootNode, parent, offset);
-				
-				node = rootData.focusNode;
-				offset = 0;
-			
-			return {node: node, offset: offset};
 		},
 		
 		insertScripting: function(anchor, data, nodeName){
