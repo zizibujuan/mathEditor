@@ -3,9 +3,11 @@ define([ "doh", "mathEditor/tests/testUtil", "mathEditor/Model" ], function(doh,
 	// summary:
 	//		1.在空math中输入frac
 	//		2.在token节点后输入frac
-	//		3.在layout节点后输入frac
-	//		4.在token节点前输入frac
-	//		5.在layout节点前输入frac
+	//		3.在layout节点后输入frac,layout没有被mstyle封装
+	//		4.在layout节点后输入frac,layout被mstyle封装
+	//		5.在token节点前输入frac
+	//		6.在layout节点前输入frac，layout没有被mstyle封装
+	//		7.在layout节点前输入frac，layout被mstyle封装
 	//		2.在任何空的layout节点中输入frac
 	//		3.在mn节点中输入frac
 	doh.register("Model.setData.frac 分数",[
@@ -33,7 +35,8 @@ define([ "doh", "mathEditor/tests/testUtil", "mathEditor/Model" ], function(doh,
 				var line = model.getLineAt(0);
 				model.anchor.node = line.firstChild;
 				model.anchor.offset = 2;// layoutOffset.select
-				model.path = [];model.path.push({nodeName: "root"});
+				model.path = [];
+				model.path.push({nodeName: "root"});
 				model.path.push({nodeName: "line", offset: 1});
 				model.path.push({nodeName: "math", offset: 1});
 				model.setData({data:"", nodeName:"mfrac"});
@@ -59,7 +62,8 @@ define([ "doh", "mathEditor/tests/testUtil", "mathEditor/Model" ], function(doh,
 				var line = model.getLineAt(0);
 				model.anchor.node = line.firstChild.firstChild;
 				model.anchor.offset = 2;
-				model.path = [];model.path.push({nodeName: "root"});
+				model.path = [];
+				model.path.push({nodeName: "root"});
 				model.path.push({nodeName: "line", offset: 1});
 				model.path.push({nodeName: "math", offset: 1});
 				model.path.push({nodeName: "mn", offset: 1});
@@ -70,6 +74,182 @@ define([ "doh", "mathEditor/tests/testUtil", "mathEditor/Model" ], function(doh,
 				// 确保选中的是分子节点
 				t.t(node.parentNode.previousSibling == null);
 				testUtil.isPlaceHolder(t, model.anchor);
+				// 判断新的mfrac是添加在mstyle之后，而不是mstyle中
+				t.is(2, line.firstChild.childElementCount);
+				// 确定新插入的mfrac在layout后
+				t.is(node.parentNode.parentNode.parentNode, line.firstChild.lastChild);
+			},
+			tearDown: function(){
+				
+			}
+		},{
+			name: "在layout节点后输入frac,layout节点没有被mstyle封装",
+			setUp: function(){
+				this.model = new Model({});
+			},
+			runTest: function(t){
+				var model = this.model;
+				model.loadData("<root><line>" +
+						"<math>" +
+						"<mfrac><mrow><mn>1</mn></mrow><mrow><mn>2</mn></mrow></mfrac>" +
+						"</math>" +
+						"</line></root>");
+				model.mode = "mathml";
+				var line = model.getLineAt(0);
+				model.anchor.node = line.firstChild.firstChild;
+				model.anchor.offset = 1;
+				model.path = [];
+				model.path.push({nodeName: "root"});
+				model.path.push({nodeName: "line", offset: 1});
+				model.path.push({nodeName: "math", offset: 1});
+				model.path.push({nodeName: "mfrac", offset: 1});
+				model.setData({data:"", nodeName:"mfrac"});
+				//创建完成后，让分子先获取焦点
+				t.is("/root/line[1]/math[1]/mfrac[2]/mrow[1]/mn[1]", model.getPath()); 
+				var node = model.getFocusNode();
+				// 确保选中的是分子节点
+				t.t(node.parentNode.previousSibling == null);
+				testUtil.isPlaceHolder(t, model.anchor);
+				// 判断新的mfrac是添加在mstyle之后，而不是mstyle中
+				t.is(2, line.firstChild.childElementCount);
+				// 确定新插入的mfrac在layout后
+				t.is(node.parentNode.parentNode.parentNode, line.firstChild.lastChild);
+			},
+			tearDown: function(){
+				
+			}
+		},{
+			name: "在layout节点后输入frac,layout节点被mstyle封装",
+			setUp: function(){
+				this.model = new Model({});
+			},
+			runTest: function(t){
+				var model = this.model;
+				model.loadData("<root><line>" +
+						"<math>" +
+						"<mstyle><mfrac><mrow><mn>1</mn></mrow><mrow><mn>2</mn></mrow></mfrac></mstyle>" +
+						"</math>" +
+						"</line></root>");
+				model.mode = "mathml";
+				var line = model.getLineAt(0);
+				model.anchor.node = line.firstChild.firstChild.firstChild;
+				model.anchor.offset = 1;
+				model.path = [];
+				model.path.push({nodeName: "root"});
+				model.path.push({nodeName: "line", offset: 1});
+				model.path.push({nodeName: "math", offset: 1});
+				model.path.push({nodeName: "mfrac", offset: 1});
+				model.setData({data:"", nodeName:"mfrac"});
+				//创建完成后，让分子先获取焦点
+				t.is("/root/line[1]/math[1]/mfrac[2]/mrow[1]/mn[1]", model.getPath()); 
+				var node = model.getFocusNode();
+				// 确保选中的是分子节点
+				t.t(node.parentNode.previousSibling == null);
+				testUtil.isPlaceHolder(t, model.anchor);
+				// 判断新的mfrac是添加在mstyle之后，而不是mstyle中
+				t.is(2, line.firstChild.childElementCount);
+				// 确定新插入的mfrac在layout后
+				t.is(node.parentNode.parentNode.parentNode, line.firstChild.lastChild);
+			},
+			tearDown: function(){
+				
+			}
+		},{
+			name: "在token节点前输入frac",
+			setUp: function(){
+				this.model = new Model({});
+			},
+			runTest: function(t){
+				var model = this.model;
+				model.loadData("<root><line><math><mn>12</mn></math></line></root>");
+				model.mode = "mathml";
+				var line = model.getLineAt(0);
+				model.anchor.node = line.firstChild.firstChild;
+				model.anchor.offset = 0;
+				model.path = [];
+				model.path.push({nodeName: "root"});
+				model.path.push({nodeName: "line", offset: 1});
+				model.path.push({nodeName: "math", offset: 1});
+				model.path.push({nodeName: "mn", offset: 1});
+				model.setData({data:"", nodeName:"mfrac"});
+				//创建完成后，让分子先获取焦点
+				t.is("/root/line[1]/math[1]/mfrac[1]/mrow[1]/mn[1]", model.getPath()); 
+				var node = model.getFocusNode();
+				// 确保选中的是分子节点
+				t.t(node.parentNode.previousSibling == null);
+				testUtil.isPlaceHolder(t, model.anchor);
+				// 确定新插入的mfrac在layout前
+				t.is(node.parentNode.parentNode.parentNode, line.firstChild.firstChild);
+			},
+			tearDown: function(){
+				
+			}
+		},{
+			name: "在layout节点前输入frac,layout节点没有被mstyle封装",
+			setUp: function(){
+				this.model = new Model({});
+			},
+			runTest: function(t){
+				var model = this.model;
+				model.loadData("<root><line>" +
+						"<math>" +
+						"<mfrac><mrow><mn>1</mn></mrow><mrow><mn>2</mn></mrow></mfrac>" +
+						"</math>" +
+						"</line></root>");
+				model.mode = "mathml";
+				var line = model.getLineAt(0);
+				model.anchor.node = line.firstChild.firstChild;
+				model.anchor.offset = 0;
+				model.path = [];
+				model.path.push({nodeName: "root"});
+				model.path.push({nodeName: "line", offset: 1});
+				model.path.push({nodeName: "math", offset: 1});
+				model.path.push({nodeName: "mfrac", offset: 1});
+				model.setData({data:"", nodeName:"mfrac"});
+				//创建完成后，让分子先获取焦点
+				t.is("/root/line[1]/math[1]/mfrac[1]/mrow[1]/mn[1]", model.getPath()); 
+				var node = model.getFocusNode();
+				// 确保选中的是分子节点
+				t.t(node.parentNode.previousSibling == null);
+				testUtil.isPlaceHolder(t, model.anchor);
+				// 确定新插入的mfrac在layout前
+				t.is(node.parentNode.parentNode.parentNode, line.firstChild.firstChild);
+			},
+			tearDown: function(){
+				
+			}
+		},{
+			name: "在layout节点前输入frac,layout节点被mstyle封装",
+			setUp: function(){
+				this.model = new Model({});
+			},
+			runTest: function(t){
+				var model = this.model;
+				model.loadData("<root><line>" +
+						"<math>" +
+						"<mstyle><mfrac><mrow><mn>1</mn></mrow><mrow><mn>2</mn></mrow></mfrac></mstyle>" +
+						"</math>" +
+						"</line></root>");
+				model.mode = "mathml";
+				var line = model.getLineAt(0);
+				model.anchor.node = line.firstChild.firstChild.firstChild;
+				model.anchor.offset = 0;
+				model.path = [];
+				model.path.push({nodeName: "root"});
+				model.path.push({nodeName: "line", offset: 1});
+				model.path.push({nodeName: "math", offset: 1});
+				model.path.push({nodeName: "mfrac", offset: 1});
+				model.setData({data:"", nodeName:"mfrac"});
+				//创建完成后，让分子先获取焦点
+				t.is("/root/line[1]/math[1]/mfrac[1]/mrow[1]/mn[1]", model.getPath()); 
+				var node = model.getFocusNode();
+				// 确保选中的是分子节点
+				t.t(node.parentNode.previousSibling == null);
+				testUtil.isPlaceHolder(t, model.anchor);
+				// 判断新的mfrac是添加在mstyle之后，而不是mstyle中
+				t.is(2, line.firstChild.childElementCount);
+				// 确定新插入的mfrac在layout前
+				t.is(node.parentNode.parentNode.parentNode, line.firstChild.firstChild);
 			},
 			tearDown: function(){
 				

@@ -922,11 +922,38 @@ define([ "dojo/_base/declare",
 				this.path.push({nodeName:"mn", offset:1});
 				
 				var fracData = xmlUtil.createEmptyFrac(xmlDoc);
-				dripLang.insertNodeAfter(fracData.rootNode, node);
+				
+				var mstyleNode = node.parentNode;
+				if(mstyleNode.nodeName === "mstyle" && mstyleNode.childElementCount === 1){
+					dripLang.insertNodeAfter(fracData.rootNode, mstyleNode);
+				}else{
+					dripLang.insertNodeAfter(fracData.rootNode, node);
+				}
 				// 因为是占位符
 				node = fracData.focusNode;
 				offset = 0;
 				
+				return {node: node, offset:offset};
+			}
+			
+			// 在节点前插入分数
+			if(this._isMathMLNodeStart(node, offset)){
+				var pos = this.path.pop();
+				// pos.offset保持不变
+				pos.nodeName = "mfrac";
+				this.path.push(pos);
+				this.path.push({nodeName:"mrow", offset:1});
+				this.path.push({nodeName:"mn", offset:1});
+				
+				var fracData = xmlUtil.createEmptyFrac(xmlDoc);
+				var mstyleNode = node.parentNode;
+				if(mstyleNode.nodeName === "mstyle" && mstyleNode.childElementCount === 1){
+					dripLang.insertNodeBefore(fracData.rootNode, mstyleNode);
+				}else{
+					dripLang.insertNodeBefore(fracData.rootNode, node);
+				}
+				node = fracData.focusNode;
+				offset = 0;
 				return {node: node, offset:offset};
 			}
 		},
