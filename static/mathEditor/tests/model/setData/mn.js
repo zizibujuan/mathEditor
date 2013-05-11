@@ -241,7 +241,75 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   			tearDown: function(){
   				
   			}
+	    },{
+	    	name: "在layout节点之后插入数字，layout没有被mstyle封装",
+  			setUp: function(){
+  				this.model = new Model({});
+  			},
+  			runTest: function(t){
+  				var model = this.model;
+  				model.loadData("<root><line>" +
+	  						"<math>" +
+		  						"<mfrac></mfrac>" +
+	  						"</math>" +
+  						"</line></root>");
+  				model.mode = "mathml";
+  				var line = model.getLineAt(0);
+  				model.anchor.node = line.firstChild.firstChild;
+  				model.anchor.offset = 1;
+  				model.path = [];
+  				model.path.push({nodeName:"root"});
+  				model.path.push({nodeName:"line", offset:1});
+  				model.path.push({nodeName:"math", offset:1});
+  				model.path.push({nodeName:"mo", offset:2});
+  				model.setData({data:"1"});
+  				// 光标的位置保持不变，依然停留在mo的前面，但是输入的值追加在mn最后
+  				t.is("/root/line[1]/math[1]/mo[3]", model.getPath());
+  				var focusNode = model.getFocusNode();
+  				t.is("mo", focusNode.nodeName);
+  				t.is(0, model.getOffset());
+  				t.is("1", focusNode.previousSibling.textContent);
+  				t.is(3, focusNode.parentNode.childNodes.length);
+  			},
+  			tearDown: function(){
+  				
+  			}
+	    },{
+	    	name: "在layout节点之后插入数字，layout被mstyle封装",
+  			setUp: function(){
+  				this.model = new Model({});
+  			},
+  			runTest: function(t){
+  				var model = this.model;
+  				model.loadData("<root><line>" +
+	  						"<math>" +
+		  						"<mo>-</mo>" +
+		  						"<mo>+</mo>" +
+	  						"</math>" +
+  						"</line></root>");
+  				model.mode = "mathml";
+  				var line = model.getLineAt(0);
+  				model.anchor.node = line.firstChild.lastChild;
+  				model.anchor.offset = 0;
+  				model.path = [];
+  				model.path.push({nodeName:"root"});
+  				model.path.push({nodeName:"line", offset:1});
+  				model.path.push({nodeName:"math", offset:1});
+  				model.path.push({nodeName:"mo", offset:2});
+  				model.setData({data:"1"});
+  				// 光标的位置保持不变，依然停留在mo的前面，但是输入的值追加在mn最后
+  				t.is("/root/line[1]/math[1]/mo[3]", model.getPath());
+  				var focusNode = model.getFocusNode();
+  				t.is("mo", focusNode.nodeName);
+  				t.is(0, model.getOffset());
+  				t.is("1", focusNode.previousSibling.textContent);
+  				t.is(3, focusNode.parentNode.childNodes.length);
+  			},
+  			tearDown: function(){
+  				
+  			}
 	    }
+	    // 在节点之前插入数字
 	    
 	                             
 	]);

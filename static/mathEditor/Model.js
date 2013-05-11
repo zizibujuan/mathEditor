@@ -733,7 +733,12 @@ define([ "dojo/_base/declare",
 			var tokenNode = this.doc.createElement(nodeName);
 			tokenNode.textContent = content;
 			
-			dripLang.insertNodeBefore(tokenNode, existNode);
+			var mstyleNode = existNode.parentNode;
+			if(mstyleNode.nodeName === "mstyle" && mstyleNode.childElementCount === 1){
+				dripLang.insertNodeBefore(tokenNode, mstyleNode);
+			}else{
+				dripLang.insertNodeBefore(tokenNode, existNode);
+			}
 			
 			var pos = this.path.pop();
 			pos.offset++// nodeName保持不变
@@ -1132,7 +1137,10 @@ define([ "dojo/_base/declare",
 		setData: function(insertInfo){
 			// summary:
 			//		往model中插入数据。
-			// insertInfo: JSON Object
+	    	//		一个约定：在插入数据时，在一个节点前，插入一个新的节点，光标位置依然停留在原来的位置，即节点之前；
+	    	//		而在删除数据时，删掉一个节点前的节点，节点依然停留在之前节点的前面。
+			//
+			//		insertInfo: JSON Object
 			//		插入数据的详情。
 			//		data: String || Array
 			//			要插入的内容	
