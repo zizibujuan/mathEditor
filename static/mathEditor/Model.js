@@ -24,6 +24,11 @@ define([ "dojo/_base/declare",
 	
 	return declare(null,{
 		// summary:
+		//		遇到layout节点，删除时，删掉整个layout节点，不给高亮提示；移动时，要往layout内部移动。
+		
+		
+		
+		// summary:
 		//		存储当前聚焦点的完整路径
 		// nodeName:
 		//		节点名称
@@ -1002,22 +1007,67 @@ define([ "dojo/_base/declare",
 
 				node = sqrtData.focusNode;
 				offset = 0;
-			}else{
+				return {node: node, offset: offset};
+			}/*else{
 				var newOffset = 1;
 				var position = "last";
 				
 				this.path.pop();
 				this.path.push({nodeName:"msqrt", offset:offset+1});
 				this.path.push({nodeName:"mn", offset:1});
-				
-				var parent = node.parentNode;
 				var sqrtData = xmlUtil.createEmptyMsqrt(xmlDoc);
-				domConstruct.place(sqrtData.rootNode, parent, offset);
+				var mstyleNode = node.parentNode;
+				if(mstyleNode.nodeName === "mstyle" && mstyleNode.childElementCount === 0){
+					dripLang.insertNodeAfter(sqrtData.rootNode, mstyleNode);
+				}else{
+					dripLang.insertNodeAfter(sqrtData.rootNode, node);
+				}
 				
 				node = sqrtData.focusNode;
 				offset = 0;
+			}*/
+			// 在节点后插入平方根
+			if(this._isMathMLNodeEnd(node, offset)){
+				var pos = this.path.pop();
+				pos.offset++;
+				pos.nodeName = "msqrt";
+				this.path.push(pos);
+				this.path.push({nodeName:"mn", offset:1});
+				
+				var sqrtData = xmlUtil.createEmptyMsqrt(xmlDoc);
+				
+				var mstyleNode = node.parentNode;
+				if(mstyleNode.nodeName === "mstyle" && mstyleNode.childElementCount === 1){
+					dripLang.insertNodeAfter(sqrtData.rootNode, mstyleNode);
+				}else{
+					dripLang.insertNodeAfter(sqrtData.rootNode, node);
+				}
+				
+				node = sqrtData.focusNode;
+				offset = 0;
+				
+				return {node: node, offset:offset};
 			}
-			
+
+			// 在节点前插入平方根
+			if(this._isMathMLNodeStart(node, offset)){
+				var pos = this.path.pop();
+				// pos.offset保持不变
+				pos.nodeName = "msqrt";
+				this.path.push(pos);
+				this.path.push({nodeName:"mn", offset:1});
+				
+				var sqrtData = xmlUtil.createEmptyMsqrt(xmlDoc);
+				var mstyleNode = node.parentNode;
+				if(mstyleNode.nodeName === "mstyle" && mstyleNode.childElementCount === 1){
+					dripLang.insertNodeBefore(sqrtData.rootNode, mstyleNode);
+				}else{
+					dripLang.insertNodeBefore(sqrtData.rootNode, node);
+				}
+				node = sqrtData.focusNode;
+				offset = 0;
+				return {node: node, offset:offset};
+			}
 			return {node: node, offset: offset};
 		},
 		
@@ -1099,11 +1149,16 @@ define([ "dojo/_base/declare",
 			// summary:
 			//		如果节点满足被拆分的条件，则将节点拆分为两个。
 			//		只能用在放置文本节点的节点中，如text节点和mathml的token节点。
+			//		
 			//		FIXME:名字还不够具体
 			// 注意：这里只是split，anchor的值并不改变。
 			
 			var offset = this.anchor.offset;
 			var node = this.anchor.node;
+			
+			if(!this._isTokenNode(node.nodeName)){
+				return;
+			}
 			
 			// 如果当前的nodeName与传入的值相同，则不拆分。
 			if(node.nodeName == nodeName){
@@ -1898,7 +1953,11 @@ define([ "dojo/_base/declare",
 				}else if(contentLength == 1){
 					// 先找前一个兄弟节点
 					var prev = node.previousSibling;
+					// 如果prev是layout节点，就要开始往里走
 					if(prev){
+						if(prev.nodeName === "mstyle" && prev.childElementCount === 1){
+							prev = prev.firstChild;
+						}
 						this.anchor.node = prev;
 						this._movePathToPreviousSibling(prev);
 						if(this._isTokenNode(prev.nodeName)){
