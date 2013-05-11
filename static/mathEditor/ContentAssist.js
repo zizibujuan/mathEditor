@@ -64,11 +64,14 @@ define(["dojo/_base/declare",
 		},
 		
 		_onModelChanging: function(e){
+			var inputData = e.data;
+			if(inputData == null || inputData=="")return;
+			
 			console.log("contentAssist: model changing", e);
 			if(this.state === State.INACTIVE)return;
 			// 只有是 mathml模式时，提示框才生效.
 			// 这里的逻辑是，只有mathml模式下，才触发该事件。
-			var inputData = e.data;
+			
 			var adviceData = this.show(inputData);
 			e.newData = adviceData;
 			console.log("提示框中推荐的字符", adviceData);

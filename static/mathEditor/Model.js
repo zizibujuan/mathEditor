@@ -1139,7 +1139,9 @@ define([ "dojo/_base/declare",
 		
 		insertScripting: function(anchor, data, nodeName){
 			// summary:
-			//		插入上下标
+			//		插入上下标, 插入上下标的逻辑为：
+			//		永远只把index节点前的一个节点作为base节点
+			//		用户输入方式：输入上下标的时候，不弹出推荐框，而是直接应用
 			var node = anchor.node;
 			var offset = anchor.offset;
 			
@@ -1310,6 +1312,17 @@ define([ "dojo/_base/declare",
 					return; // 输入回车符号，则什么也不做。
 				}
 				
+				// 做一个转换，用来处理静默映射转换，并不需要弹出提示框,相当于是一个命令
+				// 目前有的转换：
+				//		^ --> msup  
+				//		_ --> msub
+				var commandStack = {"^":"msup", "_":"msub"};
+				if(commandStack[data]){
+					nodeName = commandStack[data];
+					data = "";
+				}
+					
+				
 				var node = this.anchor.node;
 				var isNumericCharacter = false;
 				var isTrigonometric = false;
@@ -1333,6 +1346,7 @@ define([ "dojo/_base/declare",
 						isTrigonometric = true;
 					}
 				}
+				
 				
 				if(node.nodeName == "text" || node.nodeName == "line"){
 					// 先把nodeName确认下来

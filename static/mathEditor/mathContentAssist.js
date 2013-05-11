@@ -53,7 +53,7 @@ define([ "dojo/_base/array" ], function(array) {
 			freq: 0,
 			label: "*",
 			iconClass: ""
-		},*/{
+		},{
 			// 支持输入平方立方，或直接输入数字
 			input: "^",
 			map: "^",
@@ -84,7 +84,7 @@ define([ "dojo/_base/array" ], function(array) {
 			freq: 0,
 			label: "下标",
 			iconClass: "drip_equation_icon drip_sub"
-		},{
+		},*/{
 			// 支持输入平方根
 			input: "sqrt",
 			map: "",
