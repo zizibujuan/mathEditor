@@ -1068,10 +1068,12 @@ define([ "dojo/_base/declare",
 				offset = 0;
 				return {node: node, offset:offset};
 			}
-			return {node: node, offset: offset};
 		},
 		
 		insertMroot: function(anchor, data, nodeName){
+			// summary:
+			//		插入根式，让根次获取焦点
+			//		mroot中的base和index都放在显式的mrow下
 			var node = anchor.node;
 			var offset = anchor.offset;
 			
@@ -1087,7 +1089,55 @@ define([ "dojo/_base/declare",
 
 				node = rootData.focusNode;
 				offset = 0;
-			}else{
+				return {node: node, offset: offset};
+			}
+			
+			// 在节点后插入N次根
+			if(this._isMathMLNodeEnd(node, offset)){
+				var pos = this.path.pop();
+				pos.offset++;
+				pos.nodeName = "mroot";
+				this.path.push(pos);
+				this.path.push({nodeName:"mrow", offset:2});
+				this.path.push({nodeName:"mn", offset:1});
+				
+				var rootData = xmlUtil.createEmptyMroot(xmlDoc);
+				
+				var mstyleNode = node.parentNode;
+				if(mstyleNode.nodeName === "mstyle" && mstyleNode.childElementCount === 1){
+					dripLang.insertNodeAfter(rootData.rootNode, mstyleNode);
+				}else{
+					dripLang.insertNodeAfter(rootData.rootNode, node);
+				}
+				
+				node = rootData.focusNode;
+				offset = 0;
+				
+				return {node: node, offset:offset};
+			}
+			// 在节点前插入N次根
+			if(this._isMathMLNodeStart(node, offset)){
+				var pos = this.path.pop();
+				// pos.offset保持不变
+				pos.nodeName = "mroot";
+				this.path.push(pos);
+				this.path.push({nodeName:"mrow", offset:2});
+				this.path.push({nodeName:"mn", offset:1});
+				
+				var rootData = xmlUtil.createEmptyMroot(xmlDoc);
+				var mstyleNode = node.parentNode;
+				if(mstyleNode.nodeName === "mstyle" && mstyleNode.childElementCount === 1){
+					dripLang.insertNodeBefore(rootData.rootNode, mstyleNode);
+				}else{
+					dripLang.insertNodeBefore(rootData.rootNode, node);
+				}
+				node = rootData.focusNode;
+				offset = 0;
+				return {node: node, offset:offset};
+			}
+			
+			
+			
 				var newOffset = 1;
 				var position = "last";
 				
@@ -1102,7 +1152,7 @@ define([ "dojo/_base/declare",
 				
 				node = rootData.focusNode;
 				offset = 0;
-			}
+			
 			return {node: node, offset: offset};
 		},
 		
