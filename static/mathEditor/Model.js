@@ -691,7 +691,13 @@ define([ "dojo/_base/declare",
 							// 在node前插入一个mn节点
 							return this._insertNewTokenNodeBefore(nodeName, mnContent, node);
 						}
-					}else if(offset == this._getTextLength(node)){
+					}else{
+						// mn中的内容是可以拆分的。mi和mo的最大长度总是为1，所以不专门处理offset==length的情况，因为都是追加
+						if(node.nodeName === "mn" && 0 < offset && offset < this._getTextLength(node)){
+							// 如果是可拆分的节点
+							this._splitNodeIfNeed(nodeName);
+						}
+						
 						// path和anchor保持不变
 						// 修改prev中的值
 						var next = node.nextSibling;
@@ -701,8 +707,6 @@ define([ "dojo/_base/declare",
 							// 在node后追加一个mn节点
 							return this._insertNewMnNodeAfter(mnContent, node);
 						}
-					}else{
-						// 什么也不做，因为不会在mi和mo的内容中插入mn
 					}
 				}else{
 					var oldText = node.textContent;
@@ -719,7 +723,12 @@ define([ "dojo/_base/declare",
 			var tokenNode = this.doc.createElement(newNodeName);
 			tokenNode.textContent = content;
 			
-			dripLang.insertNodeAfter(tokenNode, existNode);
+			var mstyleNode = existNode.parentNode;
+			if(mstyleNode.nodeName === "mstyle" && mstyleNode.childElementCount === 1){
+				dripLang.insertNodeAfter(tokenNode, mstyleNode);
+			}else{
+				dripLang.insertNodeAfter(tokenNode, existNode);
+			}
 			
 			var pos = this.path.pop();
 			this.path.push({nodeName:newNodeName, offset:pos.offset+1});
