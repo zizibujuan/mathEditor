@@ -1181,35 +1181,11 @@ define([ "dojo/_base/declare",
 					return {node: node, offset: offset};
 				}
 			}else{
+				//layout/token节点后
 				var pos = this.path.pop();
 				var oldOffset = pos.offset;
 				return this._createScriptingAfter(node,oldOffset,nodeName);
 			}
-			
-			/*
-			else{
-				// TODO:总结是不是General Layout Schema 和 Script and Limit Schema的path处理逻辑都一样呢
-				// 有两种情况，一种是在节点前，一种是在节点后
-				
-				var newOffset = 1;
-				var position = "last";
-				
-				this.path.pop();
-				this.path.push({nodeName: nodeName, offset: 1});// TODO:计算出offset
-				this.path.push({nodeName: "mrow", offset: 2});
-				this.path.push({nodeName: "mn", offset: 1});
-				
-				var parent = node.parentNode;
-				// node为将作为sup中的base节点
-				if(node.nodeName)
-				var scriptingData = xmlUtil.createScriptingWithBase(xmlDoc, node, nodeName);
-				domConstruct.place(scriptingData.rootNode, parent, 0);
-				
-				node = scriptingData.focusNode;
-				offset = 0;
-			}
-			return {node: node, offset: offset};
-			*/
 		},
 		
 		_createScriptingAfter: function(node, pathOffset, scriptNodeName){
@@ -1425,6 +1401,7 @@ define([ "dojo/_base/declare",
 				
 				// 移除占位符
 				var node = this.anchor.node;
+				var offset = this.anchor.offset;
 				if(xmlUtil.isPlaceHolder(node)){
 					// TODO:重构，提取方法
 					var pos = this.path.pop();
@@ -1452,6 +1429,27 @@ define([ "dojo/_base/declare",
 //					return;
 //				}
 				
+				// 在这里可以对anchor的值做一次调整
+
+				// 判断新增的节点的父节点是不是msup，如果是则将多余的节点移出msup
+				// 如果放在最后的话，node的深度不确定。因此这里在添加新节点前，就先调整好位置
+				if(this._isSupBaseMrow(node.parentNode)){
+					// 在新输入一个节点时，如果输入完成后offset==0，则说明是放在了node的前面。
+					// 因为是每新加一个节点都要做调整，所以只需要判断一次。
+					if(nodeName === "mn" && node.nodeName === "mn"){
+						// 如果两者同为mn时，则不调整位置。
+					}else{
+						if(offset === 0){
+							// 如果输入的节点在base节点前
+							this.path.pop();// 当前的node
+							this.path.pop();// mrow
+							
+							this.anchor.node = node.parentNode.parentNode;
+							this.anchor.offset = 0;
+						}
+					}
+				}
+				
 				// 因为letter只是一个字符，所以不需要循环处理
 				if(nodeName === "mi"){
 					// 推断周围的字符，如果能够拼够一个三角函数，则插入三角函数
@@ -1476,21 +1474,14 @@ define([ "dojo/_base/declare",
 							this.anchor = this.insertMi(this.anchor, data, nodeName);
 						}
 					}
-					this.onChanged(data);
-					return;
+					
 				}else if(nodeName === "mn"){
 					// 目前只支持输入数字时，剔除占位符。
 					this.anchor = this.insertMn(this.anchor, data, nodeName);
-					this.onChanged(data);
-					return;
 				}else if(nodeName === "mo"){
 					this.anchor = this.insertMo(this.anchor, data, nodeName);
-					this.onChanged(data);
-					return;
 				}else if(nodeName === "mfenced"){
 					this.anchor = this.insertFenced(this.anchor, data, nodeName);
-					this.onChanged(data);
-					return;
 				}else if(nodeName === "mfrac"){
 					// 有两种输入分数的方式：
 					//		1.是用户输入'frac'或'fs',输入一个空的分数
@@ -1499,24 +1490,19 @@ define([ "dojo/_base/declare",
 					// 当前版本，两种方式都输入一个空的分数，不做推断。
 					this._splitNodeIfNeed(nodeName);
 					this.anchor = this.insertMfrac(this.anchor, data, nodeName);
-					this.onChanged(data);
-					return;
 				}else if(nodeName === "msqrt"){
 					this._splitNodeIfNeed(nodeName);
 					this.anchor = this.insertMsqrt(this.anchor, data, nodeName);
-					this.onChanged(data);
-					return;
 				}else if(nodeName === "mroot"){
 					this._splitNodeIfNeed(nodeName);
 					this.anchor = this.insertMroot(this.anchor, data, nodeName);
-					this.onChanged(data);
-					return;
 				}else if(nodeName === "msub" || nodeName == "msup"){
 					this._splitNodeIfNeed(nodeName);
 					this.anchor = this.insertScripting(this.anchor, data, nodeName);
-					this.onChanged(data);
-					return;
 				}
+				
+				this.onChanged(data);
+				return;
 			}
 		},
 		
