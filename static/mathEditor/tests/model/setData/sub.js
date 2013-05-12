@@ -1,5 +1,6 @@
 define([ "doh","mathEditor/Model" ], function(doh,Model) {
 
+	// 因为sub和sup的逻辑是一样的，底层走的是相同的代码，所以不再详细写测试用例了。
 	doh.register("Model.setData.sub 下标",[
 	    {
 			name: "mathml模式下，在空的数学编辑器上直接输入下标",

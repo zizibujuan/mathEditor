@@ -1157,8 +1157,40 @@ define([ "dojo/_base/declare",
 
 				node = scriptingData.focusNode;
 				offset = 0;
+				return {node: node, offset: offset};
+			}
+			
+			if(offset == 0){
+				// layout/token节点前
+				var prev = node.previousSibling;
+				if(prev){
+					var pos = this.path.pop();
+					var oldOffset = pos.offset;
+					return this._createScriptingAfter(prev,oldOffset-1,nodeName);
+				}else{
+					// 在节点前插入一个base为空的上标
+					var pos = this.path.pop();// node
+					var oldOffset = pos.offset;
+					this.path.push({nodeName: nodeName, offset: oldOffset});// offset的值不改变
+					this.path.push({nodeName: "mrow", offset: 2});
+					this.path.push({nodeName: "mn", offset: 1});
+					var scriptingData = xmlUtil.createEmptyScripting(xmlDoc, nodeName);
+					dripLang.insertNodeBefore(scriptingData.rootNode, node);
+					node = scriptingData.focusNode;
+					offset = 0;
+					return {node: node, offset: offset};
+				}
 			}else{
+				var pos = this.path.pop();
+				var oldOffset = pos.offset;
+				return this._createScriptingAfter(node,oldOffset,nodeName);
+			}
+			
+			/*
+			else{
 				// TODO:总结是不是General Layout Schema 和 Script and Limit Schema的path处理逻辑都一样呢
+				// 有两种情况，一种是在节点前，一种是在节点后
+				
 				var newOffset = 1;
 				var position = "last";
 				
@@ -1169,6 +1201,7 @@ define([ "dojo/_base/declare",
 				
 				var parent = node.parentNode;
 				// node为将作为sup中的base节点
+				if(node.nodeName)
 				var scriptingData = xmlUtil.createScriptingWithBase(xmlDoc, node, nodeName);
 				domConstruct.place(scriptingData.rootNode, parent, 0);
 				
@@ -1176,6 +1209,42 @@ define([ "dojo/_base/declare",
 				offset = 0;
 			}
 			return {node: node, offset: offset};
+			*/
+		},
+		
+		_createScriptingAfter: function(node, pathOffset, scriptNodeName){
+			// summary:
+			//		在node节点后输入^,
+			//		node: DomNode
+			//		pathOffset: 
+			//			node在父节点中的位置，从1开始
+			//		scriptNodeName:
+			// layout/token节点后
+			var xmlDoc = this.doc;
+			if(node.nodeName === "mo"){
+				this.path.push({nodeName: scriptNodeName, offset: pathOffset+1});// 不替换，在后面追加
+				this.path.push({nodeName: "mrow", offset: 2});
+				this.path.push({nodeName: "mn", offset: 1});
+				var scriptingData = xmlUtil.createEmptyScripting(xmlDoc, scriptNodeName);
+				dripLang.insertNodeAfter(scriptingData.rootNode, node);
+				node = scriptingData.focusNode;
+				
+			}else{
+				this.path.push({nodeName: scriptNodeName, offset: pathOffset});// 用上下标替换原来的节点
+				this.path.push({nodeName: "mrow", offset: 2});
+				this.path.push({nodeName: "mn", offset: 1});
+				var parentNode = node.parentNode;// 原来的父节点，下一步node的父节点已经改变。
+				var scriptingData = xmlUtil.createScriptingWithBase(xmlDoc, node, scriptNodeName);
+				if(parentNode.childElementCount === 0){
+					parentNode.appendChild(scriptingData.rootNode);
+				}else{
+					var n = parentNode.childNodes[pathOffset - 1];
+					dripLang.insertNodeBefore(scriptingData.rootNode, n);
+				}
+				node = scriptingData.focusNode;
+				
+			}
+			return {node: node, offset: 0};
 		},
 		
 		_splitNodeIfNeed: function(nodeName){
