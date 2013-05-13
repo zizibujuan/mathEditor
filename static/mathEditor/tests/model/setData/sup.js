@@ -367,6 +367,172 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 			tearDown: function(){
 				
 			}
+		},{
+			name: "base中有一个mn节点，在base结尾部分输入一个mn节点，则将数字合并在一起",
+			setUp: function(){
+				this.model = new Model({});
+			},
+			runTest: function(t){
+				var model = this.model;
+				model.loadData("<root><line><math>" +
+							"<msup>" +
+								"<mrow><mn>12</mn></mrow>" +
+								"<mrow><mn>2</mn></mrow>" +
+							"</msup>" +
+						"</math></line></root>");
+				model.mode = "mathml";
+				var line = model.getLineAt(0);
+				model.anchor.node = line.firstChild.firstChild.firstChild.firstChild;
+				model.anchor.offset = 2;
+				model.path = [];
+				model.path.push({nodeName:"root"});
+				model.path.push({nodeName:"line", offset: 1});
+				model.path.push({nodeName:"math", offset: 1});
+				model.path.push({nodeName:"msup", offset: 1});
+				model.path.push({nodeName:"mrow", offset: 1});
+				model.path.push({nodeName:"mn", offset: 1});
+				model.setData({data:"3"});
+				// 输入完成后，就将光标从msup的base中移出来
+				t.is("/root/line[1]/math[1]/msup[1]/mrow[1]/mn[1]", model.getPath());
+				
+				var node = model.getFocusNode();
+				t.is("mn", node.nodeName);
+				t.is(3, model.getOffset());
+				t.is(1, line.firstChild.childElementCount);
+				t.is("123", node.textContent);
+			},
+			tearDown: function(){
+				
+			}
+		},{
+			name: "base中有一个mn节点，在base结尾部分输入一个mi节点",
+			setUp: function(){
+				this.model = new Model({});
+			},
+			runTest: function(t){
+				/*
+				 * <msup> base superscript </msup>
+				 * msup中的内容都使用mrow封装
+				 */
+				var model = this.model;
+				model.loadData("<root><line><math>" +
+							"<msup>" +
+								"<mrow><mn>12</mn></mrow>" +
+								"<mrow><mn>2</mn></mrow>" +
+							"</msup>" +
+						"</math></line></root>");
+				model.mode = "mathml";
+				var line = model.getLineAt(0);
+				model.anchor.node = line.firstChild.firstChild.firstChild.firstChild;
+				model.anchor.offset = 2;
+				model.path = [];
+				model.path.push({nodeName:"root"});
+				model.path.push({nodeName:"line", offset: 1});
+				model.path.push({nodeName:"math", offset: 1});
+				model.path.push({nodeName:"msup", offset: 1});
+				model.path.push({nodeName:"mrow", offset: 1});
+				model.path.push({nodeName:"mn", offset: 1});
+				model.setData({data:"x"});
+				// 输入完成后，就将光标从msup的base中移出来
+				t.is("/root/line[1]/math[1]/msup[2]/mrow[1]/mi[1]", model.getPath());
+				
+				// 输入完成后，光标还是停留在msup前
+				var node = model.getFocusNode();
+				t.is("mi", node.nodeName);
+				t.is(1, model.getOffset());
+				t.is(2, line.firstChild.childElementCount);
+				t.is("mn", line.firstChild.firstChild.nodeName);
+			},
+			tearDown: function(){
+				
+			}
+		},{
+			name: "base中有一个mn节点，在base结尾部分输入一个mo节点,将mo和之前的节点都移到base外面，让空的base获取焦点",
+			setUp: function(){
+				this.model = new Model({});
+			},
+			runTest: function(t){
+				/*
+				 * <msup> base superscript </msup>
+				 * msup中的内容都使用mrow封装
+				 */
+				var model = this.model;
+				model.loadData("<root><line><math>" +
+							"<msup>" +
+								"<mrow><mn>12</mn></mrow>" +
+								"<mrow><mn>2</mn></mrow>" +
+							"</msup>" +
+						"</math></line></root>");
+				model.mode = "mathml";
+				var line = model.getLineAt(0);
+				model.anchor.node = line.firstChild.firstChild.firstChild.firstChild;
+				model.anchor.offset = 2;
+				model.path = [];
+				model.path.push({nodeName:"root"});
+				model.path.push({nodeName:"line", offset: 1});
+				model.path.push({nodeName:"math", offset: 1});
+				model.path.push({nodeName:"msup", offset: 1});
+				model.path.push({nodeName:"mrow", offset: 1});
+				model.path.push({nodeName:"mn", offset: 1});
+				model.setData({data:"+"});
+				// 输入完成后，就将光标从msup的base中移出来
+				t.is("/root/line[1]/math[1]/msup[3]/mrow[1]/mn[1]", model.getPath());
+				
+				// 输入完成后，光标还是停留在msup前
+				var node = model.getFocusNode();
+				t.is("mn", node.nodeName);
+				t.is(0, model.getOffset());
+				
+				t.is(3, line.firstChild.childElementCount);
+				t.is("mn", line.firstChild.firstChild.nodeName);
+				t.is("mo", line.firstChild.firstChild.nextSibling.nodeName);
+			},
+			tearDown: function(){
+				
+			}
+		},{
+			name: "base中有一个mn节点，在base结尾部分输入layout节点",
+			setUp: function(){
+				this.model = new Model({});
+			},
+			runTest: function(t){
+				/*
+				 * <msup> base superscript </msup>
+				 * msup中的内容都使用mrow封装
+				 */
+				var model = this.model;
+				model.loadData("<root><line><math>" +
+							"<msup>" +
+								"<mrow><mn>12</mn></mrow>" +
+								"<mrow><mn>2</mn></mrow>" +
+							"</msup>" +
+						"</math></line></root>");
+				model.mode = "mathml";
+				var line = model.getLineAt(0);
+				model.anchor.node = line.firstChild.firstChild.firstChild.firstChild;
+				model.anchor.offset = 2;
+				model.path = [];
+				model.path.push({nodeName:"root"});
+				model.path.push({nodeName:"line", offset: 1});
+				model.path.push({nodeName:"math", offset: 1});
+				model.path.push({nodeName:"msup", offset: 1});
+				model.path.push({nodeName:"mrow", offset: 1});
+				model.path.push({nodeName:"mn", offset: 1});
+				model.setData({data:"", nodeName:"msqrt"});
+				t.is("/root/line[1]/math[1]/msup[2]/mrow[1]/msqrt[1]/mn[1]", model.getPath());
+				
+				// 输入完成后，光标还是停留在msup前
+				var node = model.getFocusNode();
+				t.is("mn", node.nodeName);
+				t.is(0, model.getOffset());
+				
+				t.is(2, line.firstChild.childElementCount);
+				t.is("mn", line.firstChild.firstChild.nodeName);
+				t.is("msup", line.firstChild.firstChild.nextSibling.nodeName);
+			},
+			tearDown: function(){
+				
+			}
 		}
 	                             
 	]);

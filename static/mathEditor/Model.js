@@ -565,7 +565,7 @@ define([ "dojo/_base/declare",
 			var offset = anchor.offset;
 			var xmlDoc = this.doc;
 			
-			if(node.nodeName === "math" || node.nodeName === "msqrt"){
+			if(node.nodeName === "math" || node.nodeName === "msqrt" || node.nodeName === "mrow"){
 				// FIXME：应该修改为offset == layoutOffset.select的情况
 				// FIXME: math下的节点的处理代码，大多是一样的，需要重构
 				var newNode = xmlDoc.createElement(nodeName);
@@ -998,7 +998,7 @@ define([ "dojo/_base/declare",
 			
 			var xmlDoc = this.doc;
 			
-			if(node.nodeName === "math" || node.nodeName === "msqrt"){
+			if(node.nodeName === "math" || node.nodeName === "msqrt" || node.nodeName === "mrow"){
 				this.path.push({nodeName:"msqrt", offset:1});
 				this.path.push({nodeName:"mn", offset:1});
 				
@@ -1008,24 +1008,8 @@ define([ "dojo/_base/declare",
 				node = sqrtData.focusNode;
 				offset = 0;
 				return {node: node, offset: offset};
-			}/*else{
-				var newOffset = 1;
-				var position = "last";
-				
-				this.path.pop();
-				this.path.push({nodeName:"msqrt", offset:offset+1});
-				this.path.push({nodeName:"mn", offset:1});
-				var sqrtData = xmlUtil.createEmptyMsqrt(xmlDoc);
-				var mstyleNode = node.parentNode;
-				if(mstyleNode.nodeName === "mstyle" && mstyleNode.childElementCount === 0){
-					dripLang.insertNodeAfter(sqrtData.rootNode, mstyleNode);
-				}else{
-					dripLang.insertNodeAfter(sqrtData.rootNode, node);
-				}
-				
-				node = sqrtData.focusNode;
-				offset = 0;
-			}*/
+			}
+			
 			// 在节点后插入平方根
 			if(this._isMathMLNodeEnd(node, offset)){
 				var pos = this.path.pop();
@@ -1433,7 +1417,11 @@ define([ "dojo/_base/declare",
 
 				// 判断新增的节点的父节点是不是msup，如果是则将多余的节点移出msup
 				// 如果放在最后的话，node的深度不确定。因此这里在添加新节点前，就先调整好位置
+				
+				var insertPlaceholder = false;
+
 				if(this._isSupBaseMrow(node.parentNode)){
+					
 					// 在新输入一个节点时，如果输入完成后offset==0，则说明是放在了node的前面。
 					// 因为是每新加一个节点都要做调整，所以只需要判断一次。
 					if(nodeName === "mn" && node.nodeName === "mn"){
@@ -1446,12 +1434,49 @@ define([ "dojo/_base/declare",
 							
 							this.anchor.node = node.parentNode.parentNode;
 							this.anchor.offset = 0;
+						}else{
+							if(nodeName === "mo"){
+								this.anchor.node = node.parentNode;// base mrow
+								this.anchor.offset = layoutOffset.select;
+								var scriptingNode = node.parentNode.parentNode;
+								dripLang.insertNodeBefore(node, scriptingNode);
+								var moNode = this.doc.createElement("mo");
+								moNode.textContent = data;
+								dripLang.insertNodeBefore(moNode,scriptingNode);
+								insertPlaceholder = true;
+								this.path.pop(); // 当前的base node
+								this.path.pop(); //mrow
+								var pos = this.path.pop(); //scripting node
+								pos.offset+=2;
+								this.path.push(pos);
+								this.path.push({nodeName:"mrow", offset:1});
+							}else{
+								// 这里认为已在任何节点的末尾
+								// 将原来的base node移到sup前面，将当前焦点放在baseMrow中
+								this.anchor.node = node.parentNode;
+								this.anchor.offset = layoutOffset.select;
+								var scriptingNode = node.parentNode.parentNode;
+								dripLang.insertNodeBefore(node, scriptingNode);
+								this.path.pop(); // 当前的base node
+								this.path.pop(); //mrow
+								var pos = this.path.pop(); //scripting node
+								pos.offset++;
+								this.path.push(pos);
+								this.path.push({nodeName:"mrow", offset:1});
+							}
 						}
 					}
 				}
 				
 				// 因为letter只是一个字符，所以不需要循环处理
-				if(nodeName === "mi"){
+				if(insertPlaceholder){
+					var node = this.anchor.node;
+					var base = xmlUtil.getPlaceHolder(this.doc);
+					node.appendChild(base);
+					this.path.push({nodeName:base.nodeName, offset: 1});
+					this.anchor.node = base;
+					this.anchor.offset = 0;
+				}else if(nodeName === "mi"){
 					// 推断周围的字符，如果能够拼够一个三角函数，则插入三角函数
 					if(isCommandString){
 						// 当是命令字符串时，将由n个字符构成的命令放在一个mi中。
