@@ -36,7 +36,8 @@ define([ "doh", "mathEditor/lang" ], function(doh, dripLang) {
 			t.t(dripLang.isOperator("&#x226A;"));// 远小于
 			t.t(dripLang.isOperator("&#x2260;"));// 不等于
 			t.t(dripLang.isOperator("&#x2248;"));// 约等于
-			 
+			
+			t.f(dripLang.isOperator("("));
 		}
 	},
 	{

@@ -1193,16 +1193,24 @@ define([ "dojo/_base/declare",
 				this.path.push({nodeName: scriptNodeName, offset: pathOffset});// 用上下标替换原来的节点
 				this.path.push({nodeName: "mrow", offset: 2});
 				this.path.push({nodeName: "mn", offset: 1});
-				var parentNode = node.parentNode;// 原来的父节点，下一步node的父节点已经改变。
-				var scriptingData = xmlUtil.createScriptingWithBase(xmlDoc, node, scriptNodeName);
-				if(parentNode.childElementCount === 0){
-					parentNode.appendChild(scriptingData.rootNode);
+				
+				
+				var scriptingData = null;
+				if(node.previousSibling){
+					var prev = node.previousSibling;
+					scriptingData = xmlUtil.createScriptingWithBase(xmlDoc, node, scriptNodeName);
+					dripLang.insertNodeAfter(scriptingData.rootNode, prev);
+				}else if(node.nextSibling){
+					var next = node.nextSibling;
+					scriptingData = xmlUtil.createScriptingWithBase(xmlDoc, node, scriptNodeName);
+					dripLang.insertNodeBefore(scriptingData.rootNode, next);
 				}else{
-					var n = parentNode.childNodes[pathOffset - 1];
-					dripLang.insertNodeBefore(scriptingData.rootNode, n);
+					var parentNode = node.parentNode;
+					scriptingData = xmlUtil.createScriptingWithBase(xmlDoc, node, scriptNodeName);
+					parentNode.appendChild(scriptingData.rootNode);
 				}
 				node = scriptingData.focusNode;
-				
+				// 此时node已经移出scriptNode
 			}
 			return {node: node, offset: 0};
 		},
