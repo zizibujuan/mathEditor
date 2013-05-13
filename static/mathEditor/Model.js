@@ -1420,7 +1420,7 @@ define([ "dojo/_base/declare",
 				
 				var insertPlaceholder = false;
 
-				if(this._isSupBaseMrow(node.parentNode)){
+				if(this._isSupBaseMrow(node.parentNode) || this._isSubBaseMrow(node.parentNode)){
 					
 					// 在新输入一个节点时，如果输入完成后offset==0，则说明是放在了node的前面。
 					// 因为是每新加一个节点都要做调整，所以只需要判断一次。
@@ -2227,11 +2227,22 @@ define([ "dojo/_base/declare",
 			return node && node.nodeName === "mrow" && node.parentNode.nodeName === "msup" && node.previousSibling;
 		},
 		
+		_isSubSubscriptMrow: function(node /*mrow*/){
+			return node && node.nodeName === "mrow" && node.parentNode.nodeName === "msub" && node.previousSibling;
+		},
+		
 		_isSupBaseMrow: function(node /*mrow*/){
 			// summary:
 			//		判断当前节点是不是上标式子中的base节点
 			//		<msup>base superscript</msup>
 			return node && node.nodeName === "mrow" && node.parentNode.nodeName === "msup" && node.nextSibling;
+		},
+		
+		_isSubBaseMrow: function(node /*mrow*/){
+			// summary:
+			//		判断当前节点是不是上标式子中的base节点
+			//		<msup>base superscript</msup>
+			return node && node.nodeName === "mrow" && node.parentNode.nodeName === "msub" && node.nextSibling;
 		},
 		
 		_isLastFenceChildMrow: function(node /*mrow*/){
@@ -2560,6 +2571,10 @@ define([ "dojo/_base/declare",
 			}
 		},
 		
+		_moveLeftMsubSubscriptToBase: function(subscriptMrow){
+			this._moveLeftMsupSuperscriptToBase(subscriptMrow)
+		},
+		
 		_moveRightMsupBaseToSuperscript: function(baseMrow){
 			var superscriptMrow = baseMrow.nextSibling;
 			this._movePathToNextSibling(superscriptMrow);
@@ -2567,6 +2582,10 @@ define([ "dojo/_base/declare",
 			this.path.push({nodeName: firstChild.nodeName, offset: 1});
 			this.anchor.node = firstChild;
 			this.anchor.offset = 0;
+		},
+		
+		_moveRightMsubBaseToSubscript: function(baseMrow){
+			this._moveRightMsupBaseToSuperscript(baseMrow);
 		},
 				
 		_canMoveRightWithInToken: function(anchor){
@@ -2648,6 +2667,11 @@ define([ "dojo/_base/declare",
 			}else{
 				this.anchor.offset = 1;
 			}
+		},
+		_moveLeftToMsubSuperscriptEnd: function(node/*msup节点*/){
+			// summary:
+			//		左移，移动到上标的最后面。约定：msup中有且只有两个mrow节点
+			this._moveLeftToMsupSuperscriptEnd(node);
 		},
 		
 		_moveRightToMsupBaseStart: function(node /*msup*/){
@@ -2802,6 +2826,10 @@ define([ "dojo/_base/declare",
 				this._moveLeftToMsupSuperscriptEnd(node);
 				return;
 			}
+			if(nodeName === "msub" && offset === 1){
+				this._moveLeftToMsubSuperscriptEnd(node);
+				return;
+			}
 			if(nodeName === "mfence" && offset === 1){
 				this._moveLeftToMfenceInnerEnd(node);
 				return;
@@ -2824,6 +2852,10 @@ define([ "dojo/_base/declare",
 					}
 					if(prev.nodeName === "msup"){
 						this._moveLeftToMsupSuperscriptEnd(prev);
+						return;
+					}
+					if(prev.nodeName === "msub"){
+						this._moveLeftToMsubSuperscriptEnd(prev);
 						return;
 					}
 					if(prev.nodeName === "mfence"){
@@ -2880,7 +2912,11 @@ define([ "dojo/_base/declare",
 					this._moveLeftMsupSuperscriptToBase(parentNode);
 					return;
 				}
-				if(this._isSupBaseMrow(parentNode)){
+				if(this._isSubSubscriptMrow(parentNode)){
+					this._moveLeftMsubSubscriptToBase(parentNode);
+					return;
+				}
+				if(this._isSupBaseMrow(parentNode) || this._isSubBaseMrow(parentNode)){
 					this._moveToTopLeft(parentNode);
 					return;
 				}
@@ -2905,6 +2941,7 @@ define([ "dojo/_base/declare",
 					nodeName === "msqrt" || 
 					nodeName === "mroot" || 
 					nodeName === "msup" ||
+					nodeName === "msub" ||
 					nodeName === "mfence") && offset === 0){
 				var prev = node.previousSibling;
 				if(prev){
@@ -2920,6 +2957,10 @@ define([ "dojo/_base/declare",
 					}
 					if(prev.nodeName === "msup"){
 						this._moveLeftToMsupSuperscriptEnd(prev);
+						return;
+					}
+					if(prev.nodeName === "msub"){
+						this._moveLeftToMsubSuperscriptEnd(prev);
 						return;
 					}
 					if(prev.nodeName === "mfence"){
@@ -2965,7 +3006,11 @@ define([ "dojo/_base/declare",
 					this._moveLeftMsupSuperscriptToBase(parentNode);
 					return;
 				}
-				if(this._isSupBaseMrow(parentNode)){
+				if(this._isSubSubscriptMrow(parentNode)){
+					this._moveLeftMsubSubscriptToBase(parentNode);
+					return;
+				}
+				if(this._isSupBaseMrow(parentNode) || this._isSubBaseMrow(parentNode)){
 					this._moveToTopLeft(parentNode);
 					return;
 				}
@@ -3223,10 +3268,19 @@ define([ "dojo/_base/declare",
 					this._moveRightMsupBaseToSuperscript(parentNode);
 					return;
 				}
+				if(this._isSubBaseMrow(parentNode)){
+					this._moveRightMsubBaseToSubscript(parentNode);
+					return;
+				}
 				if(this._isSupSuperscriptMrow(parentNode)){
 					this._moveToTopRight(parentNode);
 					return;
 				}
+				if(this._isSubSubscriptMrow(parentNode)){
+					this._moveToTopRight(parentNode);
+					return;
+				}
+				
 				if(this._isLastFenceChildMrow(parentNode)){
 					this._moveToTopRight(parentNode);
 					return;
@@ -3307,7 +3361,15 @@ define([ "dojo/_base/declare",
 					this._moveRightMsupBaseToSuperscript(parentNode);
 					return;
 				}
+				if(this._isSubBaseMrow(parentNode)){
+					this._moveRightMsubBaseToSubscript(parentNode);
+					return;
+				}
 				if(this._isSupSuperscriptMrow(parentNode)){
+					this._moveToTopRight(parentNode);
+					return;
+				}
+				if(this._isSubSubscriptMrow(parentNode)){
 					this._moveToTopRight(parentNode);
 					return;
 				}
