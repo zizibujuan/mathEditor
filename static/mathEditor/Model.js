@@ -2283,13 +2283,13 @@ define([ "dojo/_base/declare",
 		_isLastFenceChildMrow: function(node /*mrow*/){
 			// summary:
 			//		判断当前节点是不是括号中的最后一个mrow节点
-			return node && node.nodeName === "mrow" && node.parentNode.nodeName === "mfence" && node.nextSibling==null;
+			return node && node.nodeName === "mrow" && node.parentNode.nodeName === "mfenced" && node.nextSibling==null;
 		},
 		
 		_isFirstChildFenceChildMrow: function(node /*mrow*/){
 			// summary:
 			//		判断当前节点是不是括号中的第一个mrow节点
-			return node && node.nodeName === "mrow" && node.parentNode.nodeName === "mfence" && node.previousSibling==null;
+			return node && node.nodeName === "mrow" && node.parentNode.nodeName === "mfenced" && node.previousSibling==null;
 		},
 		
 		_getTextLength: function(tokenNode){
@@ -2720,7 +2720,7 @@ define([ "dojo/_base/declare",
 			this.anchor.offset = 0;
 		},
 		
-		_moveRightToMfenceInnerStart: function(node /*mfence*/){
+		_moveRightToMfencedInnerStart: function(node /*mfence*/){
 			// summary:
 			//		右移，移到fence里面的起始处。
 			var mrow = node.firstChild;
@@ -2731,7 +2731,7 @@ define([ "dojo/_base/declare",
 			this.anchor.offset = 0;
 		},
 		
-		_moveLeftToMfenceInnerEnd: function(node /*mfence*/){
+		_moveLeftToMfencedInnerEnd: function(node /*mfence*/){
 			// summary:
 			//		左移，移到fence里面的结尾处。
 			var mrow = node.lastChild;
@@ -2865,8 +2865,8 @@ define([ "dojo/_base/declare",
 				this._moveLeftToMsubSuperscriptEnd(node);
 				return;
 			}
-			if(nodeName === "mfence" && offset === 1){
-				this._moveLeftToMfenceInnerEnd(node);
+			if(nodeName === "mfenced" && offset === 1){
+				this._moveLeftToMfencedInnerEnd(node);
 				return;
 			}
 			
@@ -2893,8 +2893,8 @@ define([ "dojo/_base/declare",
 						this._moveLeftToMsubSuperscriptEnd(prev);
 						return;
 					}
-					if(prev.nodeName === "mfence"){
-						this._moveLeftToMfenceInnerEnd(prev);
+					if(prev.nodeName === "mfenced"){
+						this._moveLeftToMfencedInnerEnd(prev);
 						return;
 					}
 					
@@ -2977,7 +2977,7 @@ define([ "dojo/_base/declare",
 					nodeName === "mroot" || 
 					nodeName === "msup" ||
 					nodeName === "msub" ||
-					nodeName === "mfence") && offset === 0){
+					nodeName === "mfenced") && offset === 0){
 				var prev = node.previousSibling;
 				if(prev){
 					this._movePathToPreviousSibling(prev);
@@ -2998,8 +2998,8 @@ define([ "dojo/_base/declare",
 						this._moveLeftToMsubSuperscriptEnd(prev);
 						return;
 					}
-					if(prev.nodeName === "mfence"){
-						this._moveLeftToMfenceInnerEnd(prev);
+					if(prev.nodeName === "mfenced"){
+						this._moveLeftToMfencedInnerEnd(prev);
 						return;
 					}
 				}
@@ -3234,8 +3234,8 @@ define([ "dojo/_base/declare",
 				this._moveRightToMsupBaseStart(node);
 				return;
 			}
-			if(nodeName === "mfence" && offset === 0){
-				this._moveRightToMfenceInnerStart(node);
+			if(nodeName === "mfenced" && offset === 0){
+				this._moveRightToMfencedInnerStart(node);
 				return;
 			}
 			
@@ -3246,7 +3246,7 @@ define([ "dojo/_base/declare",
 					nodeName === "mfrac" || 
 					nodeName === "mroot" || 
 					nodeName === "msup" ||
-					nodeName === "mfence") && offset === 1){
+					nodeName === "mfenced") && offset === 1){
 				// 先找下一个节点
 				var next = node.nextSibling;
 				if(next){
@@ -3264,8 +3264,8 @@ define([ "dojo/_base/declare",
 						this._moveRightToMsupBaseStart(next);
 						return;
 					}
-					if(next.nodeName === "mfence"){
-						this._moveRightToMfenceInnerStart(next);
+					if(next.nodeName === "mfenced"){
+						this._moveRightToMfencedInnerStart(next);
 						return;
 					}
 					
@@ -3353,8 +3353,8 @@ define([ "dojo/_base/declare",
 						this._moveRightToMsupBaseStart(next);
 						return;
 					}
-					if(next.nodeName === "mfence"){
-						this._moveRightToMfenceInnerStart(next);
+					if(next.nodeName === "mfenced"){
+						this._moveRightToMfencedInnerStart(next);
 						return;
 					}
 					
