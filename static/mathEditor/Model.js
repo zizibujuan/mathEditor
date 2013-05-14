@@ -782,32 +782,58 @@ define([ "dojo/_base/declare",
 				this.path.push({nodeName:nodeName, offset:1});
 				this.path.push({nodeName:"mrow", offset:1});
 				this.path.push({nodeName:"mn", offset:1});
-				
-				var mfenced = xmlDoc.createElement(nodeName);
-				
-				var fenced = {
-					"{":{left:"{", right:"}"},
-					"[":{left:"[", right:"]"},
-					"|":{left:"|", right:"|"}
-				};
-				if(fencedContent != "("){
-					mfenced.setAttribute("open",fenced[fencedContent].left);
-					mfenced.setAttribute("close",fenced[fencedContent].right);
-				}
-				var mrow = xmlDoc.createElement("mrow");
-				var placeHolder = xmlUtil.getPlaceHolder(xmlDoc);
-				mfenced.appendChild(mrow);
-				mrow.appendChild(placeHolder);
-				
-				node.appendChild(mfenced);
-				
-				node = placeHolder;
+				var mfenced = xmlUtil.createEmptyMfenced(xmlDoc, fencedContent)
+				node.appendChild(mfenced.rootNode);
+				node = mfenced.focusNode;
 				offset = 0;
-			}else{
-				
+				return {node: node, offset: offset};
 			}
 			
-			return {node: node, offset: offset};
+			// 在节点后插入mfenced
+			if(this._isMathMLNodeEnd(node, offset)){
+				var pos = this.path.pop();
+				pos.offset++;
+				pos.nodeName = nodeName;
+				this.path.push(pos);
+				this.path.push({nodeName:"mrow", offset:1});
+				this.path.push({nodeName:"mn", offset:1});
+				
+				var mfenced = xmlUtil.createEmptyMfenced(xmlDoc, fencedContent)
+				
+				var mstyleNode = node.parentNode;
+				if(mstyleNode.nodeName === "mstyle" && mstyleNode.childElementCount === 1){
+					dripLang.insertNodeAfter(mfenced.rootNode, mstyleNode);
+				}else{
+					dripLang.insertNodeAfter(mfenced.rootNode, node);
+				}
+				// 因为是占位符
+				node = mfenced.focusNode;
+				offset = 0;
+				
+				return {node: node, offset:offset};
+			}
+
+			// 在节点前插入mfenced
+			if(this._isMathMLNodeStart(node, offset)){
+				var pos = this.path.pop();
+				// pos.offset保持不变
+				pos.nodeName = nodeName;
+				this.path.push(pos);
+				this.path.push({nodeName:"mrow", offset:1});
+				this.path.push({nodeName:"mn", offset:1});
+				
+				var mfenced = xmlUtil.createEmptyMfenced(xmlDoc, fencedContent)
+				var mstyleNode = node.parentNode;
+				if(mstyleNode.nodeName === "mstyle" && mstyleNode.childElementCount === 1){
+					dripLang.insertNodeBefore(mfenced.rootNode, mstyleNode);
+				}else{
+					dripLang.insertNodeBefore(mfenced.rootNode, node);
+				}
+				node = mfenced.focusNode;
+				offset = 0;
+				return {node: node, offset:offset};
+			}
+			
 		},
 		
 		insertTrigonometric: function(anchor, data, nodeName){

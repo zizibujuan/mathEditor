@@ -127,6 +127,30 @@ define({
 		return {rootNode:mroot,focusNode:index};
 	},
 	
+	createEmptyMfenced: function(xmlDoc, open){
+		// summary:
+		//		创建空的mfenced节点
+		//		xmlDoc:xml
+		//		open:String
+		//			括号的类型
+		var mfenced = xmlDoc.createElement("mfenced");
+		
+		var fenced = {
+			"{":{left:"{", right:"}"},
+			"[":{left:"[", right:"]"},
+			"|":{left:"|", right:"|"}
+		};
+		if(open != "("){
+			mfenced.setAttribute("open",fenced[open].left);
+			mfenced.setAttribute("close",fenced[open].right);
+		}
+		var mrow = xmlDoc.createElement("mrow");
+		var placeHolder = this.getPlaceHolder(xmlDoc);
+		mfenced.appendChild(mrow);
+		mrow.appendChild(placeHolder);
+		return {rootNode:mfenced,focusNode:placeHolder};
+	},
+	
 	createTrigonometric: function(xmlDoc, parentNode, miText){
 		// summary:
 		//		创建三角函数
