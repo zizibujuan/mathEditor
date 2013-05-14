@@ -20,24 +20,24 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   			},
   			runTest: function(t){
   				var model = this.model;
-  				model.mode = "mathml";
   				model.loadData("<root><line>" +
   						"<math>" +
-	  						"<mfence>" +
+	  						"<mfenced>" +
 		  						"<mrow><mn>123</mn></mrow>" +
-	  						"</mfence>" +
+	  						"</mfenced>" +
   						"</math>" +
   				"</line></root>");
-  				
+  				model.mode = "mathml";
   				var line = model.getLineAt(0);
   				model.anchor.node = line.firstChild.firstChild;
   				model.anchor.offset = 0;
-  				model.path = [];model.path.push({nodeName: "root"});
+  				model.path = [];
+  				model.path.push({nodeName: "root"});
   				model.path.push({nodeName: "line", offset: 1});
   				model.path.push({nodeName: "math", offset: 1});
-  				model.path.push({nodeName: "mfence", offset: 1});
+  				model.path.push({nodeName: "mfenced", offset: 1});
   				model.moveRight();
-  				t.is("/root/line[1]/math[1]/mfence[1]/mrow[1]/mn[1]", model.getPath());
+  				t.is("/root/line[1]/math[1]/mfenced[1]/mrow[1]/mn[1]", model.getPath());
 				var node = model.getFocusNode();
 				t.is("mn", node.nodeName);
 				t.is(0, model.getOffset());
@@ -53,26 +53,26 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   			},
   			runTest: function(t){
   				var model = this.model;
-  				model.mode = "mathml";
   				model.loadData("<root><line>" +
   						"<math>" +
-	  						"<mfence>" +
-		  						"<mrow><mfence><mrow><mn>12</mn></mrow></mfence></mrow>" +
-	  						"</mfence>" +
+	  						"<mfenced>" +
+		  						"<mrow><mfenced><mrow><mn>12</mn></mrow></mfenced></mrow>" +
+	  						"</mfenced>" +
   						"</math>" +
   				"</line></root>");
-  				
+  				model.mode = "mathml";
   				var line = model.getLineAt(0);
   				model.anchor.node = line.firstChild.firstChild;
   				model.anchor.offset = 0;
-  				model.path = [];model.path.push({nodeName: "root"});
+  				model.path = [];
+  				model.path.push({nodeName: "root"});
   				model.path.push({nodeName: "line", offset: 1});
   				model.path.push({nodeName: "math", offset: 1});
-  				model.path.push({nodeName: "mfence", offset: 1});
+  				model.path.push({nodeName: "mfenced", offset: 1});
   				model.moveRight();
-  				t.is("/root/line[1]/math[1]/mfence[1]/mrow[1]/mfence[1]", model.getPath());
+  				t.is("/root/line[1]/math[1]/mfenced[1]/mrow[1]/mfenced[1]", model.getPath());
 				var node = model.getFocusNode();
-				t.is("mfence", node.nodeName);
+				t.is("mfenced", node.nodeName);
 				t.is(0, model.getOffset());
   			},
   			tearDown: function(){
@@ -85,25 +85,25 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   			},
   			runTest: function(t){
   				var model = this.model;
-  				model.mode = "mathml";
   				model.loadData("<root><line>" +
   						"<math>" +
   							"<mn>1</mn>" +
-	  						"<mfence>" +
+	  						"<mfenced>" +
 		  						"<mrow><mn>12</mn></mrow>" +
-	  						"</mfence>" +
+	  						"</mfenced>" +
   						"</math>" +
   				"</line></root>");
-  				
+  				model.mode = "mathml";
   				var line = model.getLineAt(0);
   				model.anchor.node = line.firstChild.firstChild;
   				model.anchor.offset = 1;
-  				model.path = [];model.path.push({nodeName: "root"});
+  				model.path = [];
+  				model.path.push({nodeName: "root"});
   				model.path.push({nodeName: "line", offset: 1});
   				model.path.push({nodeName: "math", offset: 1});
   				model.path.push({nodeName: "mn", offset: 1});
   				model.moveRight();
-  				t.is("/root/line[1]/math[1]/mfence[2]/mrow[1]/mn[1]", model.getPath());
+  				t.is("/root/line[1]/math[1]/mfenced[2]/mrow[1]/mn[1]", model.getPath());
 				var node = model.getFocusNode();
 				t.is("mn", node.nodeName);
 				t.is(0, model.getOffset());
@@ -119,27 +119,27 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   			},
   			runTest: function(t){
   				var model = this.model;
-  				model.mode = "mathml";
   				model.loadData("<root><line>" +
   						"<math>" +
   							"<mn>1</mn>" +
-	  						"<mfence>" +
-		  						"<mrow><mfence><mrow><mn>12</mn></mrow></mfence></mrow>" +
-	  						"</mfence>" +
+	  						"<mfenced>" +
+		  						"<mrow><mfenced><mrow><mn>12</mn></mrow></mfenced></mrow>" +
+	  						"</mfenced>" +
   						"</math>" +
   				"</line></root>");
-  				
+  				model.mode = "mathml";
   				var line = model.getLineAt(0);
   				model.anchor.node = line.firstChild.firstChild;
   				model.anchor.offset = 1;
-  				model.path = [];model.path.push({nodeName: "root"});
+  				model.path = [];
+  				model.path.push({nodeName: "root"});
   				model.path.push({nodeName: "line", offset: 1});
   				model.path.push({nodeName: "math", offset: 1});
   				model.path.push({nodeName: "mn", offset: 1});
   				model.moveRight();
-  				t.is("/root/line[1]/math[1]/mfence[2]/mrow[1]/mfence[1]", model.getPath());
+  				t.is("/root/line[1]/math[1]/mfenced[2]/mrow[1]/mfenced[1]", model.getPath());
 				var node = model.getFocusNode();
-				t.is("mfence", node.nodeName);
+				t.is("mfenced", node.nodeName);
 				t.is(0, model.getOffset());
   			},
   			tearDown: function(){
@@ -152,25 +152,25 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   			},
   			runTest: function(t){
   				var model = this.model;
-  				model.mode = "mathml";
   				model.loadData("<root><line>" +
   						"<math>" +
-  							"<mfence><mrow><mn>12</mn></mrow></mfence>" +
-	  						"<mfence>" +
+  							"<mfenced><mrow><mn>12</mn></mrow></mfenced>" +
+	  						"<mfenced>" +
 		  						"<mrow><mn>123</mn></mrow>" +
-	  						"</mfence>" +
+	  						"</mfenced>" +
   						"</math>" +
   				"</line></root>");
-  				
+  				model.mode = "mathml";
   				var line = model.getLineAt(0);
   				model.anchor.node = line.firstChild.firstChild;
   				model.anchor.offset = 1;
-  				model.path = [];model.path.push({nodeName: "root"});
+  				model.path = [];
+  				model.path.push({nodeName: "root"});
   				model.path.push({nodeName: "line", offset: 1});
   				model.path.push({nodeName: "math", offset: 1});
-  				model.path.push({nodeName: "mfence", offset: 1});
+  				model.path.push({nodeName: "mfenced", offset: 1});
   				model.moveRight();
-  				t.is("/root/line[1]/math[1]/mfence[2]/mrow[1]/mn[1]", model.getPath());
+  				t.is("/root/line[1]/math[1]/mfenced[2]/mrow[1]/mn[1]", model.getPath());
 				var node = model.getFocusNode();
 				t.is("mn", node.nodeName);
 				t.is(0, model.getOffset());
@@ -186,27 +186,27 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   			},
   			runTest: function(t){
   				var model = this.model;
-  				model.mode = "mathml";
   				model.loadData("<root><line>" +
   						"<math>" +
-  							"<mfence><mrow><mn>12</mn></mrow></mfence>" +
-	  						"<mfence>" +
-		  						"<mrow><mfence><mrow><mn>12</mn></mrow></mfence></mrow>" +
-	  						"</mfence>" +
+  							"<mfenced><mrow><mn>12</mn></mrow></mfenced>" +
+	  						"<mfenced>" +
+		  						"<mrow><mfenced><mrow><mn>12</mn></mrow></mfenced></mrow>" +
+	  						"</mfenced>" +
   						"</math>" +
   				"</line></root>");
-  				
+  				model.mode = "mathml";
   				var line = model.getLineAt(0);
   				model.anchor.node = line.firstChild.firstChild;
   				model.anchor.offset = 1;
-  				model.path = [];model.path.push({nodeName: "root"});
+  				model.path = [];
+  				model.path.push({nodeName: "root"});
   				model.path.push({nodeName: "line", offset: 1});
   				model.path.push({nodeName: "math", offset: 1});
-  				model.path.push({nodeName: "mfence", offset: 1});
+  				model.path.push({nodeName: "mfenced", offset: 1});
   				model.moveRight();
-  				t.is("/root/line[1]/math[1]/mfence[2]/mrow[1]/mfence[1]", model.getPath());
+  				t.is("/root/line[1]/math[1]/mfenced[2]/mrow[1]/mfenced[1]", model.getPath());
 				var node = model.getFocusNode();
-				t.is("mfence", node.nodeName);
+				t.is("mfenced", node.nodeName);
 				t.is(0, model.getOffset());
   			},
   			tearDown: function(){
@@ -219,28 +219,28 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   			},
   			runTest: function(t){
   				var model = this.model;
-  				model.mode = "mathml";
   				model.loadData("<root><line>" +
   						"<math>" +
-	  						"<mfence>" +
+	  						"<mfenced>" +
 		  						"<mrow><mn>12</mn></mrow>" +
-	  						"</mfence>" +
+	  						"</mfenced>" +
   						"</math>" +
   				"</line></root>");
-  				
+  				model.mode = "mathml";
   				var line = model.getLineAt(0);
   				model.anchor.node = line.firstChild.firstChild.firstChild.firstChild;
   				model.anchor.offset = 2;
-  				model.path = [];model.path.push({nodeName: "root"});
+  				model.path = [];
+  				model.path.push({nodeName: "root"});
   				model.path.push({nodeName: "line", offset: 1});
   				model.path.push({nodeName: "math", offset: 1});
-  				model.path.push({nodeName: "mfence", offset: 1});
+  				model.path.push({nodeName: "mfenced", offset: 1});
   				model.path.push({nodeName: "mrow", offset: 1});
   				model.path.push({nodeName: "mn", offset: 1});
   				model.moveRight();
-  				t.is("/root/line[1]/math[1]/mfence[1]", model.getPath());
+  				t.is("/root/line[1]/math[1]/mfenced[1]", model.getPath());
 				var node = model.getFocusNode();
-				t.is("mfence", node.nodeName);
+				t.is("mfenced", node.nodeName);
 				t.is(1, model.getOffset());
   			},
   			tearDown: function(){
@@ -253,28 +253,28 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   			},
   			runTest: function(t){
   				var model = this.model;
-  				model.mode = "mathml";
   				model.loadData("<root><line>" +
   						"<math>" +
-	  						"<mfence>" +
-		  						"<mrow><mfence><mrow><mn>12</mn></mrow></mfence></mrow>" +
-	  						"</mfence>" +
+	  						"<mfenced>" +
+		  						"<mrow><mfenced><mrow><mn>12</mn></mrow></mfenced></mrow>" +
+	  						"</mfenced>" +
   						"</math>" +
   				"</line></root>");
-  				
+  				model.mode = "mathml";
   				var line = model.getLineAt(0);
   				model.anchor.node = line.firstChild.firstChild.firstChild.firstChild;
   				model.anchor.offset = 1;
-  				model.path = [];model.path.push({nodeName: "root"});
+  				model.path = [];
+  				model.path.push({nodeName: "root"});
   				model.path.push({nodeName: "line", offset: 1});
   				model.path.push({nodeName: "math", offset: 1});
-  				model.path.push({nodeName: "mfence", offset: 1});
+  				model.path.push({nodeName: "mfenced", offset: 1});
   				model.path.push({nodeName: "mrow", offset: 1});
-  				model.path.push({nodeName: "mfence", offset: 1});
+  				model.path.push({nodeName: "mfenced", offset: 1});
   				model.moveRight();
-  				t.is("/root/line[1]/math[1]/mfence[1]", model.getPath());
+  				t.is("/root/line[1]/math[1]/mfenced[1]", model.getPath());
 				var node = model.getFocusNode();
-				t.is("mfence", node.nodeName);
+				t.is("mfenced", node.nodeName);
 				t.is(1, model.getOffset());
   			},
   			tearDown: function(){
