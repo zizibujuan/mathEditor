@@ -566,7 +566,7 @@ define([ "dojo/_base/declare",
 			var xmlDoc = this.doc;
 			
 			// 还是将token节点和layout节点分开来处理，会更容易理解一些。
-			if(node.nodeName === "math" || dripLang.isMathLayoutNode(node)){
+			if(node.nodeName === "math" || node.nodeName === "mrow" || dripLang.isMathLayoutNode(node)){
 				if(offset === layoutOffset.before){
 					return this._insertNewTokenNodeBefore(nodeName, miContent, node);
 				}
@@ -676,7 +676,7 @@ define([ "dojo/_base/declare",
 			// 暂时先放在这里处理，但是这里的逻辑还是添加一个math节点。
 			
 			// 还是将token节点和layout节点分开来处理，会更容易理解一些。
-			if(node.nodeName === "math" || dripLang.isMathLayoutNode(node)){
+			if(node.nodeName === "math" || node.nodeName === "mrow" || dripLang.isMathLayoutNode(node)){
 				if(offset === layoutOffset.before){
 					var prev = node.previousSibling;
 					if(prev && prev.nodeName === "mn"){
