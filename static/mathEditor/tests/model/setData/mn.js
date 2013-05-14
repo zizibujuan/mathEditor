@@ -274,7 +274,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				
   			}
 	    },{
-	    	name: "在layout节点之后插入数字，layout被mstyle封装",
+	    	name: "在layout节点之后插入数字，layout被mstyle封装,layout是mfrac",
   			setUp: function(){
   				this.model = new Model({});
   			},
@@ -282,7 +282,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				var model = this.model;
   				model.loadData("<root><line>" +
   						"<math>" +
-	  						"<mstyle><mfrac></mfrac></mstyle>" +
+	  						"<mstyle><mfrac><mrow><mn>1</mn></mrow><mrow><mn>2</mn></mrow></mfrac></mstyle>" +
   						"</math>" +
 						"</line></root>");
 				model.mode = "mathml";
@@ -294,6 +294,38 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				model.path.push({nodeName:"line", offset:1});
 				model.path.push({nodeName:"math", offset:1});
 				model.path.push({nodeName:"mfrac", offset:1});
+				model.setData({data:"1"});
+				t.is("/root/line[1]/math[1]/mn[2]", model.getPath());
+				var focusNode = model.getFocusNode();
+				t.is("mn", focusNode.nodeName);
+				t.is(1, model.getOffset());
+				t.is("1", focusNode.textContent);
+				t.is(2, line.firstChild.childElementCount);
+  			},
+  			tearDown: function(){
+  				
+  			}
+	    },{
+	    	name: "在layout节点之后插入数字，layout被mstyle封装,layout是msqrt",
+  			setUp: function(){
+  				this.model = new Model({});
+  			},
+  			runTest: function(t){
+  				var model = this.model;
+  				model.loadData("<root><line>" +
+  						"<math>" +
+	  						"<mstyle><msqrt><mrow><mn>1</mn></mrow><mrow><mn>2</mn></mrow></msqrt></mstyle>" +
+  						"</math>" +
+						"</line></root>");
+				model.mode = "mathml";
+				var line = model.getLineAt(0);
+				model.anchor.node = line.firstChild.firstChild.firstChild;
+				model.anchor.offset = 1;
+				model.path = [];
+				model.path.push({nodeName:"root"});
+				model.path.push({nodeName:"line", offset:1});
+				model.path.push({nodeName:"math", offset:1});
+				model.path.push({nodeName:"msqrt", offset:1});
 				model.setData({data:"1"});
 				t.is("/root/line[1]/math[1]/mn[2]", model.getPath());
 				var focusNode = model.getFocusNode();

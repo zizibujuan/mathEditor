@@ -554,7 +554,7 @@ define([ "dojo/_base/declare",
 			return {node:node, offset:offset};
 		},
 		
-		insertMi: function(anchor, miContext, nodeName){
+		insertMi: function(anchor, miContent, nodeName){
 			// 这里只处理单个英文字母的情况
 			// 注意如果获取焦点的节点是mi节点，则offset的值要么是0， 要么是1，
 			// 分别代表在mi的前或后
@@ -565,44 +565,40 @@ define([ "dojo/_base/declare",
 			var offset = anchor.offset;
 			var xmlDoc = this.doc;
 			
-			if(node.nodeName === "math" || node.nodeName === "msqrt" || node.nodeName === "mrow"){
-				// FIXME：应该修改为offset == layoutOffset.select的情况
-				// FIXME: math下的节点的处理代码，大多是一样的，需要重构
-				var newNode = xmlDoc.createElement(nodeName);
-				newNode.textContent = miContext;
-				node.appendChild(newNode);
-				this.path.push({nodeName:nodeName, offset:1});
-				node = newNode;
-				offset = 1; // mi的offset要么是1，要么是0
-			}else{
-				// 以下只处理node也为mi节点的情况，FIXME：等需要的时候加上这个条件约束
-				if(offset == 0){
-					return this._insertNewTokenNodeBefore(nodeName, miContext, node);
-				}else{
-					// mn中的内容是可以拆分的。mi和mo的最大长度总是为1，所以不专门处理offset==length的情况，因为都是追加
-					if(node.nodeName === "mn" && 0 < offset && offset < this._getTextLength(node)){
-						// 如果是可拆分的节点
-						this._splitNodeIfNeed(nodeName);
-					}
-					var newNode = xmlDoc.createElement(nodeName);
-					newNode.textContent = miContext;
-					var mstyleNode = node.parentNode;
-					if(mstyleNode.nodeName === "mstyle" && mstyleNode.childElementCount === 1){
-						dripLang.insertNodeAfter(newNode,mstyleNode);
-					}else{
-						dripLang.insertNodeAfter(newNode,node);
-					}
-					
-					node = newNode;
-					offset = 1;
-					
-					var pos = this.path.pop();
-					this.path.push({nodeName:nodeName, offset:pos.offset+1});
+			// 还是将token节点和layout节点分开来处理，会更容易理解一些。
+			if(node.nodeName === "math" || dripLang.isMathLayoutNode(node)){
+				if(offset === layoutOffset.before){
+					return this._insertNewTokenNodeBefore(nodeName, miContent, node);
 				}
-//				node = newNode;
-//				offset = 1;
+				
+				if(offset === layoutOffset.after){
+					return this._insertNewTokenNodeAfter(nodeName, miContent, node);
+				}
+				
+				if(offset === layoutOffset.select){
+					var newNode = xmlDoc.createElement(nodeName);
+					newNode.textContent = miContent;
+					node.appendChild(newNode);
+					this.path.push({nodeName:nodeName, offset:1});
+					node = newNode;
+					offset = 1; // mi的offset要么是1，要么是0
+					return {node:node, offset:offset};
+				}
 			}
+			
+			// 剩下的就是token类型的节点了。
+			if(offset == 0){
+				return this._insertNewTokenNodeBefore(nodeName, miContent, node);
+			}else if(offset == this._getTextLength(node)){
+				return this._insertNewTokenNodeAfter(nodeName, miContent, node);
+			}else{
+				// 中间
+				this._splitNodeIfNeed(nodeName);
+				return this._insertNewTokenNodeAfter(nodeName, miContent, node);
+			}
+			
 			return {node:node, offset:offset};
+			
 		},
 		
 		insertMo: function(anchor, moContent, nodeName){
@@ -679,57 +675,77 @@ define([ "dojo/_base/declare",
 			// FIXME: 在进入mathml模式时，应该不再在line和text节点中。
 			// 暂时先放在这里处理，但是这里的逻辑还是添加一个math节点。
 			
-			if(node.nodeName === "math" || node.nodeName === "mrow" || node.nodeName === "msqrt"){
-				// 这里的节点有一个共同的特点，要么是mrow或者包含隐式的mrow，所以这里要表达的含义，应该是
-				// 在节点内容追加。TODO：进一步重构中，看是否可以使用layoutOffset.select来表示这段逻辑
-				// FIXME:是否需要根据offset定位插入点呢？等写了相应的测试用例之后，再添加这个逻辑
-				var newNode = xmlDoc.createElement(nodeName);
-				newNode.textContent = mnContent;
-				node.appendChild(newNode);
-				this.path.push({nodeName:nodeName, offset:1});
-				node = newNode;
-				offset = mnContent.length;
-			}else{
-				if(node.nodeName != nodeName){
-					if(offset == 0){
-						var prev = node.previousSibling;
-						if(prev && prev.nodeName === "mn"){
-							// path和anchor保持不变
-							// 修改prev中的值
-							prev.textContent = prev.textContent + mnContent;
-						}else{
-							// 在node前插入一个mn节点
-							return this._insertNewTokenNodeBefore(nodeName, mnContent, node);
-						}
-					}else{
-						// mn中的内容是可以拆分的。mi和mo的最大长度总是为1，所以不专门处理offset==length的情况，因为都是追加
-						if(node.nodeName === "mn" && 0 < offset && offset < this._getTextLength(node)){
-							// 如果是可拆分的节点
-							this._splitNodeIfNeed(nodeName);
-						}
-						
+			// 还是将token节点和layout节点分开来处理，会更容易理解一些。
+			if(node.nodeName === "math" || dripLang.isMathLayoutNode(node)){
+				if(offset === layoutOffset.before){
+					var prev = node.previousSibling;
+					if(prev && prev.nodeName === "mn"){
 						// path和anchor保持不变
 						// 修改prev中的值
-						var next = node.nextSibling;
-						if(next && next.nodeName === "mn"){
-							next.textContent = mnContent + next.textContent;
-						}else{
-							// 在node后追加一个mn节点
-							return this._insertNewMnNodeAfter(mnContent, node);
-						}
+						prev.textContent = prev.textContent + mnContent;
+					}else{
+						// 在node前插入一个mn节点
+						return this._insertNewTokenNodeBefore(nodeName, mnContent, node);
 					}
-				}else{
-					var oldText = node.textContent;
-					node.textContent = dripString.insertAtOffset(oldText, offset, mnContent);
-					offset += mnContent.length;
+					return {node:node, offset:offset};
+				}
+				
+				if(offset === layoutOffset.after){
+					// path和anchor保持不变
+					// 修改prev中的值
+					var next = node.nextSibling;
+					if(next && next.nodeName === "mn"){
+						next.textContent = mnContent + next.textContent;
+					}else{
+						// 在node后追加一个mn节点
+						return this._insertNewTokenNodeAfter("mn", mnContent, node);
+					}
+					return {node:node, offset:offset};
+				}
+				
+				if(offset === layoutOffset.select){
+					var newNode = xmlDoc.createElement(nodeName);
+					newNode.textContent = mnContent;
+					node.appendChild(newNode);
+					this.path.push({nodeName:nodeName, offset:1});
+					node = newNode;
+					offset = mnContent.length;
+					return {node:node, offset:offset};
 				}
 			}
 			
+			// 剩下的就是token类型的节点了。
+			// 唯一特殊的就是mn节点了，可以在mn前或后面追加数字
+			if(node.nodeName === "mn"){
+				var oldText = node.textContent;
+				node.textContent = dripString.insertAtOffset(oldText, offset, mnContent);
+				offset += mnContent.length;
+				return {node:node, offset:offset};
+			}
+			
+			if(offset == 0){
+				var prev = node.previousSibling;
+				if(prev && prev.nodeName === "mn"){
+					// path和anchor保持不变
+					// 修改prev中的值
+					prev.textContent = prev.textContent + mnContent;
+				}else{
+					// 在node前插入一个mn节点
+					return this._insertNewTokenNodeBefore(nodeName, mnContent, node);
+				}
+			}else{
+				var next = node.nextSibling;
+				if(next && next.nodeName === "mn"){
+					next.textContent = mnContent + next.textContent;
+				}else{
+					// 在node后追加一个mn节点
+					return this._insertNewTokenNodeAfter("mn", mnContent, node);
+				}
+			}
 			return {node:node, offset:offset};
 		},
 		
-		_insertNewMnNodeAfter: function(content,existNode){
-			var newNodeName = "mn";
+		_insertNewTokenNodeAfter: function(newNodeName, content,existNode){
 			var tokenNode = this.doc.createElement(newNodeName);
 			tokenNode.textContent = content;
 			
@@ -744,7 +760,12 @@ define([ "dojo/_base/declare",
 			this.path.push({nodeName:newNodeName, offset:pos.offset+1});
 			
 			node = tokenNode;
-			offset = content.length;// 这里的算法只适用于mn
+			if(newNodeName === "mn"){
+				offset = content.length;
+			}else{
+				offset = 1;
+			}
+			
 			return {node:node, offset:offset};
 		},
 		
@@ -1422,12 +1443,13 @@ define([ "dojo/_base/declare",
 				var offset = this.anchor.offset;
 				if(xmlUtil.isPlaceHolder(node)){
 					// TODO:重构，提取方法
+					// 移除占位符时，大部分时候，layout节点中为空，接下来就要在layout节点中输入内容，不是在
+					// layout节点外的前面，也不是节点外的后面，而是节点内。
 					var pos = this.path.pop();
 					var pathOffset = pos.offset;
-					if(pathOffset == 1){
-						this.anchor.node = node.parentNode;
-						this.anchor.offset = 0
-					}
+					// 这里约定，占位符是父节点中的唯一节点
+					this.anchor.node = node.parentNode;
+					this.anchor.offset = layoutOffset.select;
 					xmlUtil.removePlaceHolder(node);
 				}
 				
