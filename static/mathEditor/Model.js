@@ -1540,6 +1540,7 @@ define([ "dojo/_base/declare",
 				}else if(nodeName === "mo"){
 					this.anchor = this.insertMo(this.anchor, data, nodeName);
 				}else if(nodeName === "mfenced"){
+					this._splitNodeIfNeed(nodeName);
 					this.anchor = this.insertFenced(this.anchor, data, nodeName);
 				}else if(nodeName === "mfrac"){
 					// 有两种输入分数的方式：
