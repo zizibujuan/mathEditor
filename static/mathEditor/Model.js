@@ -3097,6 +3097,16 @@ define([ "dojo/_base/declare",
 						return;
 					}
 					
+					// 下面是处理token节点的逻辑
+					this.anchor.node = prev;
+					var len = this._getTextLength(prev);
+					if(len > 0){
+						this.anchor.offset = len - 1;
+					}else{
+						 this.anchor.offset = 0;
+					}
+					return;
+					
 				}
 				
 				// 往外层移动
@@ -3381,6 +3391,15 @@ define([ "dojo/_base/declare",
 						return;
 					}
 					
+					// 以下是token节点的逻辑
+					this.anchor.node = next;
+					var len = this._getTextLength(next);
+					if(len > 0){
+						this.anchor.offset = 1;
+					}else{
+						 this.anchor.offset = 0;
+					}
+					return;
 				}
 				
 				// 往外层移动
