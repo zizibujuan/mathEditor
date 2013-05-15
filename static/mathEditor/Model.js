@@ -2069,9 +2069,8 @@ define([ "dojo/_base/declare",
 			}
 			
 			if(this._isEmptySqrtBase(node)){
-				this.path.pop(); // 弹出mn占位符
-				this.path.pop(); // 弹出mrow
-				var msqrt = node.parentNode.parentNode;
+				this.path.pop(); // 弹出mn占位符，因为没有mrow，所以下面不再弹出
+				var msqrt = node.parentNode;
 				this._removeLeftMathLayoutNode(msqrt);
 				return;
 			}
@@ -2219,7 +2218,7 @@ define([ "dojo/_base/declare",
 		_isEmptySqrtBase: function(node /*mn 占位符*/){
 			// summary:
 			//		判断平方根中的根数是否没有内容
-			return xmlUtil.isPlaceHolder(node) && this._isSqrtBaseMrow(node.parentNode);
+			return xmlUtil.isPlaceHolder(node) && this._isSqrt(node.parentNode);
 		},
 		
 		_isEmptyRootBase: function(node /*mn 占位符*/){
@@ -2248,11 +2247,11 @@ define([ "dojo/_base/declare",
 			return node && node.nodeName === "mrow" && node.parentNode.nodeName === "mfrac" && node.nextSibling;
 		},
 		
-		_isSqrtBaseMrow: function(node/*mrow*/){
+		_isSqrt: function(node/*msqrt节点*/){
 			// summary:
-			//		判断当前节点是不是平方根的根数所在的mrow节点
+			//		直接判断是不是msqrt，因为在msqrt不显式包含mrow节点
 			
-			return node && node.nodeName === "mrow" && node.parentNode.nodeName === "msqrt";
+			return node.nodeName === "msqrt";
 		},
 		
 		_isRootIndexMrow: function(rootIndexMrow/*mrow*/){
@@ -2952,7 +2951,7 @@ define([ "dojo/_base/declare",
 					// this.anchor.offset = 0;
 					return;
 				}
-				if(this._isSqrtBaseMrow(parentNode)){
+				if(this._isSqrt(parentNode)){
 					// 往左外层移动
 					this._moveToTopLeft(parentNode);
 					return;
@@ -3046,7 +3045,7 @@ define([ "dojo/_base/declare",
 					// this.anchor.offset = 0;
 					return;
 				}
-				if(this._isSqrtBaseMrow(parentNode)){
+				if(this._isSqrt(parentNode)){
 					// 往左外层移动
 					this._moveToTopLeft(parentNode);
 					return;
@@ -3308,7 +3307,7 @@ define([ "dojo/_base/declare",
 					this._moveToTopRight(parentNode);
 					return;
 				}
-				if(this._isSqrtBaseMrow(parentNode)){
+				if(this._isSqrt(parentNode)){
 					// 往外层移动
 					this._moveToTopRight(parentNode);
 					return;
@@ -3401,7 +3400,7 @@ define([ "dojo/_base/declare",
 					this._moveToTopRight(parentNode);
 					return;
 				}
-				if(this._isSqrtBaseMrow(parentNode)){
+				if(this._isSqrt(parentNode)){
 					// 往外层移动
 					this._moveToTopRight(parentNode);
 					return;
