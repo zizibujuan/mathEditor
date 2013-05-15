@@ -11,13 +11,12 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 	//			由math节点左移到text节点上
 	doh.register("Model.moveRight.frac frac在分数之间右移光标",[
 	    {
-			name: "mathml模式下，由分数前面右移到分子前面，当分子里第一个元素是token节点时",
+			name: "mathml模式下，由分数前面右移到分子前面，当分子里第一个元素是token节点时，分数前没有节点",
 			setUp: function(){
 				this.model = new Model({});
 			},
 			runTest: function(t){
 				var model = this.model;
-				model.mode = "mathml";
 				model.loadData("<root><line>" +
 						"<math>" +
 							"<mstyle>" +
@@ -28,10 +27,12 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 							"</mstyle>" +
 						"</math>" +
 				"</line></root>");
+				model.mode = "mathml";
 				var line = model.getLineAt(0);
 				model.anchor.node = line.firstChild.firstChild.firstChild;
 				model.anchor.offset = 0;
-				model.path = [];model.path.push({nodeName: "root"});
+				model.path = [];
+				model.path.push({nodeName: "root"});
 				model.path.push({nodeName: "line", offset: 1});
 				model.path.push({nodeName: "math", offset: 1});
 				model.path.push({nodeName: "mfrac", offset: 1});
@@ -47,13 +48,474 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				
 			}
 		},{
+			name: "mathml模式下，由分数前面右移到分子前面，当分子里第一个元素是layout节点时,layout节点没有被mstyle封装，分数前没有节点",
+			setUp: function(){
+				this.model = new Model({});
+			},
+			runTest: function(t){
+				var model = this.model;
+				model.loadData("<root><line>" +
+						"<math>" +
+							"<mstyle>" +
+								"<mfrac>" +
+									"<mrow><mroot><mrow><mn>1</mn></mrow><mrow><mn>2</mn></mrow></mroot></mrow>" +
+									"<mrow><mn>11</mn></mrow>" +
+								"</mfrac>" +
+							"</mstyle>" +
+						"</math>" +
+				"</line></root>");
+				model.mode = "mathml";
+				var line = model.getLineAt(0);
+				model.anchor.node = line.firstChild.firstChild.firstChild;
+				model.anchor.offset = 0;
+				model.path = [];
+				model.path.push({nodeName: "root"});
+				model.path.push({nodeName: "line", offset: 1});
+				model.path.push({nodeName: "math", offset: 1});
+				model.path.push({nodeName: "mfrac", offset: 1});
+				model.moveRight();
+				t.is("/root/line[1]/math[1]/mfrac[1]/mrow[1]/mroot[1]", model.getPath());
+				var node = model.getFocusNode();
+				t.t(node.parentNode.previousSibling == null); // 证明是分子。
+				t.is("mroot", node.nodeName);
+				t.is(0, model.getOffset());
+			},
+			tearDown: function(){
+				
+			}
+		},{
+			name: "mathml模式下，由分数前面右移到分子前面，当分子里第一个元素是layout节点时,layout节点被mstyle封装，分数前没有节点",
+			setUp: function(){
+				this.model = new Model({});
+			},
+			runTest: function(t){
+				var model = this.model;
+				model.loadData("<root><line>" +
+						"<math>" +
+							"<mstyle>" +
+								"<mfrac>" +
+									"<mrow><mstyle><mfrac><mrow><mn>1</mn></mrow><mrow><mn>2</mn></mrow></mfrac></mstyle></mrow>" +
+									"<mrow><mn>11</mn></mrow>" +
+								"</mfrac>" +
+							"</mstyle>" +
+						"</math>" +
+				"</line></root>");
+				model.mode = "mathml";
+				var line = model.getLineAt(0);
+				model.anchor.node = line.firstChild.firstChild.firstChild;
+				model.anchor.offset = 0;
+				model.path = [];
+				model.path.push({nodeName: "root"});
+				model.path.push({nodeName: "line", offset: 1});
+				model.path.push({nodeName: "math", offset: 1});
+				model.path.push({nodeName: "mfrac", offset: 1});
+				model.moveRight();
+				t.is("/root/line[1]/math[1]/mfrac[1]/mrow[1]/mfrac[1]", model.getPath());
+				var node = model.getFocusNode();
+				t.t(node.parentNode.previousSibling == null); // 证明是分子。
+				t.is("mfrac", node.nodeName);
+				t.is(0, model.getOffset());
+			},
+			tearDown: function(){
+				
+			}
+		},{
+			name: "mathml模式下，由分数前面右移到分子前面，当分子里第一个元素是token节点时，分数前有一个token节点",
+			setUp: function(){
+				this.model = new Model({});
+			},
+			runTest: function(t){
+				var model = this.model;
+				model.loadData("<root><line>" +
+						"<math>" +
+							"<mn>12</mn>" +
+							"<mstyle>" +
+								"<mfrac>" +
+									"<mrow><mn>11</mn></mrow>" +
+									"<mrow><mn>22</mn></mrow>" +
+								"</mfrac>" +
+							"</mstyle>" +
+						"</math>" +
+				"</line></root>");
+				model.mode = "mathml";
+				var line = model.getLineAt(0);
+				model.anchor.node = line.firstChild.firstChild;
+				model.anchor.offset = 2;
+				model.path = [];
+				model.path.push({nodeName: "root"});
+				model.path.push({nodeName: "line", offset: 1});
+				model.path.push({nodeName: "math", offset: 1});
+				model.path.push({nodeName: "mn", offset: 1});
+				model.moveRight();
+				t.is("/root/line[1]/math[1]/mfrac[2]/mrow[1]/mn[1]", model.getPath());
+				var node = model.getFocusNode();
+				t.t(node.parentNode.previousSibling == null); // 证明是分子。
+				t.is("mn", node.nodeName);
+				t.is(0, model.getOffset());
+				t.is("11", node.textContent);
+			},
+			tearDown: function(){
+				
+			}
+		},{
+			name: "mathml模式下，由分数前面右移到分子前面，当分子里第一个元素是layout节点时,layout节点没有被mstyle封装，分数前有一个token节点",
+			setUp: function(){
+				this.model = new Model({});
+			},
+			runTest: function(t){
+				var model = this.model;
+				model.loadData("<root><line>" +
+						"<math>" +
+							"<mn>12</mn>" +
+							"<mstyle>" +
+								"<mfrac>" +
+									"<mrow><mroot><mrow><mn>1</mn></mrow><mrow><mn>2</mn></mrow></mroot></mrow>" +
+									"<mrow><mn>11</mn></mrow>" +
+								"</mfrac>" +
+							"</mstyle>" +
+						"</math>" +
+				"</line></root>");
+				model.mode = "mathml";
+				var line = model.getLineAt(0);
+				model.anchor.node = line.firstChild.firstChild;
+				model.anchor.offset = 2;
+				model.path = [];
+				model.path.push({nodeName: "root"});
+				model.path.push({nodeName: "line", offset: 1});
+				model.path.push({nodeName: "math", offset: 1});
+				model.path.push({nodeName: "mn", offset: 1});
+				model.moveRight();
+				t.is("/root/line[1]/math[1]/mfrac[2]/mrow[1]/mroot[1]", model.getPath());
+				var node = model.getFocusNode();
+				t.t(node.parentNode.previousSibling == null); // 证明是分子。
+				t.is("mroot", node.nodeName);
+				t.is(0, model.getOffset());
+			},
+			tearDown: function(){
+				
+			}
+		},{
+			name: "mathml模式下，由分数前面右移到分子前面，当分子里第一个元素是layout节点时,layout节点被mstyle封装，分数前有一个token节点",
+			setUp: function(){
+				this.model = new Model({});
+			},
+			runTest: function(t){
+				var model = this.model;
+				model.loadData("<root><line>" +
+						"<math>" +
+							"<mn>12</mn>" +
+							"<mstyle>" +
+								"<mfrac>" +
+									"<mrow><mstyle><mfrac><mrow><mn>1</mn></mrow><mrow><mn>2</mn></mrow></mfrac></mstyle></mrow>" +
+									"<mrow><mn>11</mn></mrow>" +
+								"</mfrac>" +
+							"</mstyle>" +
+						"</math>" +
+				"</line></root>");
+				model.mode = "mathml";
+				var line = model.getLineAt(0);
+				model.anchor.node = line.firstChild.firstChild;
+				model.anchor.offset = 2;
+				model.path = [];
+				model.path.push({nodeName: "root"});
+				model.path.push({nodeName: "line", offset: 1});
+				model.path.push({nodeName: "math", offset: 1});
+				model.path.push({nodeName: "mfrac", offset: 1});
+				model.moveRight();
+				t.is("/root/line[1]/math[1]/mfrac[2]/mrow[1]/mfrac[1]", model.getPath());
+				var node = model.getFocusNode();
+				t.t(node.parentNode.previousSibling == null); // 证明是分子。
+				t.is("mfrac", node.nodeName);
+				t.is(0, model.getOffset());
+			},
+			tearDown: function(){
+				
+			}
+		},{
+			name: "mathml模式下，由分数前面右移到分子前面，当分子里第一个元素是token节点时，分数前有一个layout节点,该layout没有被mstyle封装",
+			setUp: function(){
+				this.model = new Model({});
+			},
+			runTest: function(t){
+				var model = this.model;
+				model.loadData("<root><line>" +
+						"<math>" +
+							"<mroot>" +
+								"<mrow><mn>1</mn></mrow>" +
+								"<mrow><mn>2</mn></mrow>" +
+							"</mroot>" +
+							"<mstyle>" +
+								"<mfrac>" +
+									"<mrow><mn>34</mn></mrow>" +
+									"<mrow><mn>22</mn></mrow>" +
+								"</mfrac>" +
+							"</mstyle>" +
+						"</math>" +
+				"</line></root>");
+				model.mode = "mathml";
+				var line = model.getLineAt(0);
+				model.anchor.node = line.firstChild.firstChild;
+				model.anchor.offset = 1;
+				model.path = [];
+				model.path.push({nodeName: "root"});
+				model.path.push({nodeName: "line", offset: 1});
+				model.path.push({nodeName: "math", offset: 1});
+				model.path.push({nodeName: "mroot", offset: 1});
+				model.moveRight();
+				t.is("/root/line[1]/math[1]/mfrac[2]/mrow[1]/mn[1]", model.getPath());
+				var node = model.getFocusNode();
+				t.t(node.parentNode.previousSibling == null); // 证明是分子。
+				t.is("mn", node.nodeName);
+				t.is(0, model.getOffset());
+				t.is("34", node.textContent);
+			},
+			tearDown: function(){
+				
+			}
+		},{
+			name: "mathml模式下，由分数前面右移到分子前面，当分子里第一个元素是layout节点时,该节点没有被mstyle封装，" +
+					"分数前有一个layout节点,前面的layout没有被mstyle封装",
+			setUp: function(){
+				this.model = new Model({});
+			},
+			runTest: function(t){
+				var model = this.model;
+				model.loadData("<root><line>" +
+						"<math>" +
+							"<mroot>" +
+								"<mrow><mn>1</mn></mrow>" +
+								"<mrow><mn>2</mn></mrow>" +
+							"</mroot>" +
+							"<mstyle>" +
+								"<mfrac>" +
+									"<mrow>" +
+										"<mroot>" +
+											"<mrow><mn>1</mn></mrow>" +
+											"<mrow><mn>2</mn></mrow>" +
+										"</mroot>" +
+									"</mrow>" +
+									"<mrow><mn>22</mn></mrow>" +
+								"</mfrac>" +
+							"</mstyle>" +
+						"</math>" +
+				"</line></root>");
+				model.mode = "mathml";
+				var line = model.getLineAt(0);
+				model.anchor.node = line.firstChild.firstChild;
+				model.anchor.offset = 1;
+				model.path = [];
+				model.path.push({nodeName: "root"});
+				model.path.push({nodeName: "line", offset: 1});
+				model.path.push({nodeName: "math", offset: 1});
+				model.path.push({nodeName: "mroot", offset: 1});
+				model.moveRight();
+				t.is("/root/line[1]/math[1]/mfrac[2]/mrow[1]/mroot[1]", model.getPath());
+				var node = model.getFocusNode();
+				t.t(node.parentNode.previousSibling == null); // 证明是分子。
+				t.is("mroot", node.nodeName);
+				t.is(0, model.getOffset());
+			},
+			tearDown: function(){
+				
+			}
+		},{
+			name: "mathml模式下，由分数前面右移到分子前面，当分子里第一个元素是layout节点时,该节点没有被mstyle封装，" +
+					"分数前有一个layout节点,前面的layout没有被mstyle封装",
+			setUp: function(){
+				this.model = new Model({});
+			},
+			runTest: function(t){
+				var model = this.model;
+				model.loadData("<root><line>" +
+						"<math>" +
+							"<mroot>" +
+								"<mrow><mn>1</mn></mrow>" +
+								"<mrow><mn>2</mn></mrow>" +
+							"</mroot>" +
+							"<mstyle>" +
+								"<mfrac>" +
+									"<mrow>" +
+										"<mstyle>" +
+											"<mfrac>" +
+												"<mrow><mn>1</mn></mrow>" +
+												"<mrow><mn>2</mn></mrow>" +
+											"</mfrac>" +
+										"</mstyle>" +
+									"</mrow>" +
+									"<mrow><mn>22</mn></mrow>" +
+								"</mfrac>" +
+							"</mstyle>" +
+						"</math>" +
+				"</line></root>");
+				model.mode = "mathml";
+				var line = model.getLineAt(0);
+				model.anchor.node = line.firstChild.firstChild;
+				model.anchor.offset = 1;
+				model.path = [];
+				model.path.push({nodeName: "root"});
+				model.path.push({nodeName: "line", offset: 1});
+				model.path.push({nodeName: "math", offset: 1});
+				model.path.push({nodeName: "mroot", offset: 1});
+				model.moveRight();
+				t.is("/root/line[1]/math[1]/mfrac[2]/mrow[1]/mfrac[1]", model.getPath());
+				var node = model.getFocusNode();
+				t.t(node.parentNode.previousSibling == null); // 证明是分子。
+				t.is("mfrac", node.nodeName);
+				t.is(0, model.getOffset());
+			},
+			tearDown: function(){
+				
+			}
+		},{
+			name: "mathml模式下，由分数前面右移到分子前面，当分子里第一个元素是token节点时，分数前有一个layout节点,该layout被mstyle封装",
+			setUp: function(){
+				this.model = new Model({});
+			},
+			runTest: function(t){
+				var model = this.model;
+				model.loadData("<root><line>" +
+						"<math>" +
+							"<mstyle>" +
+								"<mfrac>" +
+									"<mrow><mn>1</mn></mrow>" +
+									"<mrow><mn>2</mn></mrow>" +
+								"</mfrac>" +
+							"</mstyle>" +
+							"<mstyle>" +
+								"<mfrac>" +
+									"<mrow><mn>11</mn></mrow>" +
+									"<mrow><mn>22</mn></mrow>" +
+								"</mfrac>" +
+							"</mstyle>" +
+						"</math>" +
+				"</line></root>");
+				model.mode = "mathml";
+				var line = model.getLineAt(0);
+				model.anchor.node = line.firstChild.firstChild.firstChild;
+				model.anchor.offset = 1;
+				model.path = [];
+				model.path.push({nodeName: "root"});
+				model.path.push({nodeName: "line", offset: 1});
+				model.path.push({nodeName: "math", offset: 1});
+				model.path.push({nodeName: "mfrac", offset: 1});
+				model.moveRight();
+				t.is("/root/line[1]/math[1]/mfrac[2]/mrow[1]/mn[1]", model.getPath());
+				var node = model.getFocusNode();
+				t.t(node.parentNode.previousSibling == null); // 证明是分子。
+				t.is("mn", node.nodeName);
+				t.is(0, model.getOffset());
+				t.is("11", node.textContent);
+			},
+			tearDown: function(){
+				
+			}
+		},{
+			name: "mathml模式下，由分数前面右移到分子前面，当分子里第一个元素是layout节点时,该layout节点没有被mstyle封装，" +
+					"分数前有一个layout节点,前面的layout被mstyle封装",
+			setUp: function(){
+				this.model = new Model({});
+			},
+			runTest: function(t){
+				var model = this.model;
+				model.loadData("<root><line>" +
+						"<math>" +
+							"<mstyle>" +
+								"<mfrac>" +
+									"<mrow><mn>1</mn></mrow>" +
+									"<mrow><mn>2</mn></mrow>" +
+								"</mfrac>" +
+							"</mstyle>" +
+							"<mstyle>" +
+								"<mfrac>" +
+									"<mrow>" +
+										"<mroot>" +
+											"<mrow><mn>1</mn></mrow>" +
+											"<mrow><mn>2</mn></mrow>" +
+										"</mroot>" +
+									"</mrow>" +
+									"<mrow><mn>22</mn></mrow>" +
+								"</mfrac>" +
+							"</mstyle>" +
+						"</math>" +
+				"</line></root>");
+				model.mode = "mathml";
+				var line = model.getLineAt(0);
+				model.anchor.node = line.firstChild.firstChild.firstChild;
+				model.anchor.offset = 1;
+				model.path = [];
+				model.path.push({nodeName: "root"});
+				model.path.push({nodeName: "line", offset: 1});
+				model.path.push({nodeName: "math", offset: 1});
+				model.path.push({nodeName: "mfrac", offset: 1});
+				model.moveRight();
+				t.is("/root/line[1]/math[1]/mfrac[2]/mrow[1]/mroot[1]", model.getPath());
+				var node = model.getFocusNode();
+				t.t(node.parentNode.previousSibling == null); // 证明是分子。
+				t.is("mroot", node.nodeName);
+				t.is(0, model.getOffset());
+			},
+			tearDown: function(){
+				
+			}
+		},{
+			name: "mathml模式下，由分数前面右移到分子前面，当分子里第一个元素是layout节点时,该layout节点被mstyle封装，" +
+					"分数前有一个layout节点,前面的layout被mstyle封装",
+			setUp: function(){
+				this.model = new Model({});
+			},
+			runTest: function(t){
+				var model = this.model;
+				model.loadData("<root><line>" +
+						"<math>" +
+							"<mstyle>" +
+								"<mfrac>" +
+									"<mrow><mn>1</mn></mrow>" +
+									"<mrow><mn>2</mn></mrow>" +
+								"</mfrac>" +
+							"</mstyle>" +
+							"<mstyle>" +
+								"<mfrac>" +
+									"<mrow>" +
+										"<mstyle>" +
+											"<mfrac>" +
+												"<mrow><mn>1</mn></mrow>" +
+												"<mrow><mn>2</mn></mrow>" +
+											"</mfrac>" +
+										"</mstyle>" +
+									"</mrow>" +
+									"<mrow><mn>22</mn></mrow>" +
+								"</mfrac>" +
+							"</mstyle>" +
+						"</math>" +
+				"</line></root>");
+				model.mode = "mathml";
+				var line = model.getLineAt(0);
+				model.anchor.node = line.firstChild.firstChild.firstChild;
+				model.anchor.offset = 1;
+				model.path = [];
+				model.path.push({nodeName: "root"});
+				model.path.push({nodeName: "line", offset: 1});
+				model.path.push({nodeName: "math", offset: 1});
+				model.path.push({nodeName: "mfrac", offset: 1});
+				model.moveRight();
+				t.is("/root/line[1]/math[1]/mfrac[2]/mrow[1]/mfrac[1]", model.getPath());
+				var node = model.getFocusNode();
+				t.t(node.parentNode.previousSibling == null); // 证明是分子。
+				t.is("mfrac", node.nodeName);
+				t.is(0, model.getOffset());
+			},
+			tearDown: function(){
+				
+			}
+		},
+		
+		{
 			name: "mathml模式下，由分数前面右移到分子前面，当分子里第一个元素是layout节点时",
 			setUp: function(){
 				this.model = new Model({});
 			},
 			runTest: function(t){
 				var model = this.model;
-				model.mode = "mathml";
 				model.loadData("<root><line>" +
 						"<math>" +
 							"<mstyle>" +
@@ -64,10 +526,12 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 							"</mstyle>" +
 						"</math>" +
 				"</line></root>");
+				model.mode = "mathml";
 				var line = model.getLineAt(0);
 				model.anchor.node = line.firstChild.firstChild.firstChild;
 				model.anchor.offset = 0;
-				model.path = [];model.path.push({nodeName: "root"});
+				model.path = [];
+				model.path.push({nodeName: "root"});
 				model.path.push({nodeName: "line", offset: 1});
 				model.path.push({nodeName: "math", offset: 1});
 				model.path.push({nodeName: "mfrac", offset: 1});
@@ -88,21 +552,23 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 			},
 			runTest: function(t){
 				var model = this.model;
-				model.mode = "mathml";
+				
 				model.loadData("<root><line>" +
 						"<math>" +
 							"<mstyle>" +
-	  						"<mfrac>" +
-		  						"<mrow><mn>11</mn></mrow>" +
-		  						"<mrow><mn>22</mn></mrow>" +
-	  						"</mfrac>" +
+		  						"<mfrac>" +
+			  						"<mrow><mn>11</mn></mrow>" +
+			  						"<mrow><mn>22</mn></mrow>" +
+		  						"</mfrac>" +
 							"</mstyle>" +
 						"</math>" +
 				"</line></root>");
+				model.mode = "mathml";
 				var line = model.getLineAt(0);
 				model.anchor.node = line.firstChild.firstChild.firstChild.firstChild.firstChild;
 				model.anchor.offset = 2;
-				model.path = [];model.path.push({nodeName: "root"});
+				model.path = [];
+				model.path.push({nodeName: "root"});
 				model.path.push({nodeName: "line", offset: 1});
 				model.path.push({nodeName: "math", offset: 1});
 				model.path.push({nodeName: "mfrac", offset: 1});
@@ -126,7 +592,6 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 			},
 			runTest: function(t){
 				var model = this.model;
-				model.mode = "mathml";
 				model.loadData("<root><line>" +
 						"<math>" +
 							"<mstyle>" +
@@ -137,10 +602,12 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 							"</mstyle>" +
 						"</math>" +
 				"</line></root>");
+				model.mode = "mathml";
 				var line = model.getLineAt(0);
 				model.anchor.node = line.firstChild.firstChild.firstChild.firstChild.firstChild.firstChild;
 				model.anchor.offset = 1;
-				model.path = [];model.path.push({nodeName: "root"});
+				model.path = [];
+				model.path.push({nodeName: "root"});
 				model.path.push({nodeName: "line", offset: 1});
 				model.path.push({nodeName: "math", offset: 1});
 				model.path.push({nodeName: "mfrac", offset: 1});
@@ -164,7 +631,6 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 			},
 			runTest: function(t){
 				var model = this.model;
-				model.mode = "mathml";
 				model.loadData("<root><line>" +
 						"<math>" +
 							"<mstyle>" +
@@ -175,10 +641,12 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 							"</mstyle>" +
 						"</math>" +
 				"</line></root>");
+				model.mode = "mathml";
 				var line = model.getLineAt(0);
 				model.anchor.node = line.firstChild.firstChild.firstChild.firstChild.firstChild;
 				model.anchor.offset = 2;
-				model.path = [];model.path.push({nodeName: "root"});
+				model.path = [];
+				model.path.push({nodeName: "root"});
 				model.path.push({nodeName: "line", offset: 1});
 				model.path.push({nodeName: "math", offset: 1});
 				model.path.push({nodeName: "mfrac", offset: 1});
@@ -201,7 +669,6 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 			},
 			runTest: function(t){
 				var model = this.model;
-				model.mode = "mathml";
 				model.loadData("<root><line>" +
 						"<math>" +
 							"<mstyle>" +
@@ -212,10 +679,12 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 							"</mstyle>" +
 						"</math>" +
 				"</line></root>");
+				model.mode = "mathml";
 				var line = model.getLineAt(0);
 				model.anchor.node = line.firstChild.firstChild.firstChild.firstChild.firstChild.firstChild;
 				model.anchor.offset = 1;
-				model.path = [];model.path.push({nodeName: "root"});
+				model.path = [];
+				model.path.push({nodeName: "root"});
 				model.path.push({nodeName: "line", offset: 1});
 				model.path.push({nodeName: "math", offset: 1});
 				model.path.push({nodeName: "mfrac", offset: 1});
@@ -238,7 +707,6 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 			},
 			runTest: function(t){
 				var model = this.model;
-				model.mode = "mathml";
 				model.loadData("<root><line>" +
 						"<math>" +
 							"<mstyle>" +
@@ -249,10 +717,12 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 							"</mstyle>" +
 						"</math>" +
 						"</line></root>");
+				model.mode = "mathml";
 				var line = model.getLineAt(0);
 				model.anchor.node = line.firstChild.firstChild.firstChild.lastChild.firstChild;
 				model.anchor.offset = 2;
-				model.path = [];model.path.push({nodeName: "root"});
+				model.path = [];
+				model.path.push({nodeName: "root"});
 				model.path.push({nodeName: "line", offset: 1});
 				model.path.push({nodeName: "math", offset: 1});
 				model.path.push({nodeName: "mfrac", offset: 1});
@@ -274,7 +744,6 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 			},
 			runTest: function(t){
 				var model = this.model;
-				model.mode = "mathml";
 				model.loadData("<root><line>" +
 						"<math>" +
 							"<mstyle>" +
@@ -285,10 +754,12 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 							"</mstyle>" +
 						"</math>" +
 						"</line></root>");
+				model.mode = "mathml";
 				var line = model.getLineAt(0);
 				model.anchor.node = line.firstChild.firstChild.firstChild.lastChild.firstChild.firstChild;
 				model.anchor.offset = 1;
-				model.path = [];model.path.push({nodeName: "root"});
+				model.path = [];
+				model.path.push({nodeName: "root"});
 				model.path.push({nodeName: "line", offset: 1});
 				model.path.push({nodeName: "math", offset: 1});
 				model.path.push({nodeName: "mfrac", offset: 1});
@@ -303,13 +774,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 			tearDown: function(){
 				
 			}
-		},
-	    
-	    
-	    
-	    
-	    
-	    {
+		},{
 	    	name: "mathml模式下，在一个空的分子上右移光标",
   			setUp: function(){
   				this.model = new Model({});

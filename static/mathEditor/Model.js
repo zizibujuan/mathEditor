@@ -2554,6 +2554,26 @@ define([ "dojo/_base/declare",
 			this.anchor.offset = 0;
 		},
 		
+		_moveLeftToDenominatorEnd: function(node/*mfrac节点*/){
+			// summary:
+			//		左移，移到分母的结束位置
+			
+			var denominatorMrow = node.lastChild; // mrow
+			this.path.push({nodeName: denominatorMrow.nodeName, offset: 2/*分母是第二个子节点*/});
+			var lastChild = denominatorMrow.lastChild;
+			var offset = 1;
+			if(this._isTokenNode(lastChild.nodeName)){
+				offset = this._getTextLength(lastChild);
+			}else{
+				if(lastChild.nodeName === "mstyle"){
+					lastChild = lastChild.lastChild;
+				}
+			}
+			this.path.push({nodeName: lastChild.nodeName, offset:denominatorMrow.childElementCount});
+			this.anchor.node = lastChild;
+			this.anchor.offset = offset;
+		},
+		
 		_moveLeftDenominatorToNumerator: function(denominatorMrow/*分母*/){
 			// summary
 			//		左移，从分母最前面，移动到分子最后面
@@ -2576,6 +2596,25 @@ define([ "dojo/_base/declare",
 				this.anchor.node = lastChild;
 				this.anchor.offset = 1;
 			}
+		},
+		
+		_moveRightToNumeratorStart: function(node/*mfrac节点*/){
+			// summary:
+			//		右移，移到分子的起始位置
+			
+			var numeratorMrow = node.firstChild; // mrow
+			this.path.push({nodeName: numeratorMrow.nodeName, offset: 1/*分子是第一个子节点*/});
+			var firstChild = numeratorMrow.firstChild;
+			if(this._isTokenNode(firstChild.nodeName)){
+				
+			}else{
+				if(firstChild.nodeName === "mstyle"){
+					firstChild = firstChild.firstChild;
+				}
+			}
+			this.path.push({nodeName: firstChild.nodeName, offset:1});
+			this.anchor.node = firstChild;
+			this.anchor.offset = 0;
 		},
 		
 		_moveRightNumeratorToDenominator: function(numeratorMrow/*分子*/){
@@ -2908,6 +2947,9 @@ define([ "dojo/_base/declare",
 				// 先找前一个兄弟节点
 				var prev = node.previousSibling;
 				if(prev){
+					if(prev.nodeName === "mstyle"){
+						prev = prev.lastChild;
+					}
 					this._movePathToPreviousSibling(prev);
 					// 如果上一个节点是msqrt节点
 					if(prev.nodeName === "msqrt"){
@@ -2930,6 +2972,11 @@ define([ "dojo/_base/declare",
 						this._moveLeftToMfencedInnerEnd(prev);
 						return;
 					}
+					if(prev.nodeName === "mfrac"){
+						this._moveLeftToDenominatorEnd(prev);
+						return;
+					}
+					
 					
 					// 下面是处理token节点的逻辑
 					this.anchor.node = prev;
@@ -3012,8 +3059,17 @@ define([ "dojo/_base/declare",
 					nodeName === "msup" ||
 					nodeName === "msub" ||
 					nodeName === "mfenced") && offset === 0){
+				
+				
+				if(node.parentNode.nodeName === "mstyle"){
+					node = node.parentNode;
+				}
+				
 				var prev = node.previousSibling;
 				if(prev){
+					if(prev.nodeName === "mstyle"){
+						prev = prev.lastChild;
+					}
 					this._movePathToPreviousSibling(prev);
 					// 如果下一个节点是msqrt节点
 					if(prev.nodeName === "msqrt"){
@@ -3036,6 +3092,11 @@ define([ "dojo/_base/declare",
 						this._moveLeftToMfencedInnerEnd(prev);
 						return;
 					}
+					if(prev.nodeName === "mfrac"){
+						this._moveLeftToDenominatorEnd(prev);
+						return;
+					}
+					
 				}
 				
 				// 往外层移动
@@ -3224,6 +3285,7 @@ define([ "dojo/_base/declare",
 			}
 			// 以下是节点之间的移动，现在约定math节点和text节点必须是交替出现的，不会同时出现两个math或两个text
 			// text到math
+			// TODO:这段代码放在这里不够严谨
 			var next = node.nextSibling;
 			if(next && node.nodeName === "text" && next.nodeName === "math"){
 				this._movePathToNextSibling(next);
@@ -3283,8 +3345,19 @@ define([ "dojo/_base/declare",
 					nodeName === "msup" ||
 					nodeName === "mfenced") && offset === 1){
 				// 先找下一个节点
+				// 在找以前，看一下父节点是不是mstyle节点，这里一个约定，就是一个mstyle中只有一个非mrow节点
+				if(node.parentNode.nodeName === "mstyle"){
+					// 往外走
+					node = node.parentNode;
+				}
+				
 				var next = node.nextSibling;
 				if(next){
+					if(next.nodeName === "mstyle"){
+						// 往里走
+						next = next.firstChild;
+					}
+					
 					this._movePathToNextSibling(next);
 					// 如果下一个节点是msqrt节点
 					if(next.nodeName === "msqrt"){
@@ -3303,12 +3376,15 @@ define([ "dojo/_base/declare",
 						this._moveRightToMfencedInnerStart(next);
 						return;
 					}
+					if(next.nodeName === "mfrac"){
+						this._moveRightToNumeratorStart(next);
+						return;
+					}
 					
 				}
 				
 				// 往外层移动
 				this.path.pop();
-				
 				var parentNode = node.parentNode;// 找token的父节点，则一定是layout节点，无需做判断
 				if(parentNode.nodeName === "mstyle"){
 					parentNode = parentNode.parentNode;
@@ -3374,7 +3450,12 @@ define([ "dojo/_base/declare",
 				// 往外层移动
 				// 从path中移出token,先寻找有没有下一个节点，如果没有下一个节点，则移到父节点
 				var next = node.nextSibling;
+				
 				if(next){
+					if(next.nodeName === "mstyle"){
+						next = next.firstChild;
+					}
+					
 					this._movePathToNextSibling(next);
 					// 如果下一个节点是msqrt节点
 					if(next.nodeName === "msqrt"){
@@ -3391,6 +3472,10 @@ define([ "dojo/_base/declare",
 					}
 					if(next.nodeName === "mfenced"){
 						this._moveRightToMfencedInnerStart(next);
+						return;
+					}
+					if(next.nodeName === "mfrac"){
+						this._moveRightToNumeratorStart(next);
 						return;
 					}
 					
