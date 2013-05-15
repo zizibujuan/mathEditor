@@ -3308,8 +3308,9 @@ define([ "dojo/_base/declare",
 					return;
 				}
 				if(this._isSqrt(parentNode)){
-					// 往外层移动
-					this._moveToTopRight(parentNode);
+					// 往外层移动，此时parentNode已经是msqrt，不需要弹出mrow，因为没有mrow
+					this.anchor.node = parentNode;
+					this.anchor.offset = 1;
 					return;
 				}
 				if(this._isRootIndexMrow(parentNode)){
@@ -3401,8 +3402,9 @@ define([ "dojo/_base/declare",
 					return;
 				}
 				if(this._isSqrt(parentNode)){
-					// 往外层移动
-					this._moveToTopRight(parentNode);
+					// 往外层移动，此时parentNode已经是msqrt，不需要弹出mrow，因为没有mrow
+					this.anchor.node = parentNode;
+					this.anchor.offset = 1;
 					return;
 				}
 				if(this._isRootIndexMrow(parentNode)){

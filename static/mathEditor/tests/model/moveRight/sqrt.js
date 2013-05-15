@@ -217,18 +217,17 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				model.loadData("<root><line>" +
   						"<math>" +
 	  						"<msqrt>" +
-								"<mrow><mn>12</mn></mrow>" +
+								"<mn>12</mn>" +
 							"</msqrt>" +
   						"</math>" +
   				"</line></root>");
   				var line = model.getLineAt(0);
-  				model.anchor.node = line.firstChild.firstChild.firstChild.lastChild;
+  				model.anchor.node = line.firstChild.firstChild.firstChild;
   				model.anchor.offset = 2;
   				model.path = [];model.path.push({nodeName: "root"});
   				model.path.push({nodeName: "line", offset: 1});
   				model.path.push({nodeName: "math", offset: 1});
   				model.path.push({nodeName: "msqrt", offset: 1});
-  				model.path.push({nodeName: "mrow", offset: 1});
   				model.path.push({nodeName: "mn", offset: 1});
   				model.moveRight();
   				t.is("/root/line[1]/math[1]/msqrt[1]", model.getPath());
@@ -250,18 +249,18 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				model.loadData("<root><line>" +
   						"<math>" +
 	  						"<msqrt>" +
-								"<mrow><msqrt><mrow><mn>2</mn></mrow></msqrt></mrow>" +
+								"<msqrt><mn>2</mn></msqrt>" +
 							"</msqrt>" +
   						"</math>" +
   				"</line></root>");
   				var line = model.getLineAt(0);
-  				model.anchor.node = line.firstChild.firstChild.firstChild.lastChild;
+  				model.anchor.node = line.firstChild.firstChild.firstChild;
   				model.anchor.offset = 1;
-  				model.path = [];model.path.push({nodeName: "root"});
+  				model.path = [];
+  				model.path.push({nodeName: "root"});
   				model.path.push({nodeName: "line", offset: 1});
   				model.path.push({nodeName: "math", offset: 1});
   				model.path.push({nodeName: "msqrt", offset: 1});
-  				model.path.push({nodeName: "mrow", offset: 1});
   				model.path.push({nodeName: "msqrt", offset: 1});
   				model.moveRight();
   				t.is("/root/line[1]/math[1]/msqrt[1]", model.getPath());
