@@ -33,7 +33,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				var focusNode = model.getFocusNode();
   				t.is("/root/line[1]/math[1]", model.getPath());
   				t.is("math", focusNode.nodeName);
-  				t.is(0, model.getOffset()); // 因为没有内容，所以偏移量为0
+  				t.is(2, model.getOffset()); // 因为没有内容，所以偏移量为layoutOffset.select
   				t.is(0, focusNode.childNodes.length);
   			},
   			tearDown: function(){
@@ -65,7 +65,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				var focusNode = model.getFocusNode();
   				t.is("/root/line[1]/math[1]", model.getPath());
   				t.is("math", focusNode.nodeName);
-  				t.is(0, model.getOffset());
+  				t.is(2, model.getOffset());// layoutOffset.select
   				t.is(0, focusNode.childNodes.length);
   			},
   			tearDown: function(){

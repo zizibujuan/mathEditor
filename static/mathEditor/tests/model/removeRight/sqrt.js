@@ -29,7 +29,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				var focusNode = model.getFocusNode();
   				t.is("/root/line[1]/math[1]", model.getPath());
   				t.is("math", focusNode.nodeName);
-  				t.is(0, model.getOffset());
+  				t.is(2, model.getOffset());// layoutOffset.select
   				t.is(0, focusNode.childNodes.length);
   			},
   			tearDown: function(){
