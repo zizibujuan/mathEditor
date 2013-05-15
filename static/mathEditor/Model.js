@@ -1847,7 +1847,11 @@ define([ "dojo/_base/declare",
 		_isSoleChildInMrow: function(node){
 			// summary:
 			//		判断node是mrow节点中的唯一一个子节点
-			return node.parentNode.nodeName === "mrow" && node.parentNode.childNodes.length == 1
+			return node.parentNode.nodeName === "mrow" && node.parentNode.childElementCount === 1;
+		},
+		
+		_isSoleChildInMsqrt: function(node){
+			return node.parentNode.nodeName === "msqrt" && node.parentNode.childElementCount === 1;
 		},
 		
 		// TODO：因为在输入根式或分数完成后，会让其中的某个节点获取焦点，这个时候删除的时候，就不能快速
@@ -1902,9 +1906,8 @@ define([ "dojo/_base/declare",
 			}
 			
 			if(this._isEmptySqrtBase(node)){
-				this.path.pop(); // 弹出mn占位符
-				this.path.pop(); // 弹出mrow
-				var msqrt = node.parentNode.parentNode;
+				this.path.pop(); // 弹出mn占位符,已经没有mrow节点
+				var msqrt = node.parentNode;
 				this._removeRightMathLayoutNode(msqrt);
 				return;
 			}
@@ -1920,7 +1923,7 @@ define([ "dojo/_base/declare",
 			}
 			
 			// 将所有需要切换到占位符的逻辑，都放在这里。第一个版本在model中使用显式占位符
-			if(this._isSoleChildInMrow(node)/*只有一个子节点*/){
+			if(this._isSoleChildInMrow(node) || this._isSoleChildInMsqrt(node)/*只有一个子节点*/){
 				if(this._canRemoveRightNode(node, offset)){
 					this._replaceNodeWithPlaceHolder(node);
 					return;
@@ -2086,7 +2089,8 @@ define([ "dojo/_base/declare",
 			}
 			
 			// 将所有需要切换到占位符的逻辑，都放在这里。第一个版本在model中使用显式占位符
-			if(this._isSoleChildInMrow(node)/*只有一个子节点*/){
+			// msqrt是个特殊的节点
+			if(this._isSoleChildInMrow(node) || this._isSoleChildInMsqrt(node)/*只有一个子节点*/){
 				if(this._canRemoveLeftNode(node, offset)){
 					this._replaceNodeWithPlaceHolder(node);
 					return;
@@ -2155,6 +2159,7 @@ define([ "dojo/_base/declare",
 					this.path.pop();
 					var parentNode = node.parentNode;
 					this.anchor.node = parentNode;
+					// math和msqrt中包含隐含的mrow，剩下的layout节点中包含mrow，这里通常不用判断mroot等。
 					if(parentNode.nodeName === "math" && parentNode.childElementCount === 1){
 						this.anchor.offset = layoutOffset.select;
 					}else{
@@ -2670,10 +2675,8 @@ define([ "dojo/_base/declare",
 		
 		_moveRightToMsqrtBaseStart: function(node/*msqrt节点*/){
 			// summary:
-			//		右移，往根式里层走，走到根数最前面。约定：msqrt中有且只有一个mrow节点。
-			var baseMrow = node.firstChild;// mrow
-			this.path.push({nodeName: baseMrow.nodeName, offset: 1});
-			var firstChild = baseMrow.firstChild;
+			//		右移，往根式里层走，走到根数最前面。msqrt中不会显式包含mrow
+			var firstChild = node.firstChild;
 			this.path.push({nodeName: firstChild.nodeName, offset: 1});
 			this.anchor.node = firstChild;
 			this.anchor.offset = 0; // 如果前一个节点是token节点时，需要显式赋值。
@@ -2681,11 +2684,9 @@ define([ "dojo/_base/declare",
 		
 		_moveLeftToMsqrtBaseEnd: function(node/*msqrt节点*/){
 			// summary:
-			//		左移，往根式里走，走到根数的最后面。约定：msqrt中有且只有一个mrow节点。
-			var baseMrow = node.firstChild; //mrow，只有调用firstChild才能保证永远正确
-			this.path.push({nodeName: baseMrow.nodeName, offset: 1/*因为msqrt中有且只有一个mrow节点*/});
-			var lastChild = baseMrow.lastChild;
-			this.path.push({nodeName: lastChild.nodeName, offset: baseMrow.childNodes.length});
+			//		左移，往根式里走，走到根数的最后面。msqrt中不会显式包含mrow
+			var lastChild = node.lastChild;
+			this.path.push({nodeName: lastChild.nodeName, offset: lastChild.childNodes.length});
 			this.anchor.node = lastChild;
 			if(this._isTokenNode(lastChild.nodeName)){
 				this.anchor.offset = this._getTextLength(lastChild);
@@ -2953,7 +2954,8 @@ define([ "dojo/_base/declare",
 				}
 				if(this._isSqrt(parentNode)){
 					// 往左外层移动
-					this._moveToTopLeft(parentNode);
+					this.anchor.node = parentNode;//是msqrt
+					this.anchor.offset = 0; // 往上移动时，节点为layout节点。
 					return;
 				}
 				if(this._isRootBaseMrow(parentNode)){
@@ -3047,7 +3049,8 @@ define([ "dojo/_base/declare",
 				}
 				if(this._isSqrt(parentNode)){
 					// 往左外层移动
-					this._moveToTopLeft(parentNode);
+					this.anchor.node = parentNode;//是msqrt
+					this.anchor.offset = 0; // 往上移动时，节点为layout节点。
 					return;
 				}
 				if(this._isRootBaseMrow(parentNode)){
