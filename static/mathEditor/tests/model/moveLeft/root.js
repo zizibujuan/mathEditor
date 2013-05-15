@@ -92,7 +92,6 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   			},
   			runTest: function(t){
   				var model = this.model;
-  				model.mode = "mathml";
   				model.loadData("<root><line>" +
   						"<math>" +
 	  						"<mroot>" +
@@ -101,11 +100,12 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 	  						"</mroot>" +
   						"</math>" +
   				"</line></root>");
-  				
+  				model.mode = "mathml";
   				var line = model.getLineAt(0);
   				model.anchor.node = line.firstChild.firstChild;
   				model.anchor.offset = 1;
-  				model.path = [];model.path.push({nodeName: "root"});
+  				model.path = [];
+  				model.path.push({nodeName: "root"});
   				model.path.push({nodeName: "line", offset: 1});
   				model.path.push({nodeName: "math", offset: 1});
   				model.path.push({nodeName: "mroot", offset: 1});
@@ -126,20 +126,22 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   			},
   			runTest: function(t){
   				var model = this.model;
-  				model.mode = "mathml";
   				model.loadData("<root><line>" +
   						"<math>" +
 	  						"<mroot>" +
-		  						"<mrow><mroot><mrow><mn>4</mn></mrow><mrow><mn>2</mn></mrow></mroot></mrow>" + // base
+		  						"<mrow>" +
+		  							"<mroot><mrow><mn>4</mn></mrow><mrow><mn>2</mn></mrow></mroot>" +
+		  						"</mrow>" + // base
 		  						"<mrow><mn>11</mn></mrow>" + // index
 	  						"</mroot>" +
   						"</math>" +
   				"</line></root>");
-  				
+  				model.mode = "mathml";
   				var line = model.getLineAt(0);
   				model.anchor.node = line.firstChild.firstChild;
   				model.anchor.offset = 1;
-  				model.path = [];model.path.push({nodeName: "root"});
+  				model.path = [];
+  				model.path.push({nodeName: "root"});
   				model.path.push({nodeName: "line", offset: 1});
   				model.path.push({nodeName: "math", offset: 1});
   				model.path.push({nodeName: "mroot", offset: 1});
@@ -159,7 +161,6 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   			},
   			runTest: function(t){
   				var model = this.model;
-  				model.mode = "mathml";
   				model.loadData("<root><line>" +
   						"<math>" +
 	  						"<mroot>" +
@@ -169,11 +170,12 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 	  						"<mn>12</mn>" +
   						"</math>" +
   				"</line></root>");
-  				
+  				model.mode = "mathml";
   				var line = model.getLineAt(0);
   				model.anchor.node = line.firstChild.lastChild;
   				model.anchor.offset = 0;
-  				model.path = [];model.path.push({nodeName: "root"});
+  				model.path = [];
+  				model.path.push({nodeName: "root"});
   				model.path.push({nodeName: "line", offset: 1});
   				model.path.push({nodeName: "math", offset: 1});
   				model.path.push({nodeName: "mn", offset: 2});
@@ -194,7 +196,6 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   			},
   			runTest: function(t){
   				var model = this.model;
-  				model.mode = "mathml";
   				model.loadData("<root><line>" +
   						"<math>" +
 	  						"<mroot>" +
@@ -204,11 +205,12 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 	  						"<mn>12</mn>" +
   						"</math>" +
   				"</line></root>");
-  				
+  				model.mode = "mathml";
   				var line = model.getLineAt(0);
   				model.anchor.node = line.firstChild.lastChild;
   				model.anchor.offset = 0;
-  				model.path = [];model.path.push({nodeName: "root"});
+  				model.path = [];
+  				model.path.push({nodeName: "root"});
   				model.path.push({nodeName: "line", offset: 1});
   				model.path.push({nodeName: "math", offset: 1});
   				model.path.push({nodeName: "mn", offset: 2});
@@ -228,7 +230,6 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   			},
   			runTest: function(t){
   				var model = this.model;
-  				model.mode = "mathml";
   				model.loadData("<root><line>" +
   						"<math>" +
 	  						"<mroot>" +
@@ -238,11 +239,12 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 	  						"<mroot><mrow><mn>4</mn></mrow><mrow><mn>2</mn></mrow></mroot>" +
   						"</math>" +
   				"</line></root>");
-  				
+  				model.mode = "mathml";
   				var line = model.getLineAt(0);
   				model.anchor.node = line.firstChild.lastChild;
   				model.anchor.offset = 0;
-  				model.path = [];model.path.push({nodeName: "root"});
+  				model.path = [];
+  				model.path.push({nodeName: "root"});
   				model.path.push({nodeName: "line", offset: 1});
   				model.path.push({nodeName: "math", offset: 1});
   				model.path.push({nodeName: "mroot", offset: 2});
@@ -264,7 +266,6 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   			},
   			runTest: function(t){
   				var model = this.model;
-  				model.mode = "mathml";
   				model.loadData("<root><line>" +
   						"<math>" +
 	  						"<mroot>" +
@@ -274,11 +275,12 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 	  						"<mroot><mrow><mn>4</mn></mrow><mrow><mn>2</mn></mrow></mroot>" +
   						"</math>" +
   				"</line></root>");
-  				
+  				model.mode = "mathml";
   				var line = model.getLineAt(0);
   				model.anchor.node = line.firstChild.lastChild;
   				model.anchor.offset = 0;
-  				model.path = [];model.path.push({nodeName: "root"});
+  				model.path = [];
+  				model.path.push({nodeName: "root"});
   				model.path.push({nodeName: "line", offset: 1});
   				model.path.push({nodeName: "math", offset: 1});
   				model.path.push({nodeName: "mroot", offset: 2});
@@ -298,7 +300,6 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   			},
   			runTest: function(t){
   				var model = this.model;
-  				model.mode = "mathml";
   				model.loadData("<root><line>" +
   						"<math>" +
 	  						"<mroot>" +
@@ -307,11 +308,12 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 	  						"</mroot>" +
   						"</math>" +
   				"</line></root>");
-  				
+  				model.mode = "mathml";
   				var line = model.getLineAt(0);
   				model.anchor.node = line.firstChild.firstChild.firstChild.firstChild;
   				model.anchor.offset = 0;
-  				model.path = [];model.path.push({nodeName: "root"});
+  				model.path = [];
+  				model.path.push({nodeName: "root"});
   				model.path.push({nodeName: "line", offset: 1});
   				model.path.push({nodeName: "math", offset: 1});
   				model.path.push({nodeName: "mroot", offset: 1});
@@ -334,7 +336,6 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   			},
   			runTest: function(t){
   				var model = this.model;
-  				model.mode = "mathml";
   				model.loadData("<root><line>" +
   						"<math>" +
 	  						"<mroot>" +
@@ -343,11 +344,12 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 	  						"</mroot>" +
   						"</math>" +
   				"</line></root>");
-  				
+  				model.mode = "mathml";
   				var line = model.getLineAt(0);
   				model.anchor.node = line.firstChild.firstChild.firstChild.firstChild;
   				model.anchor.offset = 0;
-  				model.path = [];model.path.push({nodeName: "root"});
+  				model.path = [];
+  				model.path.push({nodeName: "root"});
   				model.path.push({nodeName: "line", offset: 1});
   				model.path.push({nodeName: "math", offset: 1});
   				model.path.push({nodeName: "mroot", offset: 1});
@@ -369,7 +371,6 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   			},
   			runTest: function(t){
   				var model = this.model;
-  				model.mode = "mathml";
   				model.loadData("<root><line>" +
   						"<math>" +
 	  						"<mroot>" +
@@ -378,11 +379,12 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 	  						"</mroot>" +
   						"</math>" +
   				"</line></root>");
-  				
+  				model.mode = "mathml";
   				var line = model.getLineAt(0);
   				model.anchor.node = line.firstChild.firstChild.firstChild.firstChild;
   				model.anchor.offset = 0;
-  				model.path = [];model.path.push({nodeName: "root"});
+  				model.path = [];
+  				model.path.push({nodeName: "root"});
   				model.path.push({nodeName: "line", offset: 1});
   				model.path.push({nodeName: "math", offset: 1});
   				model.path.push({nodeName: "mroot", offset: 1});
@@ -405,7 +407,6 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   			},
   			runTest: function(t){
   				var model = this.model;
-  				model.mode = "mathml";
   				model.loadData("<root><line>" +
   						"<math>" +
 	  						"<mroot>" +
@@ -414,11 +415,12 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 	  						"</mroot>" +
   						"</math>" +
   				"</line></root>");
-  				
+  				model.mode = "mathml";
   				var line = model.getLineAt(0);
   				model.anchor.node = line.firstChild.firstChild.firstChild.firstChild;
   				model.anchor.offset = 0;
-  				model.path = [];model.path.push({nodeName: "root"});
+  				model.path = [];
+  				model.path.push({nodeName: "root"});
   				model.path.push({nodeName: "line", offset: 1});
   				model.path.push({nodeName: "math", offset: 1});
   				model.path.push({nodeName: "mroot", offset: 1});
@@ -441,7 +443,6 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   			},
   			runTest: function(t){
   				var model = this.model;
-  				model.mode = "mathml";
   				model.loadData("<root><line>" +
   						"<math>" +
 	  						"<mroot>" +
@@ -450,11 +451,12 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 	  						"</mroot>" +
   						"</math>" +
   				"</line></root>");
-  				
+  				model.mode = "mathml";
   				var line = model.getLineAt(0);
   				model.anchor.node = line.firstChild.firstChild.lastChild.firstChild;
   				model.anchor.offset = 0;
-  				model.path = [];model.path.push({nodeName: "root"});
+  				model.path = [];
+  				model.path.push({nodeName: "root"});
   				model.path.push({nodeName: "line", offset: 1});
   				model.path.push({nodeName: "math", offset: 1});
   				model.path.push({nodeName: "mroot", offset: 1});
@@ -476,7 +478,6 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   			},
   			runTest: function(t){
   				var model = this.model;
-  				model.mode = "mathml";
   				model.loadData("<root><line>" +
   						"<math>" +
 	  						"<mroot>" +
@@ -485,11 +486,12 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 	  						"</mroot>" +
   						"</math>" +
   				"</line></root>");
-  				
+  				model.mode = "mathml";
   				var line = model.getLineAt(0);
   				model.anchor.node = line.firstChild.firstChild.lastChild.firstChild;
   				model.anchor.offset = 0;
-  				model.path = [];model.path.push({nodeName: "root"});
+  				model.path = [];
+  				model.path.push({nodeName: "root"});
   				model.path.push({nodeName: "line", offset: 1});
   				model.path.push({nodeName: "math", offset: 1});
   				model.path.push({nodeName: "mroot", offset: 1});

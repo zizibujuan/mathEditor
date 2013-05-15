@@ -2696,7 +2696,18 @@ define([ "dojo/_base/declare",
 		},
 		
 		_moveLeftToMrootBaseEnd: function(node/*mroot节点*/){
-			this._moveLeftToMsqrtBaseEnd(node);
+			// summary:
+			//		左移，往根式里走，走到根数的最后面。mroot中有mrow节点
+			var baseMrow = node.firstChild; //mrow，只有调用firstChild才能保证永远正确
+			this.path.push({nodeName: baseMrow.nodeName, offset: 1/*base是第一个节点*/});
+			var lastChild = baseMrow.lastChild;
+			this.path.push({nodeName: lastChild.nodeName, offset: baseMrow.childElementCount});
+			this.anchor.node = lastChild;
+			if(this._isTokenNode(lastChild.nodeName)){
+				this.anchor.offset = this._getTextLength(lastChild);
+			}else{
+				this.anchor.offset = 1;
+			}
 		},
 		
 		_moveRightToMrootIndexStart: function(node/*mroot节点*/){
