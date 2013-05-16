@@ -145,6 +145,40 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				
 			}
 		},{
+			name: "在平方根下输入平方根,模拟实际的输入场景，先输入s，删除s，再输入msqrt，如此两次",
+			setUp: function(){
+				this.model = new Model({});
+			},
+			runTest: function(t){
+				var model = this.model;
+				model.loadData("<root><line><math></math></line></root>");
+				model.mode = "mathml";
+				var line = model.getLineAt(0);
+				model.anchor.node = line.firstChild;
+				model.anchor.offset = 2;
+				model.setData({data:"s"});
+				model.removeLeft();
+				model.setData({data:"", nodeName:"msqrt"});
+				t.is("/root/line[1]/math[1]/msqrt[1]/mn[1]", model.getPath());
+				var node = model.getFocusNode();
+				t.is("mn", node.nodeName);
+				t.is("drip_placeholder_box", node.getAttribute("class"));
+				t.is(0, model.getOffset());
+				
+				model.setData({data:"s"});
+				model.removeLeft();
+				model.setData({data:"", nodeName:"msqrt"});
+				t.is("/root/line[1]/math[1]/msqrt[1]/msqrt[1]/mn[1]", model.getPath());
+				
+				var node = model.getFocusNode();
+				t.is("mn", node.nodeName);
+				t.is("drip_placeholder_box", node.getAttribute("class"));
+				t.is(0, model.getOffset());
+			},
+			tearDown: function(){
+				
+			}
+		},{
 			name: "在token节点前面输入msqrt",
 			setUp: function(){
 				this.model = new Model({});

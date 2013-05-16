@@ -22,58 +22,9 @@ require([ "doh",
         		  domClass,
         		  View, 
         		  Model) {
+	var FOCUS_NODE_ID = "__math_focus";
 	doh.register("MathJaxView", [ 
-	/*{
-		// TODO：提取到单独的文件中
-		name: "math中包含一个mn节点，光标在mn后,根据id定位",
-		
-		testType: "perf", // Define this as a performance test.  Used to select the runner in D.O.H.
-	    trialDuration: 100, // Define that a trial (test run) of the performance test should run minimally for 100ms (however many runs of the function this means.  It is calibrated).
-	    trialIterations: 100, // Run 100 trials of the test function.
-	    trialDelay: 100, // Wait 100MS between each trial to allow for GC, etc.
-	    
-		setUp: function(){
-			
-		},
-		runTest: function(t){
-			domConstruct.empty("container");
-			this.model = new Model({});
-			var parentNode = dom.byId("container");
-			this.view = new View({model:this.model, parentNode:parentNode});
-			
-			var view = this.view;
-			var model = view.model;
-			model.loadData("<root><line><math><mn id=\"math_focus\">12</mn></math></line></root>");
-			model.mode = "mathml";
-			var line = model.getLineAt(0);
-			model.anchor.node = line.firstChild.firstChild;
-			model.anchor.offset = 2;
-			model.path.push({nodeName: "root"});
-			model.path.push({nodeName: "line", offset: 1});
-			model.path.push({nodeName: "math", offset: 1});
-			model.path.push({nodeName: "mn", offset: 1});
-			view.asyncRender();
-			
-			var deferred = new doh.Deferred();
-		    view._asyncExecute(deferred.getTestCallback(function(){
-		    	//var focusInfo = view._getFocusInfo();
-		    	var a = document.getElementById("math_focus");
-		    	//{node: focusDomNode, offset: offset, mrowNode: mrowNode, mathNode: mathNode};
-		    	
-		    	var focusNode = focusInfo.node;
-		    	t.is("mn", focusNode.className);
-		    	t.is("12", focusNode.textContent);
-		    	t.is(2, focusInfo.offset);
-		    	t.is("MathJax", focusInfo.mathNode.className);// 是不是应该选择class为math的呢，还是已经没有用了呢
-		    	t.is("mrow", focusInfo.mrowNode.className);// 这个mrow是math下面隐含的mrow
-		    	
-		    }));
-		    return deferred;
-		},
-		tearDown: function(){
-			
-		}
-	},*/{
+	{
 		// TODO：提取到单独的文件中
 		name: "math中包含一个mn节点，光标在mn后",
 		setUp: function(){
@@ -84,23 +35,23 @@ require([ "doh",
 		runTest: function(t){
 			var view = this.view;
 			var model = view.model;
-			model.loadData("<root><line><math><mn>12</mn></math></line></root>");
+			model._init("<root><line><math><mn id=\""+FOCUS_NODE_ID+"\">12</mn></math></line></root>");
 			// 因为在loadData时有触发onChange事件，所以不需要显式调用渲染方法
-			//view.asyncRender();
+			// 下面这些代码是设置光标位置的代码
+	    	model.mode = "mathml";
+			var line = model.getLineAt(0);
+			model.anchor.node = line.firstChild.firstChild;
+			model.anchor.offset = 2;
+			model.path = [];
+			model.path.push({nodeName: "root"});
+			model.path.push({nodeName: "line", offset: 1});
+			model.path.push({nodeName: "math", offset: 1});
+			model.path.push({nodeName: "mn", offset: 1});
+			view.asyncRender();
 			
 			var deferred = new doh.Deferred();
 		    view._asyncExecute(deferred.getTestCallback(function(){
-		    	// 下面这些代码是设置光标位置的代码
-		    	model.mode = "mathml";
-				var line = model.getLineAt(0);
-				model.anchor.node = line.firstChild.firstChild;
-				model.anchor.node.id="aaaa";
-				model.anchor.offset = 2;
-				model.path = [];
-				model.path.push({nodeName: "root"});
-				model.path.push({nodeName: "line", offset: 1});
-				model.path.push({nodeName: "math", offset: 1});
-				model.path.push({nodeName: "mn", offset: 1});
+		    	
 				
 		    	var focusInfo = view._getFocusInfo();
 		    	//{node: focusDomNode, offset: offset, mrowNode: mrowNode, mathNode: mathNode};
@@ -109,7 +60,7 @@ require([ "doh",
 		    	t.is("mn", focusNode.className);
 		    	t.is("12", focusNode.textContent);
 		    	t.is(2, focusInfo.offset);
-		    	t.is("MathJax", focusInfo.mathNode.className);// 是不是应该选择class为math的呢，还是已经没有用了呢
+		    	t.is("drip_math", focusInfo.mathNodeContainer.className);
 		    	t.is("mrow", focusInfo.mrowNode.className);// 这个mrow是math下面隐含的mrow
 		    	
 		    }));
@@ -128,32 +79,32 @@ require([ "doh",
 		runTest: function(t){
 			var view = this.view;
 			var model = view.model;
-			model.loadData("<root><line>" +
+			model._init("<root><line>" +
 					"<math>" +
 						"<mn>12</mn>" +
 						"<mstyle>" +
 							"<mfrac>" +
-								"<mrow><mn class=\"drip_placeholder_box\"></mn></mrow>" +
+								"<mrow><mn id=\""+FOCUS_NODE_ID+"\" class=\"drip_placeholder_box\"></mn></mrow>" +
 								"<mrow><mn class=\"drip_placeholder_box\"></mn></mrow>" +
 							"</mfrac>" +
 						"</mstyle>" +
 					"</math>" +
 					"</line></root>");
+			model.mode = "mathml";
+			var line = model.getLineAt(0);
+			model.anchor.node = line.firstChild.lastChild.firstChild.firstChild.firstChild;
+			model.anchor.offset = 0;
+			model.path = [];
+			model.path.push({nodeName: "root"});
+			model.path.push({nodeName: "line", offset: 1});
+			model.path.push({nodeName: "math", offset: 1});
+			model.path.push({nodeName: "mfrac", offset: 2});
+			model.path.push({nodeName: "mrow", offset: 1});
+			model.path.push({nodeName: "mn", offset: 1});
+			view.asyncRender();
 			
 			var deferred = new doh.Deferred();
 		    view._asyncExecute(deferred.getTestCallback(function(){
-		    	model.mode = "mathml";
-				var line = model.getLineAt(0);
-				model.anchor.node = line.firstChild.lastChild.firstChild.firstChild.firstChild;
-				model.anchor.offset = 0;
-				model.path = [];
-				model.path.push({nodeName: "root"});
-				model.path.push({nodeName: "line", offset: 1});
-				model.path.push({nodeName: "math", offset: 1});
-				model.path.push({nodeName: "mfrac", offset: 2});
-				model.path.push({nodeName: "mrow", offset: 1});
-				model.path.push({nodeName: "mn", offset: 1});
-				
 		    	var focusInfo = view._getFocusInfo();
 		    	
 		    	//{node: focusDomNode, offset: offset, mrowNode: mrowNode, mathNode: mathNode};
@@ -161,7 +112,7 @@ require([ "doh",
 		    	t.t(domClass.contains(focusNode, "mn"));
 		    	t.t(domClass.contains(focusNode, "drip_placeholder_box"));
 		    	t.is(0, focusInfo.offset);
-		    	t.is("MathJax", focusInfo.mathNode.className);// 是不是应该选择class为math的呢，还是已经没有用了呢
+		    	t.is("drip_math", focusInfo.mathNodeContainer.className);
 		    	t.is("mrow", focusInfo.mrowNode.className);// 这个mrow是math下面隐含的mrow
 		    	
 		    }));
@@ -180,7 +131,7 @@ require([ "doh",
 		runTest: function(t){
 			var view = this.view;
 			var model = view.model;
-			model.loadData("<root><line>" +
+			model._init("<root><line>" +
 					"<math>" +
 						"<mstyle>" +
 							"<mfrac>" +
@@ -188,29 +139,71 @@ require([ "doh",
 								"<mrow><mn class=\"drip_placeholder_box\"></mn></mrow>" +
 							"</mfrac>" +
 						"</mstyle>" +
-						"<mo>/</mo>" +
+						"<mo id=\""+FOCUS_NODE_ID+"\">/</mo>" +
 					"</math>" +
 					"</line></root>");
+			model.mode = "mathml";
+			var line = model.getLineAt(0);
+			model.anchor.node = line.firstChild.lastChild;
+			model.anchor.offset = 1;
+			model.path = [];
+			model.path.push({nodeName: "root"});
+			model.path.push({nodeName: "line", offset: 1});
+			model.path.push({nodeName: "math", offset: 1});
+			model.path.push({nodeName: "mo", offset: 2});
+			view.asyncRender();
 			
 			var deferred = new doh.Deferred();
 		    view._asyncExecute(deferred.getTestCallback(function(){
-		    	model.mode = "mathml";
-				var line = model.getLineAt(0);
-				model.anchor.node = line.firstChild.lastChild;
-				model.anchor.offset = 1;
-				model.path = [];
-				model.path.push({nodeName: "root"});
-				model.path.push({nodeName: "line", offset: 1});
-				model.path.push({nodeName: "math", offset: 1});
-				model.path.push({nodeName: "mo", offset: 2});
-				
 		    	var focusInfo = view._getFocusInfo();
-		    	
 		    	//{node: focusDomNode, offset: offset, mrowNode: mrowNode, mathNode: mathNode};
 		    	var focusNode = focusInfo.node;
 		    	t.t(domClass.contains(focusNode, "mo"));
 		    	t.is(1, focusInfo.offset);
-		    	t.is("MathJax", focusInfo.mathNode.className);// 是不是应该选择class为math的呢，还是已经没有用了呢
+		    	t.is("drip_math", focusInfo.mathNodeContainer.className);
+		    	t.is("mrow", focusInfo.mrowNode.className);// 这个mrow是math下面隐含的mrow
+		    	
+		    }));
+		    return deferred;
+		},
+		tearDown: function(){
+			domConstruct.empty("container");
+		}
+	},{
+		name: "在平方根下输入平方根,模拟实际的输入场景，先输入s，删除s，再输入msqrt，如此两次,则光标在内层的平方根里面",
+		setUp: function(){
+			this.model = new Model({});
+			var parentNode = dom.byId("container");
+			this.view = new View({model:this.model, parentNode:parentNode});
+		},
+		runTest: function(t){
+			// FIXME：这里的测试用例怎么写？
+			//		这里不对输入的过程进行测试，那是model的工作，这里只对最终输入结果的展示结果进行测试
+			var model = this.model;
+			var view = this.view;
+			model._init("<root><line><math><msqrt><msqrt><mn id=\""+FOCUS_NODE_ID+"\" class=\"drip_placeholder_box\">8</mn></msqrt></msqrt></math></line></root>");
+			model.mode = "mathml";
+			var line = model.getLineAt(0);
+			model.anchor.node = line.firstChild.firstChild.firstChild.firstChild;
+			model.anchor.offset = 0;
+			model.path = [];
+			model.path.push({nodeName: "root"});
+			model.path.push({nodeName: "line", offset: 1});
+			model.path.push({nodeName: "math", offset: 1});
+			model.path.push({nodeName: "msqrt", offset: 1});
+			model.path.push({nodeName: "msqrt", offset: 1});
+			model.path.push({nodeName: "mn", offset: 1});
+			view.asyncRender();
+			var deferred = new doh.Deferred();
+		    view._asyncExecute(deferred.getTestCallback(function(){
+		    	var focusInfo = view._getFocusInfo();
+		    	
+		    	//{node: focusDomNode, offset: offset, mrowNode: mrowNode, mathNode: mathNode};
+		    	var focusNode = focusInfo.node;
+		    	t.t(domClass.contains(focusNode, "mn"));
+		    	t.t(domClass.contains(focusNode, "drip_placeholder_box"));
+		    	t.is(0, focusInfo.offset);
+		    	t.is("drip_math", focusInfo.mathNodeContainer.className);
 		    	t.is("mrow", focusInfo.mrowNode.className);// 这个mrow是math下面隐含的mrow
 		    	
 		    }));

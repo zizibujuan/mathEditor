@@ -33,6 +33,8 @@ define(["dojo/_base/declare",
 	
 	var ELEMENT = 1, TEXT = 3;
 	
+	var FOCUS_NODE_ID = "__math_focus";
+	
 	return declare("mathEditor.MathJaxView",null,{
 		model : null,
 		editorDiv : null,
@@ -108,8 +110,16 @@ define(["dojo/_base/declare",
 		asyncRender: function(){
 			// summary:
 			//		使用mathjax异步绘制所有的mathml脚本
+			
+			// 为focus node设置id
+			this._setFocusNodeId();
 			this.textLayer.innerHTML = this.model.getHTML();
+			this.model.anchor.node.removeAttribute("id");
 			this._asyncExecute(["Typeset",MathJax.Hub, this.textLayer]);
+		},
+		
+		_setFocusNodeId: function(){
+			this.model.anchor.node.setAttribute("id", FOCUS_NODE_ID);
 		},
 		
 		_asyncExecute: function(callback){
@@ -137,7 +147,7 @@ define(["dojo/_base/declare",
 		showCursor: function(){
 			console.log("Typeset完成后执行此方法");
 			console.log(this.editorDiv);
-			// TODO:在math占位符上不显示光标，暂时决定显示
+			//在math占位符上显示光标
 			var focusInfo = this._getFocusInfo();
 			var cursorConfig = this._getCursorConfig(focusInfo);
 			this.cursor.move(cursorConfig);
@@ -152,9 +162,7 @@ define(["dojo/_base/declare",
 			
 			// 如果math获取焦点，则将math周围添加一个边框,FIXME:以下代码和光标无关，应该放在另一个方法中。
 			if(this.model.isMathMLMode()){
-				var mathNode = focusInfo.mathNode;
-				var mathContainer = mathNode.parentNode;
-
+				var mathContainer = focusInfo.mathNodeContainer;
 				// 使用math节点下的mrow节点的样式
 				var mathPosition =  domGeom.position(mathContainer);
 				var area = this._getMathBound();
@@ -207,94 +215,8 @@ define(["dojo/_base/declare",
 			// Q：为什么不直接给focus node一个id，然后就可以根据byId获取html节点？
 			// A：在xml上加上节点，但是在序列化的xml字符串中一直没有id标识，待找原因。
 			
-			var pathes = this.model.path;// TODO:重构，想个更好的方法名，getPath已经被使用。
-			
-			var focusDomNode = this.textLayer;
-			var elementJax = null;
-			var mrowNode = null;
-			var mathNode = null;
-			// 如果是math节点，则需要先
-			array.forEach(pathes, function(path, index){
-				// 移除root
-				if(path.nodeName == 'root')return;
-				if(path.nodeName == "line"){
-					focusDomNode = focusDomNode.childNodes[path.offset - 1];
-				}else if(path.nodeName == "text"){
-					var childNodes = focusDomNode.childNodes;
-					focusDomNode = childNodes[path.offset - 1];
-				}else if(path.nodeName == "math"){
-					// math中包含一个隐含的mrow
-					// 如果是math，还需要继续往下找节点
-					// 或者根据这个div找到script中的数据，来进行循环
-					// 如果已经定位到设置的层级，但是发现是mrow，则需要继续往下走一步。
-					var childNodes = focusDomNode.childNodes;
-					focusDomNode = childNodes[path.offset - 1];
-					
-					focusDomNode = focusDomNode.firstChild;
-					var scriptNode = focusDomNode.nextSibling;
-					elementJax = scriptNode.MathJax.elementJax.root;
-					elementJax = elementJax.data[0];// math下必有一个mrow
-					
-					mathNode = focusDomNode;
-				}else{
-					// 在mathJax中math，mstyle和mfrac下面必有mrow
-					if(elementJax){
-						
-						var hintNode = dom.byId("MathJax-Span-"+elementJax.spanID);
-						// 获取有效的elementJax
-						// FIXME:是否需要在path和xmldoc中补全mrow和mstyle等。
-						// 如果不补全的话，如果查找。
-						
-						// 如果是style，则style下面必有一个mrow
-						/*if(domClass.contains(hintNode, "mstyle")){
-							if(path.nodeName != "mstyle"){
-								elementJax = elementJax.data[0];// 假定mstyle的父容器只有一个子节点，就是mstyle
-								// mstyle下面必有一个mrow
-								elementJax = elementJax.data[path.offset - 1];
-								hintNode = dom.byId("MathJax-Span-"+elementJax.spanID);
-							}
-						}else */
-						if(domClass.contains(hintNode, "mrow")){
-							if(path.nodeName != "mrow"){
-								var mstyleElementJax = elementJax.data[path.offset - 1];
-								var nextHintNode = dom.byId("MathJax-Span-"+mstyleElementJax.spanID);
-								if(domClass.contains(nextHintNode, "mstyle")){
-									if(path.nodeName != "mstyle"){
-										// mstyle下面必有一个mrow
-										elementJax = mstyleElementJax.data[0];
-										// path中缺少mstyle，会不会逻辑不完整？
-										// 如果不要mstyle的话，这里就需要一个假定：一个mstyle中只能封装一个mfrac
-										// mstyle[1]/mrow/mfrac = mfrac[1]
-										// mstyle[2]/mrow/mfrac = mfrac[2]
-										elementJax = elementJax.data[0];// path.nodeName对应的节点
-										hintNode = dom.byId("MathJax-Span-"+elementJax.spanID);
-									}
-								}else{
-									
-									// 出现mrow/mstyle/mrow的情况，或者仅仅是mrow的情况
-									// 如果是mrow，则下面直接对应放在path中的节点。
-									mrowNode = hintNode; // FIXME：位置判断错误
-									
-									elementJax = elementJax.data[path.offset - 1];// 假定mstyle的父容器只有一个子节点，就是mstyle
-									hintNode = dom.byId("MathJax-Span-"+elementJax.spanID);
-								}
-							}else{
-								mrowNode = hintNode;
-								elementJax = elementJax.data[path.offset - 1];
-							}
-						}else{
-							if(dripLang.isMathTokenName(path.nodeName)){
-								elementJax = elementJax.data[0];
-							}else{
-								elementJax = elementJax.data[path.offset - 1];
-							}
-						}
-						
-						focusDomNode = dom.byId("MathJax-Span-"+elementJax.spanID);
-					}
-				}
-			});
-			
+			// 在转换成html后，获取对应的获取焦点的节点
+			var htmlFocusNode = dom.byId(FOCUS_NODE_ID);
 			// 注意，如果是mo操作符的话，model中的offset永远为1，但是其中的字符可能会有2或3个。
 			var offset = this.model.getOffset();
 			// 这里在渲染前需要获取focusNode
@@ -302,7 +224,19 @@ define(["dojo/_base/declare",
 			if(this.model.getFocusNode().nodeName == "mo" && offset != 0){
 				offset = focusNode.textContent.length;
 			}
-			return {node: focusDomNode, offset: offset, mrowNode: mrowNode, mathNode: mathNode};
+			// 两种寻找方式，1是通过model.path;2是通过htmlFocusNode往上查找。
+			// 这里采取第一种方式。
+			var mathNodeContainer = null;
+			var pathes = this.model.path;
+			if(pathes.length >2 && pathes[2].nodeName === "math"){
+				mathNodeContainer = this.textLayer.childNodes[pathes[1].offset-1].childNodes[pathes[2].offset-1];
+			}
+			var mrowNode = null;
+			var maybeMrowNode = htmlFocusNode.parentNode;
+			if(maybeMrowNode.className === "mrow"){
+				mrowNode = maybeMrowNode;
+			}
+			return {node: htmlFocusNode, offset: offset, mrowNode: mrowNode, mathNodeContainer: mathNodeContainer};
 		},
 		
 		_getCursorConfig: function(focusInfo){
