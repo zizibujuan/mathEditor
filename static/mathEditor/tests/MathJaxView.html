@@ -76,10 +76,10 @@ require([ "doh",
 		runTest: function(t){
 			var view = this.view;
 			var model = view.model;
-			model._init("<root><line>" +
+			model.loadData("<root><line>" +
 					"<math>" +
 						"<mn>12</mn>" +
-						"<mstyle>" +
+						"<mstyle displayStyle=\"true\">" +
 							"<mfrac>" +
 								"<mrow><mn class=\"drip_placeholder_box\"></mn></mrow>" +
 								"<mrow><mn class=\"drip_placeholder_box\"></mn></mrow>" +
@@ -128,9 +128,9 @@ require([ "doh",
 		runTest: function(t){
 			var view = this.view;
 			var model = view.model;
-			model._init("<root><line>" +
+			model.loadData("<root><line>" +
 					"<math>" +
-						"<mstyle>" +
+						"<mstyle displayStyle=\"true\">" +
 							"<mfrac>" +
 								"<mrow><mn class=\"drip_placeholder_box\"></mn></mrow>" +
 								"<mrow><mn class=\"drip_placeholder_box\"></mn></mrow>" +
@@ -177,13 +177,24 @@ require([ "doh",
 			//		这里不对输入的过程进行测试，那是model的工作，这里只对最终输入结果的展示结果进行测试
 			var model = this.model;
 			var view = this.view;
-			model._init("<root><line><math><msqrt><msqrt><mn class=\"drip_placeholder_box\">8</mn></msqrt></msqrt></math></line></root>");
-
+			model.loadData("<root><line>" +
+					"<math>" +
+						"<mstyle displayStyle=\"true\">" +
+							"<msqrt>" +
+								"<mstyle displayStyle=\"true\">" +
+									"<msqrt>" +
+										"<mn class=\"drip_placeholder_box\">8</mn>" +
+									"</msqrt>" +
+								"</mstyle>" +
+							"</msqrt>" +
+						"</mstyle>" +
+					"</math>" +
+					"</line></root>");
 			var deferred = new doh.Deferred();
 		    view._asyncExecute(deferred.getTestCallback(function(){
 		    	model.mode = "mathml";
 				var line = model.getLineAt(0);
-				model.anchor.node = line.firstChild.firstChild.firstChild.firstChild;
+				model.anchor.node = line.firstChild.firstChild.firstChild.firstChild.firstChild.firstChild;
 				model.anchor.offset = 0;
 				model.path = [];
 				model.path.push({nodeName: "root"});

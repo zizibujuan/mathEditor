@@ -2,6 +2,7 @@ define(["dojo/_base/array"],function(array){
 	
 	var mathLayoutNodeNames = {"mfrac":1,"mroot":1,"msqrt":1,"msub":1,"msup":1};
 	var mathTokenNodeNames = {"mi":1, "mn":1, "mo":1, "mtext":1, "mspace":1, "ms":1};
+	var mathLayoutNodeWithInferredMrow = {"math":1, "mstyle":1, "msqrt":1};
 	// TODO:重构，这个模块的名称不准确。
 	var lang = {};
 	
@@ -109,6 +110,10 @@ define(["dojo/_base/array"],function(array){
 //		return isTokenNode;
 		// 第二种实现方式
 		return mathTokenNodeNames[nodeName]===1;
+	},
+	
+	lang.containsInferredMrow = function(layoutNodeName){
+		return mathLayoutNodeWithInferredMrow[layoutNodeName]===1;
 	},
 		
 	lang.measureTextSize = function(elem ,text) {
