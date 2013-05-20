@@ -55,7 +55,7 @@ define(["dojo/_base/declare",
 			this.inherited(arguments);
 			this.state = State.ACTIVE;
 			
-			on(this.view.editorDiv, "mousedown", lang.hitch(this,function(e){
+			on(this.view.contentDiv, "mousedown", lang.hitch(this,function(e){
 				if(this.opened){
 					popup.close(this);
 				}

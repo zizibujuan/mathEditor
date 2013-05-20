@@ -12,7 +12,8 @@ define(["dojo/_base/declare",
         "dojo/aspect",
         "mathEditor/Model",
         "mathEditor/layer/Cursor",
-        "mathEditor/lang"],function(
+        "mathEditor/lang",
+        "mathEditor/dom"],function(
 		declare,
 		lang,
 		array,
@@ -27,17 +28,18 @@ define(["dojo/_base/declare",
 		aspect,
 		Model,
 		Cursor,
-		dripLang){
+		dripLang,
+		dripDom){
 	
 	// TODO:为view添加一个row属性。每行有个默认的高度，但是高度可以根据内容调整
 	
 	var ELEMENT = 1, TEXT = 3;
 	
 	return declare("mathEditor.MathJaxView",null,{
-		model : null,
-		editorDiv : null,
-		parentNode : null,
-		textarea : null,
+		model: null,
+		contentDiv: null,
+		parentNode: null,
+		textarea: null,
 		
 		readOnly: false, // 有时，编辑状态和只读状态显示的样式，是不一样的。暂时还没有区分对待。
 		
@@ -47,47 +49,73 @@ define(["dojo/_base/declare",
 		//		判断当前视图是否已获取焦点
 		focused: false,
 		
+		_scrollable: false,
+		
 		constructor: function(options){
 			lang.mixin(this, options);
 			// 创建一个div容器，然后其中按照垂直层次，罗列各div
 			// 不能将style移到class中，因为移到class中让一些样式无效了，FIXME：什么原因呢？
-			var style={
-				"border-radius":"3px",
+			var scrollerStyle={
+				position:"absolute",
 				height:"100%",
 				width:"100%",
-				border:"solid 1px #CCC",
+				"overflow-x":"scroll"
+					//overflow:"hidden"//刚开始的时候不显示scroll
+			};
+			
+			var contentStyle = {
 				position:"absolute",
 				cursor:"text"
 			};
-			var editorDiv = this.editorDiv = domConstruct.create("div",{"style":style}, this.parentNode);
+			
+			// 添加一个处理scroller的div
+			var scrollerDiv = this.scrollerDiv = domConstruct.create("div",{"style":scrollerStyle}, this.parentNode);
+			
+			var contentDiv = this.contentDiv = domConstruct.create("div",{"style":contentStyle}, scrollerDiv);
+			var scrollbarWidth = this.scrollbarWidth = dripDom.scrollbarWidth();
+			console.log("scrollbarWidth:",this.scrollbarWidth);
+			// 初始的时候，肯定与scrollerDiv等高和等宽
+			debugger;
+			var scrollerDivWidth = scrollerDiv.clientWidth+"px";
+			var scrollerDivHeight = scrollerDiv.clientHeight+"px";
+			domStyle.set(contentDiv,{"width":(scrollerDiv.clientWidth-scrollbarWidth)+"px", "height":scrollerDivHeight});
+			// 调整宽度
+			//domStyle.set(scrollerDiv,{"width":(scrollerDivWidth-scrollbarWidth)+"px"});
+			
+			this.minHeight = contentDiv.clientHeight;
 			
 			// 内容层
-			var textLayer = this.textLayer = domConstruct.create("div",{"class":"drip_layer drip_text"}, editorDiv);
+			var textLayer = this.textLayer = domConstruct.create("div",{"class":"drip_layer drip_text"}, contentDiv);
 			
 			// 光标层， 看是否需要把光标放到光标层中
-			var cursor = this.cursor = new Cursor({parentEl:editorDiv});
+			var cursor = this.cursor = new Cursor({parentEl:contentDiv});
 			
-			on(editorDiv, "mousedown",lang.hitch(this, this._onMouseDownHandler));
+			on(this.parentNode, "mousedown",lang.hitch(this, this._onMouseDownHandler));
 			
 			// 初始化视图
 			textLayer.innerHTML = this.model.getHTML();
 			
 			aspect.after(this.model, "onChanged", lang.hitch(this,this._onModelChanged));
+			
 		},
 		
 		_onMouseDownHandler: function(e){
-			this._focus();
+			this.focus();
 			event.stop(e);
 		},
 		
-		_focus: function(){
+		focus: function(){
+			// summary:
+			//		视图获取焦点后触发的方法
+			
 			console.log("编辑器获取焦点");
 			if(this.focused==false){
 				this.focused = true;
 				var textarea = this.textarea;
 				var cursor = this.cursor;
 				//textLayer
-				domClass.add(this.editorDiv,"drip_editor_focus");
+				// 将显示获取焦点的样式放在编辑器的最外面
+				domClass.add(this.parentNode,"drip_editor_focus");
 				
 				setTimeout(function() {
 					 textarea.focus();
@@ -96,8 +124,14 @@ define(["dojo/_base/declare",
 			}
 		},
 		
-		focus: function(){
-			this._focus();
+		blur: function(){
+		// summary:
+		//		视图失去焦点后触发的方法
+			if(this.focused == true){
+				this.focused = false;
+				domClass.remove(this.parentNode,"drip_editor_focus");
+				this.cursor.hide();
+			}
 		},
 		
 		_onModelChanged : function(){
@@ -126,19 +160,13 @@ define(["dojo/_base/declare",
 			this._asyncExecute(lang.hitch(this,this.showCursor));
 		},
 		
-		// summary
-		//		编辑器失去焦点之后调用该方法
-		blur: function(){
-			if(this.focused == true){
-				this.focused = false;
-				domClass.remove(this.editorDiv,"drip_editor_focus");
-				this.cursor.hide();
-			}
-		},
-		
 		showCursor: function(){
+			// summary:
+			//		显示光标
+			//		TODO：这个方法需要拆分，这里做了不止一件事情。
+			
 			console.log("Typeset完成后执行此方法");
-			console.log(this.editorDiv);
+			console.log(this.contentDiv);
 			//在math占位符上显示光标
 			var focusInfo = this._getFocusInfo();
 			var cursorConfig = this._getCursorConfig(focusInfo);
@@ -179,6 +207,74 @@ define(["dojo/_base/declare",
 				var area = this._getMathBound();
 				domStyle.set(area, {left:"-10000px"});
 			}
+			
+			// contentDiv的宽度和高度，如果scrollWidth和scrollHeight小于scrollerDiv的clientWidth和clientHeight,
+			// 则与scrollerDiv的clientWidth和clientHeight的值相等；否则与contentDiv的scrollWidth和scrollHeight的值相等。
+			var contentDiv = this.contentDiv;
+			var scrollerDiv = this.scrollerDiv;
+		
+			// 实现方法，增加的时候简单，难点是减少的时候。
+			//	记录下最长的宽度（超出部分）
+			
+			// 或者中间再加一个div，这个div可以自适应高度和宽度。
+			// 如果是增加，则直接读取；如果是删除，则根据子节点计算宽度
+			//this._scrollCursorIntoView();
+			// 在view层如何判断是新增还是删除呢？
+			// 如果scrollWidth增加，则是新增；如果scrollWidth不变，则是不变或删除
+			// 1.计算scrollLeft
+			// 2.让contentDiv中的文本可见
+			
+			// 宽度要不要也做成可扩展的呢？
+			// 高度可扩展
+			if(contentDiv.scrollHeight > contentDiv.clientHeight){
+				// 当高度增加的时候要相应的增加高度
+				var pxHeightNoScrollbar = contentDiv.scrollHeight + "px";
+				var pxHeightWithScrollbar = (contentDiv.scrollHeight+this.scrollbarWidth) +"px";
+				// 增加高度的时候，把父节点放在上面，这样就不会产生滚动条
+				domStyle.set(this.parentNode, "height", pxHeightWithScrollbar);
+				domStyle.set(scrollerDiv, "height", pxHeightWithScrollbar);
+				domStyle.set(contentDiv, "height", pxHeightNoScrollbar);
+				
+				//domStyle.set(contentDiv,{"width":(this.parentNode.clientWidth-this.scrollbarWidth)+"px"});
+				//
+			}else{
+				// 当行高减少的时候要相应的减少高度
+				// 有一个最小高度
+				if(contentDiv.clientHeight <= this.minHeight){
+					return;
+				}
+				
+				// 计算当前的实际行高
+				var lines = this.textLayer.childNodes;
+				var lineCount = lines.length;
+				var actualHeight = 0;
+				for(var i = 0; i < lineCount; i++){
+					actualHeight += lines[i].clientHeight;
+				}
+				// 如果实际行高小于contentDiv.clientHeight,则较小高度
+				if(contentDiv.clientHeight > actualHeight){
+					var pxHeightNoScrollbar = actualHeight + "px";
+					var pxHeightWithScrollbar = (actualHeight+this.scrollbarWidth+1) +"px";// FIXME：为什么需要加1呢？
+					// 减少高度的时候，把父节点放在下面，这样就不会产生滚动条
+					domStyle.set(contentDiv, "height", pxHeightNoScrollbar);
+					domStyle.set(scrollerDiv, "height", pxHeightWithScrollbar);
+					domStyle.set(this.parentNode, "height", pxHeightWithScrollbar);
+				}
+			}
+			
+			// TODO：宽度可拖拽
+		},
+		
+		_scrollCursorIntoView: function(){
+			// summary:
+			//		当有滚动条时，让光标位置可见。
+			
+			var scrollerDiv = this.scrollerDiv;
+			var contentDiv = this.contentDiv;
+			
+			
+			
+			// 先计算
 		},
 		
 		_getMathBound: function(){

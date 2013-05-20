@@ -1,5 +1,7 @@
 .drip_editor {
-	
+	position: relative;
+	border-radius:3px;
+	border:solid 1px #CCC
 }
 
 .drip_layer {

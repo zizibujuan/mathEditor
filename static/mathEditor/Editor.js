@@ -51,7 +51,7 @@ define(["dojo/_base/declare",
 			this.inherited(arguments);
 			keys.EQUAL = sniff("chrome")?187 : 61;// =
 			
-			domStyle.set(this.domNode, {position: "relative"});
+			domClass.add(this.domNode, "drip_editor");
 			var textarea = this.textarea = domConstruct.create("textarea",{style:{position:"absolute"/*,top:"-10000px",left:'-10000px'*/}}, this.domNode);
 			// 测试时的样式
 			/*
