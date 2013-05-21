@@ -208,6 +208,17 @@ define(["dojo/_base/declare",
 				domStyle.set(area, {left:"-10000px"});
 			}
 			
+			this._autoHeight();
+			
+			// TODO：宽度可拖拽
+			this._scrollToLeft();
+			
+		},
+		
+		_autoHeight: function(){
+			// summary:
+			//		根据内容的高度，自动缩放高度，直到初始高度。
+
 			// contentDiv的宽度和高度，如果scrollWidth和scrollHeight小于scrollerDiv的clientWidth和clientHeight,
 			// 则与scrollerDiv的clientWidth和clientHeight的值相等；否则与contentDiv的scrollWidth和scrollHeight的值相等。
 			var contentDiv = this.contentDiv;
@@ -261,20 +272,12 @@ define(["dojo/_base/declare",
 					domStyle.set(this.parentNode, "height", pxHeightWithScrollbar);
 				}
 			}
-			
-			// TODO：宽度可拖拽
 		},
 		
-		_scrollCursorIntoView: function(){
-			// summary:
-			//		当有滚动条时，让光标位置可见。
+		_scrollToLeft: function(){
+			// summry;
+			//		水平移动滚动条。
 			
-			var scrollerDiv = this.scrollerDiv;
-			var contentDiv = this.contentDiv;
-			
-			
-			
-			// 先计算
 		},
 		
 		_getMathBound: function(){
