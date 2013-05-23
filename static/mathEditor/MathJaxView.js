@@ -65,7 +65,8 @@ define(["dojo/_base/declare",
 			
 			var contentStyle = {
 				position:"absolute",
-				cursor:"text"
+				cursor:"text",
+				
 			};
 			
 			// 添加一个处理scroller的div
@@ -74,17 +75,14 @@ define(["dojo/_base/declare",
 			var contentDiv = this.contentDiv = domConstruct.create("div",{"style":contentStyle}, scrollerDiv);
 			var scrollbarWidth = this.scrollbarWidth = dripDom.scrollbarWidth();
 			console.log("scrollbarWidth:",this.scrollbarWidth);
-			// 初始的时候，肯定与scrollerDiv等高和等宽
-			debugger;
-			var scrollerDivWidth = scrollerDiv.clientWidth+"px";
 			var scrollerDivHeight = scrollerDiv.clientHeight+"px";
 			domStyle.set(contentDiv,{"width":(scrollerDiv.clientWidth-scrollbarWidth)+"px", "height":scrollerDivHeight});
-			// 调整宽度
-			//domStyle.set(scrollerDiv,{"width":(scrollerDivWidth-scrollbarWidth)+"px"});
 			
 			this.minHeight = contentDiv.clientHeight;
+			this.minWidth = scrollerDiv.clientWidth - scrollbarWidth;
 			
 			// 内容层
+			// 在内容层，通过在右侧使用padding-right为光标预留位置
 			var textLayer = this.textLayer = domConstruct.create("div",{"class":"drip_layer drip_text"}, contentDiv);
 			
 			// 光标层， 看是否需要把光标放到光标层中
@@ -167,6 +165,13 @@ define(["dojo/_base/declare",
 			
 			console.log("Typeset完成后执行此方法");
 			console.log(this.contentDiv);
+			
+			this._autoHeight();
+			
+			// TODO：宽度可拖拽
+			this._scrollToLeft();
+			
+			
 			//在math占位符上显示光标
 			var focusInfo = this._getFocusInfo();
 			var cursorConfig = this._getCursorConfig(focusInfo);
@@ -207,11 +212,6 @@ define(["dojo/_base/declare",
 				var area = this._getMathBound();
 				domStyle.set(area, {left:"-10000px"});
 			}
-			
-			this._autoHeight();
-			
-			// TODO：宽度可拖拽
-			this._scrollToLeft();
 			
 		},
 		
@@ -275,9 +275,55 @@ define(["dojo/_base/declare",
 		},
 		
 		_scrollToLeft: function(){
-			// summry;
+			// summary;
 			//		水平移动滚动条。
+
+			//	scrollerDiv.clientWidth-scrollbarWidth
 			
+			var contentDiv = this.contentDiv;
+			var scrollerDiv = this.scrollerDiv;
+			
+			
+			console.log("contentDiv.scrollWidth:",contentDiv.scrollWidth);
+			console.log("contentDiv.clientWidth:",contentDiv.clientWidth);
+			console.log("contentDiv.scrollWidth - contentDiv.clientWidth=",contentDiv.scrollWidth - contentDiv.clientWidth);
+			
+			if(contentDiv.scrollWidth - contentDiv.clientWidth > 0){
+				scrollerDiv.scrollLeft += contentDiv.scrollWidth - contentDiv.clientWidth;
+				console.log("scrollerDiv.scrollLeft=", scrollerDiv.scrollLeft);
+				domStyle.set(contentDiv, "width", contentDiv.scrollWidth + "px");
+			}else{
+				// 减小宽度
+				if(contentDiv.scrollWidth <= this.minWidth){
+					return;
+				}
+				// 获取当前大于最小宽度的最宽的宽度。
+				// 因为子节点宽度随着父节点的缩小而缩小，并且所有子节点的宽度跟父节点的宽度一样宽，
+				// 所以这里取contentDiv的宽度即可。
+				// 如果需要缩小宽度，只需要缩小contentDiv的宽度，子节点的宽度跟着缩小。
+				var lines = this.textLayer.childNodes;
+				var lineCount = lines.length;
+				var lineIndex = -1;
+				var maxWidth = this.minWidth;
+				var _w = 0;
+				var _ld = null;
+				for(var i = 0; i < lineCount; i++){
+					if(lines[i].childElementCount > 0){
+						_ld = lines[i].lastChild;
+						_w = _ld.offsetLeft + _ld.offsetWidth;
+						if(_w > maxWidth){
+							maxWidth = _w;
+							lineIndex = i;
+						}
+					}
+				}
+				// 如果当前行是最宽的行，则减小宽度，并减小scrollLeft
+				// 如果当前行不是最宽的行，则宽度不边，但是减小scrollLeft
+				// 如果宽度减到跟最小宽度一致，则scrollLeft保持为0
+				domStyle.set(contentDiv, "width", maxWidth+"px");
+				// 同时也要缩小scrollerDiv的宽度？
+				scrollerDiv.scrollLeft = contentDiv.scrollWidth - this.minWidth;
+			}
 		},
 		
 		_getMathBound: function(){
@@ -300,7 +346,7 @@ define(["dojo/_base/declare",
 			// summary:
 			//		使用节点和节点中的值的偏移量来表示光标位置
 			//		node: domNode
-			//			当前获取焦点的节点，thml节点
+			//			当前获取焦点的节点，html节点
 			//		offset: int
 			//			相对node的偏移量
 			//		mrowNode: domNode,
@@ -442,6 +488,7 @@ define(["dojo/_base/declare",
 					
 				}
 			}
+			left += this.scrollerDiv.scrollLeft;// 在宽度上要预留一个光标
 			return {top:top,left:left,height:height, width:width};
 		},
 		
