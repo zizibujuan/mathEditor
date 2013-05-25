@@ -2,10 +2,10 @@
 	"name": "mathEditor",
 	"version": "0.0.1",
 	"dependencies":{
-		"dojo": "1.9.0dev",
-		"dijit": "1.9.0dev",
-		"dojox": "1.9.0dev",
-		"util": "1.9.0dev"
+		"dojo": "1.9.0",
+		"dijit": "1.9.0",
+		"dojox": "1.9.0",
+		"util": "1.9.0"
 	},
 	"description": "rapid math editor",
 	"licenses": [],

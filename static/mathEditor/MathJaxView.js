@@ -65,8 +65,7 @@ define(["dojo/_base/declare",
 			
 			var contentStyle = {
 				position:"absolute",
-				cursor:"text",
-				
+				cursor:"text"
 			};
 			
 			// 添加一个处理scroller的div
