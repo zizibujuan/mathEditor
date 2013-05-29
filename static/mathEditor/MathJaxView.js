@@ -122,13 +122,20 @@ define(["dojo/_base/declare",
 		},
 		
 		blur: function(){
-		// summary:
-		//		视图失去焦点后触发的方法
+			// summary:
+			//		视图失去焦点后触发的方法
 			if(this.focused == true){
 				this.focused = false;
 				domClass.remove(this.parentNode,"drip_editor_focus");
 				this.cursor.hide();
 			}
+		},
+		
+		switchInputMode: function(){
+			// summary:
+			//		切换输入模式，在文本模式和数学公式模式之间切换
+			this.model.switchMode();
+			this.model.onChanged();	
 		},
 		
 		_onModelChanged : function(){
