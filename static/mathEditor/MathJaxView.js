@@ -51,6 +51,14 @@ define(["dojo/_base/declare",
 		
 		hScrollBarAlwaysVisible: false,
 		
+		paddingTop: 0,
+		
+		paddingLeft: 0,
+		
+		// borderWidth: int
+		//		编辑器边框的宽度
+		borderWidth: 0,
+		
 		constructor: function(options){
 			lang.mixin(this, options);
 			// 创建一个div容器，然后其中按照垂直层次，罗列各div
@@ -73,15 +81,20 @@ define(["dojo/_base/declare",
 				position: "absolute",
 				cursor: "text"
 			};
-			
+			debugger;
 			// 添加一个处理scroller的div
 			var scrollerDiv = this.scrollerDiv = domConstruct.create("div",{"style":scrollerStyle}, this.parentNode);
 			
 			var contentDiv = this.contentDiv = domConstruct.create("div",{"style":contentStyle}, scrollerDiv);
 			var scrollbarWidth = this.scrollbarWidth = dripDom.scrollbarWidth();
-			console.log("scrollbarWidth:",this.scrollbarWidth);
-			var scrollerDivHeight = scrollerDiv.clientHeight+"px";
-			domStyle.set(contentDiv,{"width":(scrollerDiv.clientWidth-scrollbarWidth)+"px", "height":scrollerDivHeight});
+//			console.log("scrollbarWidth:",this.scrollbarWidth);
+			// 编辑器的padding在contentDiv上设置。
+			domStyle.set(contentDiv,{
+				"width":(scrollerDiv.clientWidth-scrollbarWidth)+"px", 
+				"height":(scrollerDiv.clientHeight-this.paddingTop)+"px",
+				"paddingTop": this.paddingTop+"px", 
+				"paddingRight": this.paddingRight+"px"
+			});
 			
 			this.minHeight = contentDiv.clientHeight;
 			this.minWidth = scrollerDiv.clientWidth - scrollbarWidth;
@@ -152,7 +165,7 @@ define(["dojo/_base/declare",
 		asyncRender: function(){
 			// summary:
 			//		使用mathjax异步绘制所有的mathml脚本
-			
+			debugger;
 			this.textLayer.innerHTML = this.model.getHTML();
 			this._asyncExecute(["Typeset",MathJax.Hub, this.textLayer]);
 		},
@@ -177,7 +190,7 @@ define(["dojo/_base/declare",
 			
 			console.log("Typeset完成后执行此方法");
 			console.log(this.contentDiv);
-			
+			debugger;
 			this._autoHeight();
 			
 			// TODO：宽度可拖拽
@@ -249,10 +262,12 @@ define(["dojo/_base/declare",
 			
 			// 宽度要不要也做成可扩展的呢？
 			// 高度可扩展
+			debugger;
+			// 只有当x轴滚动条出现的时候，计算高度时，才加上滚动条的高度
 			if(contentDiv.scrollHeight > contentDiv.clientHeight){
 				// 当高度增加的时候要相应的增加高度
 				var pxHeightNoScrollbar = contentDiv.scrollHeight + "px";
-				var pxHeightWithScrollbar = (contentDiv.scrollHeight+this.scrollbarWidth) +"px";
+				var pxHeightWithScrollbar = (contentDiv.scrollHeight) +"px";// +this.scrollbarWidth
 				// 增加高度的时候，把父节点放在上面，这样就不会产生滚动条
 				domStyle.set(this.parentNode, "height", pxHeightWithScrollbar);
 				domStyle.set(scrollerDiv, "height", pxHeightWithScrollbar);

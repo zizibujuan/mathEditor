@@ -72,7 +72,8 @@ define([ "mathEditor/tests/layer/Cursor",
          "mathEditor/tests/model/removeRight/root",
          
          "mathEditor/tests/lang",
-         "mathEditor/tests/MathJaxView",
          "mathEditor/tests/string",
+         "mathEditor/tests/MathJaxView",
+         "mathEditor/tests/Editor",
          "mathEditor/tests/ContentAssist",
          "mathEditor/tests/mathContentAssist"], 1);

@@ -35,9 +35,16 @@ define(["dojo/_base/declare",
 		//		行的最小高度，这个值来自drip_layer样式。
 		minLineHeight: 15,
 		
+		// 默认不显示下拉滚动条，当显示的时候也要不影响高度。
 		hScrollBarAlwaysVisible: false,
 
-		// 默认不显示下拉滚动条，当显示的时候也要不影响高度。
+		// paddingTop: int
+		//		编辑器的边框距离编辑器内内容最顶处的距离
+		paddingTop: 2,
+		
+		// paddingRight: int
+		//		编辑器的边框距离编辑器内内容最右边的距离
+		paddingRight: 4,
 		
 		// value: String
 		//		编辑器的值
@@ -62,20 +69,21 @@ define(["dojo/_base/declare",
 			// 计算滚动条的宽度
 			this.scrollbarWidth = dripDom.scrollbarWidth();
 			// 编辑器的边框宽度
-			this.borderWidth = domStyle.get(domNode, "border-width");
+			var borderWidth = this.borderWidth = domStyle.get(domNode, "border-width");
 			console.log("border-width",this.borderWidth);
 			
 			var height = this._computeEditorHeight();
 			domStyle.set(domNode, "height", height+"px");
 			
-			
-			
 			var textInput = new TextInput({parentNode: this.domNode, host: this});
 			var model = this.model = new Model();
 			this.view = new View({
-				model:this.model, 
-				parentNode : this.domNode,
-				textarea : textInput.getElement()
+				model: this.model, 
+				parentNode: this.domNode,
+				textarea: textInput.getElement(),
+				borderWidth: borderWidth,
+				paddingTop: this.paddingTop,
+				paddingRight: this.paddingRight
 			});
 			this.view.hScrollBarAlwaysVisible = this.hScrollBarAlwaysVisible;
 			
@@ -98,6 +106,7 @@ define(["dojo/_base/declare",
 		_computeEditorHeight: function(){
 			// summary:
 			//		根据行数计算编辑器的初始高度
+			//		这里不需要加上边框的宽度。因为我们要设置的是clientWidth
 			
 			var rows = this.rows;
 			if(rows < 1){
@@ -108,7 +117,7 @@ define(["dojo/_base/declare",
 			var height = rows * minLineHeight;
 			// 还要加上边框的高度，滚动条的高度，才是最后编辑器的高度
 			//		编辑器的上边框和下边框，都在最外围的div上，即this.domNode上
-			height += this.borderWidth * 2;
+			height += this.paddingTop;
 			if(this.hScrollBarAlwaysVisible == true){
 				height += this.scrollbarWidth;
 			}
@@ -226,6 +235,11 @@ define(["dojo/_base/declare",
 			// 注意，悄悄应用匹配规则的情况，这是我们推荐的。
 			var data = {data: inputData};
 			model.setData(data);
+		},
+		
+		destroy: function(){
+			console.log("destroy");
+			this.inherited(arguments);
 		}
 	});
 	
