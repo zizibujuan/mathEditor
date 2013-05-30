@@ -28,9 +28,15 @@ define(["dojo/_base/declare",
 		
 		// rows: int
 		//		编辑器中的行数，默认是两行。注意，既可以通过指定行来设置编辑器的高度，也可以通过设置height样式来设置。
-		//		height的优先级高于rows
-		// 不建议使用style来设置编辑器的高度，建议通过rows来计算出高度。
+		//		height的优先级高于rows。
+		// 不建议使用style来设置编辑器的高度，建议通过rows来计算出实际内容的高度。
 		rows: 2,
+		
+		// width: int
+		//		编辑器的宽度，这里设置的是实际内容的宽度。
+		//		不建议使用style样式来设置宽度
+		width: 100,
+		
 		// minLineHeight: int
 		//		行的最小高度，这个值来自drip_layer样式。
 		minLineHeight: 15,
@@ -73,7 +79,8 @@ define(["dojo/_base/declare",
 			console.log("border-width",this.borderWidth);
 			
 			var height = this._computeEditorHeight();
-			domStyle.set(domNode, "height", height+"px");
+			var width = this._computeEditorWidth();
+			domStyle.set(domNode, {"height": height + "px", "width": width + "px"});
 			
 			var textInput = new TextInput({parentNode: this.domNode, host: this});
 			var model = this.model = new Model();
@@ -105,7 +112,7 @@ define(["dojo/_base/declare",
 		
 		_computeEditorHeight: function(){
 			// summary:
-			//		根据行数计算编辑器的初始高度
+			//		根据行数计算编辑器的初始高度,客户可以设置的高度属性，设置的都是内容的实际高度
 			//		这里不需要加上边框的宽度。因为我们要设置的是clientWidth
 			
 			var rows = this.rows;
@@ -122,6 +129,14 @@ define(["dojo/_base/declare",
 				height += this.scrollbarWidth;
 			}
 			return height;
+		},
+		
+		_computeEditorWidth: function(){
+			// summary:
+			//		计算编辑器的宽度，用户可以设置的宽度属性，设置的都是内容的实际宽度
+			//		
+			
+			return this.width + this.paddingRight;
 		},
 		
 		onBlur: function(){

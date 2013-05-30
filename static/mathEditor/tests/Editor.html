@@ -24,17 +24,20 @@ require([ "doh",
         		  Editor) {
 	doh.register("Editor", [ 
 	{
-		name: "测试编辑器初始高度",
+		name: "测试编辑器中各div的高度，编辑器中没有内容时",
 		setUp: function(){
 			var editorContainer = this.editorContainer = domConstruct.create("div", null,document.body);
-			this.editor = new Editor({style:"width:100px", rows:2}, editorContainer);
+			this.editor = new Editor({width:100, rows:2}, editorContainer);
 		},
 		runTest: function(t){
 			// clientHeight = css height + css apddiing - height of hScroll（包含水平滚动条的高度）
 			// clientWidth = css width + css padding (不包含垂直滚动条的宽度)
 			
+			// scrollWidth = 
+			
 			// 默认的lineHeight为15,边框的宽度为1，paddingTop为2
 			// 所以编辑器的内容高度clientHeight应该为15*2 + paddingTop，总体高度offsetHeight应该为 15*2 + paddingTop + 1*2
+			// 高度
 			var editorContainer = this.editorContainer;
 			t.is(32, editorContainer.clientHeight);
 			t.is(34, editorContainer.offsetHeight);
@@ -48,21 +51,71 @@ require([ "doh",
 			var content = scroller.firstChild;
 			t.is(32, content.clientHeight);
 			t.is(32, content.offsetHeight);
-			t.is(32, content.scrollHeight);			
+			t.is(32, content.scrollHeight);
+			
+			// 宽度
+			// 内容宽度clientWidth = 100 + paddingRight
+			// 总体宽度offsetWidth = 100 + paddingRight + borderWidth * 2
+			// 设置的编辑器的宽度，约定为内容的宽度，高度约定为内容的高度
+			debugger;
+			t.is(104, editorContainer.clientWidth);
+			t.is(106, editorContainer.offsetWidth);
+			t.is(104, editorContainer.scrollWidth);
+			
+			var scroller = editorContainer.lastChild;
+			t.is(104, scroller.clientWidth);
+			t.is(104, scroller.offsetWidth);
+			t.is(104, scroller.scrollWidth);
+			
+			var content = scroller.firstChild;
+			t.is(104, content.clientWidth);
+			t.is(104, content.offsetWidth);
+			t.is(104, content.scrollWidth);
 		},
 		tearDown: function(){
 			//this.editor.destroyRecursive();
 		}		
 	},{
-		name: "当输入三行时，编辑器的高度响应扩展,此时没有水平滚动轴",
+		name: "测试编辑器中各div的高度，编辑器中有两个空行时（编辑器的行高默认为两行）",
 		setUp: function(){
 			var editorContainer = this.editorContainer = domConstruct.create("div", null,document.body);
-			this.editor = new Editor({style:"width:100px", rows:2}, editorContainer);
+			this.editor = new Editor({width:100, rows:2}, editorContainer);
 		},
 		runTest: function(t){
-			// 默认的lineHeight为15,边框的宽度为1，
-			// 所以编辑器的内容高度clientHeight应该为30，总体高度offsetHeight应该为32
 			this.editor.inputEnter();
+
+			var editorContainer = this.editorContainer;
+			var deferred = new doh.Deferred();
+			this.editor.view._asyncExecute(deferred.getTestCallback(function(){
+				t.is(32, editorContainer.clientHeight);
+				t.is(34, editorContainer.offsetHeight);
+				t.is(32, editorContainer.scrollHeight);
+				
+				var scroller = editorContainer.lastChild;
+				t.is(32, scroller.clientHeight);
+				t.is(32, scroller.offsetHeight);
+				t.is(32, scroller.scrollHeight);
+				
+				var content = scroller.firstChild;
+				t.is(32, content.clientHeight);
+				t.is(32, content.offsetHeight);
+				t.is(32, content.scrollHeight);		
+			}));
+			return deferred;	
+		},
+		tearDown: function(){
+			//this.editor.destroyRecursive();
+		}		
+	},{
+		name: "测试编辑器中各div的高度，编辑器中有三个空行时，编辑器的高度相应扩展,此时没有水平滚动轴",
+		setUp: function(){
+			var editorContainer = this.editorContainer = domConstruct.create("div", null,document.body);
+			this.editor = new Editor({width:100, rows:2}, editorContainer);
+		},
+		runTest: function(t){
+
+			this.editor.inputEnter();
+			debugger;
 			this.editor.inputEnter();
 			var editorContainer = this.editorContainer;
 			var deferred = new doh.Deferred();
@@ -72,13 +125,11 @@ require([ "doh",
 				t.is(47, editorContainer.offsetHeight);
 				t.is(45, editorContainer.scrollHeight);
 				
-				// 滚动轴层的高度，border为0， clientHeight为30
 				var scroller = editorContainer.lastChild;
 				t.is(45, scroller.clientHeight);
 				t.is(45, scroller.offsetHeight);
 				t.is(45, scroller.scrollHeight);
 				
-				// 文本内容层的高度，border为0， clientHeight为30
 				var content = scroller.firstChild;
 				t.is(45, content.clientHeight);
 				t.is(45, content.offsetHeight);

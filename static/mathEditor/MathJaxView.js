@@ -102,6 +102,8 @@ define(["dojo/_base/declare",
 			// 内容层
 			// 在内容层，通过在右侧使用padding-right为光标预留位置
 			var textLayer = this.textLayer = domConstruct.create("div",{"class":"drip_layer drip_text"}, contentDiv);
+			// 去掉了textLayer的宽度为100%的设置，需要计算出合适的宽度
+			domStyle.set(textLayer, "width", scrollerDiv.clientWidth + "px");
 			
 			// 光标层， 看是否需要把光标放到光标层中
 			var cursor = this.cursor = new Cursor({parentEl:contentDiv});
@@ -271,7 +273,7 @@ define(["dojo/_base/declare",
 				// 增加高度的时候，把父节点放在上面，这样就不会产生滚动条
 				domStyle.set(this.parentNode, "height", pxHeightWithScrollbar);
 				domStyle.set(scrollerDiv, "height", pxHeightWithScrollbar);
-				domStyle.set(contentDiv, "height", pxHeightNoScrollbar);
+				domStyle.set(contentDiv, "height", (contentDiv.scrollHeight - this.paddingTop)+"px");
 				
 				//domStyle.set(contentDiv,{"width":(this.parentNode.clientWidth-this.scrollbarWidth)+"px"});
 				//

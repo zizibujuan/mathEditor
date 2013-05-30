@@ -9,8 +9,8 @@
     position: absolute;
     overflow: hidden;
     white-space: nowrap;
-    /*height: 100%;*/
-    width: 100%;
+    /*height: 100%;
+    width: 100%;*/
     box-sizing: border-box;
     -moz-box-sizing: border-box;
     -webkit-box-sizing: border-box;
@@ -79,7 +79,7 @@
 
 .drip_line{
 	min-height: 15px;
-	font-family: "Menlo", "Consolas", "Vera Mono", "monospace"；
+	font-family: "Menlo", "Consolas", "Vera Mono", "monospace";
 }
 
 .drip_line span{
