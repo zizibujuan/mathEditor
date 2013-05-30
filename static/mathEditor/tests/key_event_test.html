@@ -15,7 +15,7 @@
 <br/>
 <textarea id="text"></textarea>
 <script type="text/javascript">
-require(["dojo/dom"],function(dom){
+require(["dojo/dom", "dojo/on"],function(dom,on){
 	var text = document.getElementById("text");
 	var btnInputFlag = document.getElementById("inputFlag");
 //	var btnSimulateInput = document.getElementById("simulateInput");
@@ -24,7 +24,7 @@ require(["dojo/dom"],function(dom){
 	
 	var inputCount = 0;
 
-	btnInputFlag.addEventListener("click",function(e){
+	on(btnInputFlag, "click",function(e){
 		if(notInput==false){
 			notInput=true;
 			this.value="支持TextEvent时，输入的文本不会显示在textarea中";
@@ -38,9 +38,10 @@ require(["dojo/dom"],function(dom){
 //		simulateEvent.triggerTextEvent(text,"a");
 //	},false);
 
-	btnInputCount.addEventListener("click",function(e){inputCount=0;},false);
+	on(btnInputCount,"click",function(e){inputCount=0;},false);
+	
 	//Text Event firefox不支持,chrome支持
-	text.addEventListener("textInput",function(e){
+	on(text, "textInput",function(e){
 		console.log(e.type,e.data,"textarea.value=='"+this.value+"'",e);
 		//阻止将值输入文本框中
 		if(notInput){
@@ -49,7 +50,7 @@ require(["dojo/dom"],function(dom){
 		}
 	},false);
 	
-	text.addEventListener("textinput",function(e){
+	on(text,"textinput",function(e){
 		console.log(e.type,e.data,"textarea.value=='"+this.value+"'",e);
 		//阻止将值输入文本框中
 		if(notInput){
@@ -74,20 +75,20 @@ require(["dojo/dom"],function(dom){
 
 	}
 	//Keyboard Event
-	text.addEventListener("keydown",function(e){
+	on(text,"keydown",function(e){
 		logKeyboardEvent(e);
 	},false);
 
-	text.addEventListener("keypress",function(e){
+	on(text,"keypress",function(e){
 		logKeyboardEvent(e);
 	},false);
 
-	text.addEventListener("keyup",function(e){
+	on(text,"keyup",function(e){
 		logKeyboardEvent(e);
 	},false);
 
 	//XUL Event
-	text.addEventListener("input",function(e){
+	on(text,"input",function(e){
 		inputCount++;
 		//console.log(e.constructor==UIEvent);
 		logKeyboardEvent(e);
@@ -99,19 +100,19 @@ require(["dojo/dom"],function(dom){
 	},false);
 
 	//Composition Event
-	text.addEventListener("compositionstart",function(e){
+	on(text,"compositionstart",function(e){
 		logCompositionEvent(e);
 	},false);
 
-	text.addEventListener("compositionupdate",function(e){
+	on(text,"compositionupdate",function(e){
 		logCompositionEvent(e);
 	},false);
 
-	text.addEventListener("compositionend",function(e){
+	on(text,"compositionend",function(e){
 		logCompositionEvent(e);
 	},false);
 
-	text.addEventListener("text",function(e){
+	on(text,"text",function(e){
 		setTimeout(function(){
 			logKeyboardEvent(e);
 			logUIEvent(e);

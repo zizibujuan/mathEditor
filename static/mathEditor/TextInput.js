@@ -3,6 +3,7 @@ define(["dojo/_base/declare",
         "dojo/_base/event",
         "dojo/dom-construct",
         "dojo/dom-class",
+        "dojo/has",
         "dojo/sniff",
         "dojo/on",
         "dojo/keys"], function(
@@ -11,6 +12,7 @@ define(["dojo/_base/declare",
         		event,
         		domConstruct,
         		domClass,
+        		has,
         		sniff,
         		on,
         		keys){
@@ -29,9 +31,9 @@ define(["dojo/_base/declare",
 		//		文本域
 		textarea: null,
 		
-		// _inCompostion: Boolean
+		// _inComposition: Boolean
 		//		是否使用IME，输入非英文字符
-		_inCompostion: false,
+		_inComposition: false,
 		
 		constructor: function(args){
 			lang.mixin(this, args);
@@ -64,6 +66,19 @@ define(["dojo/_base/declare",
 					var inputData = e.data;
 					this._onInput(inputData);
 				}));
+			}else if(has("ie") <= 8){
+				console.log("ie 8-");
+				var keytable = { 13:1, 27:1 };
+		        on(textarea, "keyup", lang.hitch(this,function (e) {
+		            if (this._inComposition && (!textarea.value || keytable[e.keyCode])){
+		            	setTimeout(this._onCompositionEnd, 0);
+		            }
+		                
+		            if ((textarea.value.charCodeAt(0)||0) < 129) {
+		                return;
+		            }
+		            this._inComposition ? this._onCompositionUpdate() : this._onCompositionStart();
+		        }));
 			}else{
 				console.log("other browser");
 				// firefox
@@ -71,10 +86,10 @@ define(["dojo/_base/declare",
 					this._onInput(e);
 				}));
 				on(textarea, "compositionstart", lang.hitch(this,function(e){
-					this._inCompostion = true;
+					this._inComposition = true;
 				}));
 				on(textarea, "compositionend", lang.hitch(this,function(e){
-					this._inCompostion = false;
+					this._inComposition = false;
 				}));
 			}
 			// TODO： 添加支持ie8，ie9和ie10的输入事件。
@@ -126,8 +141,22 @@ define(["dojo/_base/declare",
 			}));
 		},
 		
+		// 下面三个方法，只有是ie8以下版本时，才用到
+		_onCompositionStart: function(){
+			
+		},
+		
+		_onCompositionUpdate: function(){
+			
+		},
+		
+		_onCompositionEnd: function(){
+			
+		},
+		
+		
 		_onInput: function(e){
-			if(this._inCompostion)return;
+			if(this._inComposition)return;
 			
 			inputData = this.textarea.value;
 			if(inputData == "")return;
