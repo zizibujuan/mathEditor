@@ -49,23 +49,29 @@ define(["dojo/_base/declare",
 		//		判断当前视图是否已获取焦点
 		focused: false,
 		
-		_scrollable: false,
+		hScrollBarAlwaysVisible: false,
 		
 		constructor: function(options){
 			lang.mixin(this, options);
 			// 创建一个div容器，然后其中按照垂直层次，罗列各div
 			// 不能将style移到class中，因为移到class中让一些样式无效了，FIXME：什么原因呢？
 			var scrollerStyle={
-				position:"absolute",
-				height:"100%",
-				width:"100%",
-				"overflow-x":"scroll"
+				position: "absolute",
+				height: "100%",
+				width: "100%"/*,
+				"overflow-x":"scroll"*/
 					//overflow:"hidden"//刚开始的时候不显示scroll
 			};
+			if(this.hScrollBarAlwaysVisible){
+				scrollerStyle["overflow-x"] = "scroll";
+			}else{
+				scrollerStyle["overflow"] = "auto";
+			}
+			// FIXME: 当出现滚动条的时候，不要在原有内容之上添加滚动条，而是在原来高度的基础上添加一个滚动条的高度。
 			
 			var contentStyle = {
-				position:"absolute",
-				cursor:"text"
+				position: "absolute",
+				cursor: "text"
 			};
 			
 			// 添加一个处理scroller的div

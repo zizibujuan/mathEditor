@@ -3,6 +3,8 @@ define(["dojo/_base/declare",
         "dijit/_WidgetBase",
         "dojo/aspect",
         "dojo/dom-class",
+        "dojo/dom-style",
+        "mathEditor/dom",
         "mathEditor/Model",
         "mathEditor/MathJaxView",
         "mathEditor/TextInput",
@@ -12,6 +14,8 @@ define(["dojo/_base/declare",
         		 _WidgetBase,
         		 aspect,
         		 domClass,
+        		 domStyle,
+        		 dripDom,
         		 Model,
         		 View,
         		 TextInput,
@@ -25,7 +29,13 @@ define(["dojo/_base/declare",
 		// rows: int
 		//		编辑器中的行数，默认是两行。注意，既可以通过指定行来设置编辑器的高度，也可以通过设置height样式来设置。
 		//		height的优先级高于rows
+		// 不建议使用style来设置编辑器的高度，建议通过rows来计算出高度。
 		rows: 2,
+		// minLineHeight: int
+		//		行的最小高度，这个值来自drip_layer样式。
+		minLineHeight: 15,
+		
+		hScrollBarAlwaysVisible: false,
 
 		// 默认不显示下拉滚动条，当显示的时候也要不影响高度。
 		
@@ -47,7 +57,18 @@ define(["dojo/_base/declare",
 		postCreate: function(){
 			this.inherited(arguments);
 			
-			domClass.add(this.domNode, "drip_editor");
+			var domNode = this.domNode;
+			domClass.add(domNode, "drip_editor");
+			// 计算滚动条的宽度
+			this.scrollbarWidth = dripDom.scrollbarWidth();
+			// 编辑器的边框宽度
+			this.borderWidth = domStyle.get(domNode, "border-width");
+			console.log("border-width",this.borderWidth);
+			
+			var height = this._computeEditorHeight();
+			domStyle.set(domNode, "height", height+"px");
+			
+			
 			
 			var textInput = new TextInput({parentNode: this.domNode, host: this});
 			var model = this.model = new Model();
@@ -56,6 +77,7 @@ define(["dojo/_base/declare",
 				parentNode : this.domNode,
 				textarea : textInput.getElement()
 			});
+			this.view.hScrollBarAlwaysVisible = this.hScrollBarAlwaysVisible;
 			
 			// FIXME：是否需要移动代码到更合适的地方。
 			var contentAssist = this.contentAssist = new ContentAssist({view:this.view});
@@ -71,6 +93,26 @@ define(["dojo/_base/declare",
 				textInput.resetValue();
 			},true);
 			
+		},
+		
+		_computeEditorHeight: function(){
+			// summary:
+			//		根据行数计算编辑器的初始高度
+			
+			var rows = this.rows;
+			if(rows < 1){
+				rows = 1;
+			}
+			var minLineHeight = this.minLineHeight;
+			// 由rows计算出的是放置内容的高度
+			var height = rows * minLineHeight;
+			// 还要加上边框的高度，滚动条的高度，才是最后编辑器的高度
+			//		编辑器的上边框和下边框，都在最外围的div上，即this.domNode上
+			height += this.borderWidth * 2;
+			if(this.hScrollBarAlwaysVisible == true){
+				height += this.scrollbarWidth;
+			}
+			return height;
 		},
 		
 		onBlur: function(){
