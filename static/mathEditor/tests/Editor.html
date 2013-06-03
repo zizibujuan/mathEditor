@@ -39,38 +39,41 @@ require([ "doh",
 			// 所以编辑器的内容高度clientHeight应该为15*2 + paddingTop，总体高度offsetHeight应该为 15*2 + paddingTop + 1*2
 			// 高度
 			var editorContainer = this.editorContainer;
-			t.is(32, editorContainer.clientHeight);
-			t.is(34, editorContainer.offsetHeight);
-			t.is(32, editorContainer.scrollHeight);
-			
-			var scroller = editorContainer.lastChild;
-			t.is(32, scroller.clientHeight);
-			t.is(32, scroller.offsetHeight);
-			t.is(32, scroller.scrollHeight);
-			
-			var content = scroller.firstChild;
-			t.is(32, content.clientHeight);
-			t.is(32, content.offsetHeight);
-			t.is(32, content.scrollHeight);
-			
-			// 宽度
-			// 内容宽度clientWidth = 100 + paddingRight
-			// 总体宽度offsetWidth = 100 + paddingRight + borderWidth * 2
-			// 设置的编辑器的宽度，约定为内容的宽度，高度约定为内容的高度
-			debugger;
-			t.is(104, editorContainer.clientWidth);
-			t.is(106, editorContainer.offsetWidth);
-			t.is(104, editorContainer.scrollWidth);
-			
-			var scroller = editorContainer.lastChild;
-			t.is(104, scroller.clientWidth);
-			t.is(104, scroller.offsetWidth);
-			t.is(104, scroller.scrollWidth);
-			
-			var content = scroller.firstChild;
-			t.is(104, content.clientWidth);
-			t.is(104, content.offsetWidth);
-			t.is(104, content.scrollWidth);
+			var deferred = new doh.Deferred();
+			this.editor.view._asyncExecute(deferred.getTestCallback(function(){
+				t.is(32, editorContainer.clientHeight);
+				t.is(34, editorContainer.offsetHeight);
+				t.is(32, editorContainer.scrollHeight);
+				
+				var scroller = editorContainer.lastChild;
+				t.is(32, scroller.clientHeight);
+				t.is(32, scroller.offsetHeight);
+				t.is(32, scroller.scrollHeight);
+				
+				var content = scroller.firstChild;
+				t.is(32, content.clientHeight);
+				t.is(32, content.offsetHeight);
+				t.is(32, content.scrollHeight);
+				
+				// 宽度
+				// 内容宽度clientWidth = 100 + paddingRight
+				// 总体宽度offsetWidth = 100 + paddingRight + borderWidth * 2
+				// 设置的编辑器的宽度，约定为内容的宽度，高度约定为内容的高度
+				t.is(104, editorContainer.clientWidth);
+				t.is(106, editorContainer.offsetWidth);
+				t.is(104, editorContainer.scrollWidth);
+				
+				var scroller = editorContainer.lastChild;
+				t.is(104, scroller.clientWidth);
+				t.is(104, scroller.offsetWidth);
+				t.is(104, scroller.scrollWidth);
+				
+				var content = scroller.firstChild;
+				t.is(104, content.clientWidth);
+				t.is(104, content.offsetWidth);
+				t.is(104, content.scrollWidth);
+			}));
+			return deferred;
 		},
 		tearDown: function(){
 			//this.editor.destroyRecursive();
@@ -87,6 +90,7 @@ require([ "doh",
 			var editorContainer = this.editorContainer;
 			var deferred = new doh.Deferred();
 			this.editor.view._asyncExecute(deferred.getTestCallback(function(){
+				debugger;
 				t.is(32, editorContainer.clientHeight);
 				t.is(34, editorContainer.offsetHeight);
 				t.is(32, editorContainer.scrollHeight);
@@ -115,25 +119,25 @@ require([ "doh",
 		runTest: function(t){
 
 			this.editor.inputEnter();
-			debugger;
 			this.editor.inputEnter();
 			var editorContainer = this.editorContainer;
 			var deferred = new doh.Deferred();
 			this.editor.view._asyncExecute(deferred.getTestCallback(function(){
-		    	
-				t.is(45, editorContainer.clientHeight);
-				t.is(47, editorContainer.offsetHeight);
-				t.is(45, editorContainer.scrollHeight);
+				debugger;
+				var scrollHeight = 47 + 15;
+				t.is(47, editorContainer.clientHeight);
+				t.is(49, editorContainer.offsetHeight);
+				t.is(scrollHeight, editorContainer.scrollHeight);
 				
 				var scroller = editorContainer.lastChild;
-				t.is(45, scroller.clientHeight);
-				t.is(45, scroller.offsetHeight);
-				t.is(45, scroller.scrollHeight);
+				t.is(scrollHeight, scroller.clientHeight);
+				t.is(scrollHeight, scroller.offsetHeight);
+				t.is(scrollHeight, scroller.scrollHeight);
 				
 				var content = scroller.firstChild;
-				t.is(45, content.clientHeight);
-				t.is(45, content.offsetHeight);
-				t.is(45, content.scrollHeight);	
+				t.is(47, content.clientHeight);
+				t.is(47, content.offsetHeight);
+				t.is(47, content.scrollHeight);	
 		    }));
 		    return deferred;
 		},

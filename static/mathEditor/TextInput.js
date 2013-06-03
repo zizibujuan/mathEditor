@@ -64,7 +64,7 @@ define(["dojo/_base/declare",
 				console.log("chrome");
 				on(textarea, "textInput", lang.hitch(this,function(e){
 					var inputData = e.data;
-					this._onInput(inputData);
+					host.onTextInput(inputData);
 				}));
 			}else if(has("ie") <= 8){
 				console.log("ie 8-");

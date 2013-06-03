@@ -90,20 +90,20 @@ define(["dojo/_base/declare",
 //			console.log("scrollbarWidth:",this.scrollbarWidth);
 			// 编辑器的padding在contentDiv上设置。
 			domStyle.set(contentDiv,{
-				"width":(scrollerDiv.clientWidth-scrollbarWidth)+"px", 
+				"width":(scrollerDiv.clientWidth-this.paddingRight)+"px", 
 				"height":(scrollerDiv.clientHeight-this.paddingTop)+"px",
 				"paddingTop": this.paddingTop+"px", 
 				"paddingRight": this.paddingRight+"px"
 			});
 			
 			this.minHeight = contentDiv.clientHeight;
-			this.minWidth = scrollerDiv.clientWidth - scrollbarWidth;
+			this.minWidth = scrollerDiv.clientWidth;
 			
 			// 内容层
 			// 在内容层，通过在右侧使用padding-right为光标预留位置
 			var textLayer = this.textLayer = domConstruct.create("div",{"class":"drip_layer drip_text"}, contentDiv);
 			// 去掉了textLayer的宽度为100%的设置，需要计算出合适的宽度
-			domStyle.set(textLayer, "width", scrollerDiv.clientWidth + "px");
+			domStyle.set(textLayer, "width", (scrollerDiv.clientWidth-this.paddingRight) + "px");
 			
 			// 光标层， 看是否需要把光标放到光标层中
 			var cursor = this.cursor = new Cursor({parentEl:contentDiv});
@@ -159,7 +159,7 @@ define(["dojo/_base/declare",
 			this.model.onChanged();	
 		},
 		
-		_onModelChanged : function(){
+		_onModelChanged: function(){
 			this.asyncRender();
 			this.asyncShowCursor();
 		},
@@ -169,6 +169,11 @@ define(["dojo/_base/declare",
 			//		使用mathjax异步绘制所有的mathml脚本
 			debugger;
 			this.textLayer.innerHTML = this.model.getHTML();
+			
+			console.log("after set innerHTML");
+			console.log("scrollerDiv.clientWidth = ", this.scrollerDiv.clientWidth);
+			console.log("scrollerDiv.clientHeight = ", this.scrollerDiv.clientHeight);
+			
 			this._asyncExecute(["Typeset",MathJax.Hub, this.textLayer]);
 		},
 		
@@ -264,16 +269,28 @@ define(["dojo/_base/declare",
 			
 			// 宽度要不要也做成可扩展的呢？
 			// 高度可扩展
-			debugger;
+			
+			
+			
 			// 只有当x轴滚动条出现的时候，计算高度时，才加上滚动条的高度
 			if(contentDiv.scrollHeight > contentDiv.clientHeight){
+				debugger;
 				// 当高度增加的时候要相应的增加高度
 				var pxHeightNoScrollbar = contentDiv.scrollHeight + "px";
 				var pxHeightWithScrollbar = (contentDiv.scrollHeight) +"px";// +this.scrollbarWidth
 				// 增加高度的时候，把父节点放在上面，这样就不会产生滚动条
-				domStyle.set(this.parentNode, "height", pxHeightWithScrollbar);
+				domStyle.set(this.parentNode, "height", (contentDiv.scrollHeight)+"px");
 				domStyle.set(scrollerDiv, "height", pxHeightWithScrollbar);
+				console.log("scrollerDiv.clientWidth = ", scrollerDiv.clientWidth);
+				console.log("scrollerDiv.clientHeight = ", scrollerDiv.clientHeight);
 				domStyle.set(contentDiv, "height", (contentDiv.scrollHeight - this.paddingTop)+"px");
+				
+				if(scrollerDiv.clientHeight < contentDiv.clientHeight){
+					// 当每次出现滚动条的时候，都会将scrollerDiv的高度和宽度减去滚动条的宽度，
+					// 所以这里需要重新设置scrollerDiv的宽和高
+					domStyle.set(scrollerDiv, {height: (contentDiv.scrollHeight + this.scrollbarWidth)+"px"});
+					
+				}
 				
 				//domStyle.set(contentDiv,{"width":(this.parentNode.clientWidth-this.scrollbarWidth)+"px"});
 				//
@@ -312,13 +329,12 @@ define(["dojo/_base/declare",
 			var contentDiv = this.contentDiv;
 			var scrollerDiv = this.scrollerDiv;
 			
-			
 			console.log("contentDiv.scrollWidth:",contentDiv.scrollWidth);
 			console.log("contentDiv.clientWidth:",contentDiv.clientWidth);
 			console.log("contentDiv.scrollWidth - contentDiv.clientWidth=",contentDiv.scrollWidth - contentDiv.clientWidth);
 			
 			if(contentDiv.scrollWidth - contentDiv.clientWidth > 0){
-				scrollerDiv.scrollLeft += contentDiv.scrollWidth - contentDiv.clientWidth;
+				scrollerDiv.scrollLeft += (contentDiv.scrollWidth - contentDiv.clientWidth);
 				console.log("scrollerDiv.scrollLeft=", scrollerDiv.scrollLeft);
 				domStyle.set(contentDiv, "width", contentDiv.scrollWidth + "px");
 			}else{
@@ -475,14 +491,14 @@ define(["dojo/_base/declare",
 			var mrowNode = focusInfo.mrowNode;
 			if(mrowNode){
 				var mrowPosition = domGeom.position(mrowNode);
-				top = mrowPosition.y - textLayerPosition.y;
+				top = mrowPosition.y - textLayerPosition.y + this.paddingTop;
 				height = mrowPosition.h;
 				
 				position = domGeom.position(node);
 				left = position.x - textLayerPosition.x;
 			}else{
 				position = domGeom.position(node);
-				top = position.y - textLayerPosition.y;
+				top = position.y - textLayerPosition.y + this.paddingTop;
 				height = position.h;
 				left = position.x - textLayerPosition.x;
 			}
