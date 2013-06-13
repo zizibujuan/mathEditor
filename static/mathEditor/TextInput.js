@@ -37,7 +37,7 @@ define(["dojo/_base/declare",
 		
 		constructor: function(args){
 			lang.mixin(this, args);
-			keys.EQUAL = sniff("chrome")?187 : 61;// =
+			keys.EQUAL = sniff("chrome") ? 187 : 61;// =
 			
 			var textarea = this.textarea = domConstruct.create("textarea",{style:{position:"absolute"}}, this.parentNode);
 			var host = this.host;

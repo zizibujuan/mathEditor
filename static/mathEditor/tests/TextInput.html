@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>View Test</title>
+<link type="text/css" rel="stylesheet" href="/mathEditor/resources/editor.css" />
+<script type="text/javascript" src="/dojo/dojo.js" data-dojo-config="isDebug:true,async:true,cacheBust:new Date()"></script>
+<script type="text/javascript"
+   src="/mathJax/MathJax.js?config=MML_HTMLorMML">
+</script>
+<script type="text/javascript">
+require([ "doh", 
+          "dojo/dom",
+          "dojo/dom-construct",
+          "dojo/dom-class",
+          "dojo/dom-style",
+          "dojo/domReady!" ], function(
+        		  doh, 
+        		  dom,
+        		  domConstruct,
+        		  domClass,
+        		  domStyle) {
+	// TODO:需要mockEditor
+	doh.register("TextInput", [ 
+	{
+		name: "测试编辑器中各div的高度，编辑器中没有内容时",
+		setUp: function(){
+			
+		},
+		runTest: function(t){
+			
+		},
+		tearDown: function(){
+			
+		}		
+	}]);
+	doh.runOnLoad();
+});
+
+</script>
+</head>
+<body>
+</body>
+</html>
