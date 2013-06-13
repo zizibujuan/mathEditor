@@ -228,6 +228,14 @@ define(["dojo/_base/declare",
 			this.model.setData({data:"\t"});
 		},
 		
+		switchInputMode: function(){
+			// summary:
+			//		在数学模式和普通模式之间切换
+			
+			this.model.toMathMLMode();
+			this.model.onChanged();
+		},
+		
 		// FIXME：如何测试这个方法中的逻辑呢？
 		onTextInput: function(inputData){
 			// TODO: 如果用户新输入的值，不在推荐之中，则先执行一个应用操作。
