@@ -1,4 +1,4 @@
-define([ "doh","mathEditor/Model" ], function(doh,Model) {
+define([ "doh","mathEditor/Model","mathEditor/lang" ], function(doh,Model,dripLang) {
 
 	doh.register("Model.setData.root 开根号",[
 	    {
@@ -59,7 +59,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				t.is("drip_placeholder_box", node.getAttribute("class"));
 				t.is(0, model.getOffset());
 				
-				t.is(2, line.firstChild.childElementCount);
+				t.is(2, dripLang.getChildLength(line.firstChild));
 				t.is(node.parentNode.parentNode, line.firstChild.lastChild);
 			},
 			tearDown: function(){
@@ -91,7 +91,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				t.is("drip_placeholder_box", node.getAttribute("class"));
 				t.is(0, model.getOffset());
 				
-				t.is(2, line.firstChild.childElementCount);
+				t.is(2, dripLang.getChildLength(line.firstChild));
 				t.is(node.parentNode.parentNode, line.firstChild.lastChild);
 			},
 			tearDown: function(){
@@ -124,7 +124,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				t.is("drip_placeholder_box", node.getAttribute("class"));
 				t.is(0, model.getOffset());
 				
-				t.is(2, line.firstChild.childElementCount);
+				t.is(2, dripLang.getChildLength(line.firstChild));
 				t.is(node.parentNode.parentNode, line.firstChild.lastChild);
 			},
 			tearDown: function(){
@@ -159,7 +159,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				t.is("drip_placeholder_box", node.getAttribute("class"));
 				t.is(0, model.getOffset());
 				
-				t.is(2, line.firstChild.childElementCount);
+				t.is(2, dripLang.getChildLength(line.firstChild));
 				t.is(node.parentNode.parentNode, line.firstChild.firstChild);
 			},
 			tearDown: function(){
@@ -191,7 +191,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				t.is("drip_placeholder_box", node.getAttribute("class"));
 				t.is(0, model.getOffset());
 				
-				t.is(2, line.firstChild.childElementCount);
+				t.is(2, dripLang.getChildLength(line.firstChild));
 				t.is(node.parentNode.parentNode, line.firstChild.firstChild);
 			},
 			tearDown: function(){
@@ -224,7 +224,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				t.is("drip_placeholder_box", node.getAttribute("class"));
 				t.is(0, model.getOffset());
 				
-				t.is(2, line.firstChild.childElementCount);
+				t.is(2, dripLang.getChildLength(line.firstChild));
 				t.is(node.parentNode.parentNode, line.firstChild.firstChild);
 			},
 			tearDown: function(){

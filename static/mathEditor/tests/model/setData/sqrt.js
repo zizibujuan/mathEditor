@@ -1,4 +1,4 @@
-define([ "doh","mathEditor/Model" ], function(doh,Model) {
+define([ "doh","mathEditor/Model","mathEditor/lang" ], function(doh,Model,dripLang) {
 
 	// summary:
 	//		以下节点下，只能包含一个参数，这个参数就是一个隐含的mrow节点：
@@ -238,7 +238,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				t.is("drip_placeholder_box", node.getAttribute("class"));
 				t.is(0, model.getOffset());
 				
-				t.is(2, line.firstChild.childElementCount);
+				t.is(2, dripLang.getChildLength(line.firstChild));
 				// msqrt下面不显式放mrow
 				t.is(node.parentNode, line.firstChild.lastChild);
 			},
@@ -271,7 +271,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				t.is("drip_placeholder_box", node.getAttribute("class"));
 				t.is(0, model.getOffset());
 				
-				t.is(2, line.firstChild.childElementCount);
+				t.is(2, dripLang.getChildLength(line.firstChild));
 				t.is(node.parentNode, line.firstChild.lastChild);
 			},
 			tearDown: function(){
@@ -304,7 +304,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				t.is("drip_placeholder_box", node.getAttribute("class"));
 				t.is(0, model.getOffset());
 				
-				t.is(2, line.firstChild.childElementCount);
+				t.is(2, dripLang.getChildLength(line.firstChild));
 				t.is(node.parentNode, line.firstChild.lastChild);
 			},
 			tearDown: function(){
@@ -339,7 +339,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				t.is("drip_placeholder_box", node.getAttribute("class"));
 				t.is(0, model.getOffset());
 				
-				t.is(2, line.firstChild.childElementCount);
+				t.is(2, dripLang.getChildLength(line.firstChild));
 				// msqrt下面不显式放mrow
 				t.is(node.parentNode, line.firstChild.firstChild);
 			},
@@ -372,7 +372,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				t.is("drip_placeholder_box", node.getAttribute("class"));
 				t.is(0, model.getOffset());
 				
-				t.is(2, line.firstChild.childElementCount);
+				t.is(2, dripLang.getChildLength(line.firstChild));
 				t.is(node.parentNode, line.firstChild.firstChild);
 			},
 			tearDown: function(){
@@ -405,7 +405,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				t.is("drip_placeholder_box", node.getAttribute("class"));
 				t.is(0, model.getOffset());
 				
-				t.is(2, line.firstChild.childElementCount);
+				t.is(2, dripLang.getChildLength(line.firstChild));
 				t.is(node.parentNode, line.firstChild.firstChild);
 			},
 			tearDown: function(){

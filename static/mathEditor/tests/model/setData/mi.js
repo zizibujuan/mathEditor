@@ -1,5 +1,5 @@
 // 输入英文字母
-define([ "doh", "dojo/aspect", "mathEditor/Model" ], function(doh,aspect,Model) {
+define([ "doh", "dojo/aspect", "mathEditor/Model","mathEditor/lang" ], function(doh,aspect,Model,dripLang) {
 	
 	// 现在的逻辑改为，如果在一个节点之前插入一个新节点，则光标的位置保持不变，即还是在原来节点之前，而不是调整到新节点之后。
 	// FIXME:到底是选哪种好呢？
@@ -233,7 +233,7 @@ define([ "doh", "dojo/aspect", "mathEditor/Model" ], function(doh,aspect,Model) 
   				t.is("mi", focusNode.nodeName);
   				t.is(1, model.getOffset());
   				t.is("x", focusNode.textContent);
-  				t.is(2, focusNode.parentNode.childElementCount);
+  				t.is(2, dripLang.getChildLength(focusNode.parentNode));
   			},
   			tearDown: function(){
   				
@@ -265,7 +265,7 @@ define([ "doh", "dojo/aspect", "mathEditor/Model" ], function(doh,aspect,Model) 
 				t.is("mi", focusNode.nodeName);
 				t.is(1, model.getOffset());
 				t.is("x", focusNode.textContent);
-				t.is(2, line.firstChild.childElementCount);
+				t.is(2, dripLang.getChildLength(line.firstChild));
   			},
   			tearDown: function(){
   				
@@ -296,7 +296,7 @@ define([ "doh", "dojo/aspect", "mathEditor/Model" ], function(doh,aspect,Model) 
   				var focusNode = model.getFocusNode();
   				t.is("mfrac", focusNode.nodeName);
   				t.is(0, model.getOffset());
-  				t.is(2, line.firstChild.childElementCount);
+  				t.is(2, dripLang.getChildLength(line.firstChild));
   				t.is(focusNode, line.firstChild.firstChild.nextSibling);
   			},
   			tearDown: function(){
@@ -328,7 +328,7 @@ define([ "doh", "dojo/aspect", "mathEditor/Model" ], function(doh,aspect,Model) 
   				var focusNode = model.getFocusNode();
   				t.is("mfrac", focusNode.nodeName);
   				t.is(0, model.getOffset());
-  				t.is(2, line.firstChild.childElementCount);
+  				t.is(2, dripLang.getChildLength(line.firstChild));
   				t.is(focusNode, line.firstChild.firstChild.nextSibling.firstChild);
   			},
   			tearDown: function(){

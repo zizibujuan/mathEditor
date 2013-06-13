@@ -1,4 +1,4 @@
-define([ "doh","mathEditor/Model" ], function(doh,Model) {
+define([ "doh","mathEditor/Model","mathEditor/lang" ], function(doh,Model,dripLang) {
 
 	// summary:
 	//		model.setData({data:"^"});与model.setData({data:"", nodeName:"msup"});的效果是一样的。
@@ -133,7 +133,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				
 				var line = model.getLineAt(0);
 				t.is("+", line.firstChild.firstChild.textContent);
-				t.is(2, line.firstChild.childElementCount);
+				t.is(2, dripLang.getChildLength(line.firstChild));
 			},
 			tearDown: function(){
 				
@@ -205,7 +205,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				t.is("mn", baseNode.nodeName);
 				t.is("drip_placeholder_box", baseNode.getAttribute("class"));
 				
-				t.is(2, line.firstChild.childElementCount);
+				t.is(2, dripLang.getChildLength(line.firstChild));
 			},
 			tearDown: function(){
 				
@@ -246,7 +246,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				t.is("mn", baseNode.nodeName);
 				t.is("12", baseNode.textContent);
 				
-				t.is(2, line.firstChild.childElementCount);
+				t.is(2, dripLang.getChildLength(line.firstChild));
 			},
 			tearDown: function(){
 				
@@ -287,7 +287,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				var node = model.getFocusNode();
 				t.is("msup", node.nodeName);
 				t.is(0, model.getOffset());
-				t.is(2, line.firstChild.childElementCount);
+				t.is(2, dripLang.getChildLength(line.firstChild));
 				t.is(node.previousSibling, line.firstChild.firstChild);
 			},
 			tearDown: function(){
@@ -324,7 +324,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				var node = model.getFocusNode();
 				t.is("mn", node.nodeName);
 				t.is(1, model.getOffset());
-				t.is(1, line.firstChild.childElementCount);
+				t.is(1, dripLang.getChildLength(line.firstChild));
 				t.is("123", node.textContent);
 			},
 			tearDown: function(){
@@ -361,7 +361,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				var node = model.getFocusNode();
 				t.is("mn", node.nodeName);
 				t.is(0, model.getOffset());
-				t.is(2, line.firstChild.childElementCount);
+				t.is(2, dripLang.getChildLength(line.firstChild));
 				t.is("msqrt", line.firstChild.firstChild.nodeName);
 			},
 			tearDown: function(){
@@ -398,7 +398,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				var node = model.getFocusNode();
 				t.is("mn", node.nodeName);
 				t.is(3, model.getOffset());
-				t.is(1, line.firstChild.childElementCount);
+				t.is(1, dripLang.getChildLength(line.firstChild));
 				t.is("123", node.textContent);
 			},
 			tearDown: function(){
@@ -440,7 +440,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				var node = model.getFocusNode();
 				t.is("mi", node.nodeName);
 				t.is(1, model.getOffset());
-				t.is(2, line.firstChild.childElementCount);
+				t.is(2, dripLang.getChildLength(line.firstChild));
 				t.is("mn", line.firstChild.firstChild.nodeName);
 			},
 			tearDown: function(){
@@ -483,7 +483,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				t.is("mn", node.nodeName);
 				t.is(0, model.getOffset());
 				
-				t.is(3, line.firstChild.childElementCount);
+				t.is(3, dripLang.getChildLength(line.firstChild));
 				t.is("mn", line.firstChild.firstChild.nodeName);
 				t.is("mo", line.firstChild.firstChild.nextSibling.nodeName);
 			},
@@ -526,7 +526,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				t.is("mn", node.nodeName);
 				t.is(0, model.getOffset());
 				
-				t.is(2, line.firstChild.childElementCount);
+				t.is(2, dripLang.getChildLength(line.firstChild));
 				t.is("mn", line.firstChild.firstChild.nodeName);
 				t.is("msup", line.firstChild.firstChild.nextSibling.nodeName);
 			},

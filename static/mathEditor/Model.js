@@ -101,7 +101,7 @@ define([ "dojo/_base/declare",
 			
 			// 光标默认放在第一行起始位置
 			var firstLine = this.doc.documentElement.firstChild;
-			if(firstLine.childElementCount == 0){
+			if(dripLang.getChildLength(firstLine) == 0){
 				this.anchor.node = firstLine;
 			}else{
 				var firstChild = firstLine.firstChild;
@@ -635,7 +635,7 @@ define([ "dojo/_base/declare",
 						newNode.textContent = moContent;
 						
 						var mstyleNode = node.parentNode;
-						if(mstyleNode.nodeName === "mstyle" && mstyleNode.childElementCount === 1){
+						if(this._isMstyleAndHasOneChild(mstyleNode)){
 							dripLang.insertNodeAfter(newNode,mstyleNode);
 						}else{
 							dripLang.insertNodeAfter(newNode,node);
@@ -652,6 +652,10 @@ define([ "dojo/_base/declare",
 			}
 			
 			return {node: node, offset: offset};
+		},
+		
+		_isMstyleAndHasOneChild: function(node /*mstyle*/){
+			return node.nodeName === "mstyle" && dripLang.getChildLength(node) === 1;
 		},
 		
 		insertMn: function(anchor, mnContent, nodeName){
@@ -750,7 +754,7 @@ define([ "dojo/_base/declare",
 			tokenNode.textContent = content;
 			
 			var mstyleNode = existNode.parentNode;
-			if(mstyleNode.nodeName === "mstyle" && mstyleNode.childElementCount === 1){
+			if(this._isMstyleAndHasOneChild(mstyleNode)){
 				dripLang.insertNodeAfter(tokenNode, mstyleNode);
 			}else{
 				dripLang.insertNodeAfter(tokenNode, existNode);
@@ -774,7 +778,7 @@ define([ "dojo/_base/declare",
 			tokenNode.textContent = content;
 			
 			var mstyleNode = existNode.parentNode;
-			if(mstyleNode.nodeName === "mstyle" && mstyleNode.childElementCount === 1){
+			if(this._isMstyleAndHasOneChild(mstyleNode)){
 				dripLang.insertNodeBefore(tokenNode, mstyleNode);
 			}else{
 				dripLang.insertNodeBefore(tokenNode, existNode);
@@ -822,7 +826,7 @@ define([ "dojo/_base/declare",
 				var mfenced = xmlUtil.createEmptyMfenced(xmlDoc, fencedContent)
 				
 				var mstyleNode = node.parentNode;
-				if(mstyleNode.nodeName === "mstyle" && mstyleNode.childElementCount === 1){
+				if(this._isMstyleAndHasOneChild(mstyleNode)){
 					dripLang.insertNodeAfter(mfenced.rootNode, mstyleNode);
 				}else{
 					dripLang.insertNodeAfter(mfenced.rootNode, node);
@@ -845,7 +849,7 @@ define([ "dojo/_base/declare",
 				
 				var mfenced = xmlUtil.createEmptyMfenced(xmlDoc, fencedContent)
 				var mstyleNode = node.parentNode;
-				if(mstyleNode.nodeName === "mstyle" && mstyleNode.childElementCount === 1){
+				if(this._isMstyleAndHasOneChild(mstyleNode)){
 					dripLang.insertNodeBefore(mfenced.rootNode, mstyleNode);
 				}else{
 					dripLang.insertNodeBefore(mfenced.rootNode, node);
@@ -1002,7 +1006,7 @@ define([ "dojo/_base/declare",
 				var fracData = xmlUtil.createEmptyFrac(xmlDoc);
 				
 				var mstyleNode = node.parentNode;
-				if(mstyleNode.nodeName === "mstyle" && mstyleNode.childElementCount === 1){
+				if(this._isMstyleAndHasOneChild(mstyleNode)){
 					dripLang.insertNodeAfter(fracData.rootNode, mstyleNode);
 				}else{
 					dripLang.insertNodeAfter(fracData.rootNode, node);
@@ -1025,7 +1029,7 @@ define([ "dojo/_base/declare",
 				
 				var fracData = xmlUtil.createEmptyFrac(xmlDoc);
 				var mstyleNode = node.parentNode;
-				if(mstyleNode.nodeName === "mstyle" && mstyleNode.childElementCount === 1){
+				if(this._isMstyleAndHasOneChild(mstyleNode)){
 					dripLang.insertNodeBefore(fracData.rootNode, mstyleNode);
 				}else{
 					dripLang.insertNodeBefore(fracData.rootNode, node);
@@ -1068,7 +1072,7 @@ define([ "dojo/_base/declare",
 				var sqrtData = xmlUtil.createEmptyMsqrt(xmlDoc);
 				
 				var mstyleNode = node.parentNode;
-				if(mstyleNode.nodeName === "mstyle" && mstyleNode.childElementCount === 1){
+				if(this._isMstyleAndHasOneChild(mstyleNode)){
 					dripLang.insertNodeAfter(sqrtData.rootNode, mstyleNode);
 				}else{
 					dripLang.insertNodeAfter(sqrtData.rootNode, node);
@@ -1090,7 +1094,7 @@ define([ "dojo/_base/declare",
 				
 				var sqrtData = xmlUtil.createEmptyMsqrt(xmlDoc);
 				var mstyleNode = node.parentNode;
-				if(mstyleNode.nodeName === "mstyle" && mstyleNode.childElementCount === 1){
+				if(this._isMstyleAndHasOneChild(mstyleNode)){
 					dripLang.insertNodeBefore(sqrtData.rootNode, mstyleNode);
 				}else{
 					dripLang.insertNodeBefore(sqrtData.rootNode, node);
@@ -1135,7 +1139,7 @@ define([ "dojo/_base/declare",
 				var rootData = xmlUtil.createEmptyMroot(xmlDoc);
 				
 				var mstyleNode = node.parentNode;
-				if(mstyleNode.nodeName === "mstyle" && mstyleNode.childElementCount === 1){
+				if(this._isMstyleAndHasOneChild(mstyleNode)){
 					dripLang.insertNodeAfter(rootData.rootNode, mstyleNode);
 				}else{
 					dripLang.insertNodeAfter(rootData.rootNode, node);
@@ -1157,7 +1161,7 @@ define([ "dojo/_base/declare",
 				
 				var rootData = xmlUtil.createEmptyMroot(xmlDoc);
 				var mstyleNode = node.parentNode;
-				if(mstyleNode.nodeName === "mstyle" && mstyleNode.childElementCount === 1){
+				if(this._isMstyleAndHasOneChild(mstyleNode)){
 					dripLang.insertNodeBefore(rootData.rootNode, mstyleNode);
 				}else{
 					dripLang.insertNodeBefore(rootData.rootNode, node);
@@ -1626,7 +1630,7 @@ define([ "dojo/_base/declare",
 			// 要判断mfrac外有没有mstyle节点，如果有，并且mstyle中就只有一个子节点，则也要删掉mstyle
 			
 			var mfrac = numeratorMrow.parentNode;
-			if(mfrac.parentNode.nodeName === "mstyle" && mfrac.parentNode.childElementCount === 1){
+			if(this._isMstyleAndHasOneChild(mfrac.parentNode)){
 				mfrac = mfrac.parentNode;// 此时已是mstyle节点
 			}
 			var len = numeratorMrow.childNodes.length;
@@ -1657,7 +1661,7 @@ define([ "dojo/_base/declare",
 			// 将分母中的内容移到mfrac之前，然后删除mfrac节点
 			var len = denominatorMrow.childNodes.length;
 			var mfrac = denominatorMrow.parentNode;
-			if(mfrac.parentNode.nodeName === "mstyle" && mfrac.parentNode.childElementCount === 1){
+			if(this._isMstyleAndHasOneChild(mfrac.parentNode)){
 				mfrac = mfrac.parentNode;// 此时已是mstyle节点
 			}
 			
@@ -1721,7 +1725,7 @@ define([ "dojo/_base/declare",
 		},
 		
 		_removeLeftMathLayoutNode: function(node /*math layout node*/){
-			if(node.parentNode.nodeName === "mstyle" && node.parentNode.childElementCount == 1){
+			if(this._isMstyleAndHasOneChild(node.parentNode)){
 				node = node.parentNode;
 			}
 			
@@ -1731,7 +1735,7 @@ define([ "dojo/_base/declare",
 				this._moveToTopLeft(node);
 				var parentNode = node.parentNode;
 				parentNode.removeChild(node);
-				if(parentNode.nodeName === "math" && parentNode.childElementCount ===0){
+				if(parentNode.nodeName === "math" && dripLang.getChildLength(parentNode) ===0){
 					this.anchor.offset = layoutOffset.select;
 				}
 			}else if(node.previousSibling){
@@ -1760,7 +1764,7 @@ define([ "dojo/_base/declare",
 		},
 		
 		_removeRightMathLayoutNode: function(node /*math layout node*/){
-			if(node.parentNode.nodeName === "mstyle" && node.parentNode.childElementCount == 1){
+			if(this._isMstyleAndHasOneChild(node.parentNode)){
 				node = node.parentNode;
 			}
 			
@@ -1769,7 +1773,7 @@ define([ "dojo/_base/declare",
 				this._moveToTopLeft(node);
 				var parentNode = node.parentNode;
 				parentNode.removeChild(node);
-				if(parentNode.nodeName === "math" && parentNode.childElementCount ===0){
+				if(parentNode.nodeName === "math" && dripLang.getChildLength(parentNode) ===0){
 					this.anchor.offset = layoutOffset.select;
 				}
 			}else if(node.nextSibling){
@@ -1847,11 +1851,11 @@ define([ "dojo/_base/declare",
 		_isSoleChildInMrow: function(node){
 			// summary:
 			//		判断node是mrow节点中的唯一一个子节点
-			return node.parentNode.nodeName === "mrow" && node.parentNode.childElementCount === 1;
+			return node.parentNode.nodeName === "mrow" && dripLang.getChildLength(node.parentNode) === 1;
 		},
 		
 		_isSoleChildInMsqrt: function(node){
-			return node.parentNode.nodeName === "msqrt" && node.parentNode.childElementCount === 1;
+			return node.parentNode.nodeName === "msqrt" && dripLang.getChildLength(node.parentNode) === 1;
 		},
 		
 		// TODO：因为在输入根式或分数完成后，会让其中的某个节点获取焦点，这个时候删除的时候，就不能快速
@@ -1941,7 +1945,7 @@ define([ "dojo/_base/declare",
 						this.path.pop();
 						parentNode.removeChild(node);
 						
-						if(parentNode.nodeName === "math" && parentNode.childElementCount == 0){
+						if(parentNode.nodeName === "math" && dripLang.getChildLength(parentNode) == 0){
 							this.anchor.offset = layoutOffset.select;
 						}
 						return;
@@ -1989,7 +1993,7 @@ define([ "dojo/_base/declare",
 						this.path.pop();
 						this.anchor.node = node.parentNode;
 						
-						if(node.parentNode.nodeName === "math" && node.parentNode.childElementCount === 1){
+						if(node.parentNode.nodeName === "math" && dripLang.getChildLength(node.parentNode) === 1){
 							this.anchor.offset = layoutOffset.select;
 						}else{
 							this.anchor.offset = 0;//如果是line的话为0
@@ -2107,7 +2111,7 @@ define([ "dojo/_base/declare",
 						this.path.pop();
 						var parentNode = node.parentNode;
 						parentNode.removeChild(node);
-						if(parentNode.nodeName === "math" && parentNode.childElementCount == 0){
+						if(parentNode.nodeName === "math" && dripLang.getChildLength(parentNode) == 0){
 							this.anchor.offset = layoutOffset.select;
 						}
 						
@@ -2142,7 +2146,7 @@ define([ "dojo/_base/declare",
 					var prev = node.previousSibling;
 					// 如果prev是layout节点，就要开始往里走
 					if(prev){
-						if(prev.nodeName === "mstyle" && prev.childElementCount === 1){
+						if(this._isMstyleAndHasOneChild(prev)){
 							prev = prev.firstChild;
 						}
 						this.anchor.node = prev;
@@ -2160,7 +2164,7 @@ define([ "dojo/_base/declare",
 					var parentNode = node.parentNode;
 					this.anchor.node = parentNode;
 					// math和msqrt中包含隐含的mrow，剩下的layout节点中包含mrow，这里通常不用判断mroot等。
-					if(parentNode.nodeName === "math" && parentNode.childElementCount === 1){
+					if(parentNode.nodeName === "math" && dripLang.getChildLength(parentNode) === 1){
 						this.anchor.offset = layoutOffset.select;
 					}else{
 						this.anchor.offset = 0;
@@ -2175,7 +2179,7 @@ define([ "dojo/_base/declare",
 				// 如果是mathml layout节点
 				// TODO：考虑删除前一个节点的情况
 				if(offset === layoutOffset.before){
-					if(node.parentNode.nodeName === "mstyle" && node.parentNode.childElementCount == 1){
+					if(this._isMstyleAndHasOneChild(node.parentNode)){
 						node = node.parentNode;
 					}
 					var prev = node.previousSibling;
@@ -2569,7 +2573,7 @@ define([ "dojo/_base/declare",
 					lastChild = lastChild.lastChild;
 				}
 			}
-			this.path.push({nodeName: lastChild.nodeName, offset:denominatorMrow.childElementCount});
+			this.path.push({nodeName: lastChild.nodeName, offset:dripLang.getChildLength(denominatorMrow)});
 			this.anchor.node = lastChild;
 			this.anchor.offset = offset;
 		},
@@ -2740,7 +2744,7 @@ define([ "dojo/_base/declare",
 			var baseMrow = node.firstChild; //mrow，只有调用firstChild才能保证永远正确
 			this.path.push({nodeName: baseMrow.nodeName, offset: 1/*base是第一个节点*/});
 			var lastChild = baseMrow.lastChild;
-			this.path.push({nodeName: lastChild.nodeName, offset: baseMrow.childElementCount});
+			this.path.push({nodeName: lastChild.nodeName, offset: dripLang.getChildLength(baseMrow)});
 			this.anchor.node = lastChild;
 			if(this._isTokenNode(lastChild.nodeName)){
 				this.anchor.offset = this._getTextLength(lastChild);
@@ -2882,7 +2886,7 @@ define([ "dojo/_base/declare",
 			var prev = node.previousSibling;
 			if(prev && node.nodeName === "text" && prev.nodeName === "math"){
 				this._movePathToPreviousSibling(prev);
-				if(prev.childElementCount > 0){
+				if(dripLang.getChildLength(prev) > 0){
 					this._moveInNodeEnd(prev);
 				}else{
 					this.anchor.node = prev;
@@ -3299,7 +3303,7 @@ define([ "dojo/_base/declare",
 			var next = node.nextSibling;
 			if(next && node.nodeName === "text" && next.nodeName === "math"){
 				this._movePathToNextSibling(next);
-				if(next.childElementCount > 0){
+				if(dripLang.getChildLength(next) > 0){
 					// 光标放在math中的第一个节点前面
 					this._moveInNodeStart(next);
 				}else{

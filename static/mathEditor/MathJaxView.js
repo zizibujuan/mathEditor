@@ -231,7 +231,7 @@ define(["dojo/_base/declare",
 				};
 				// 判断math中没有子节点
 				var focusNode = this.model.getFocusNode();
-				if(focusNode.nodeName === "math" && focusNode.childElementCount ===0/*focusInfo.node == mathNode*/){
+				if(focusNode.nodeName === "math" && dripLang.getChildLength(focusNode) ===0/*focusInfo.node == mathNode*/){
 					positionStyle["background-color"] = "rgb(204, 203, 203)";
 					domStyle.set(area, positionStyle);
 				}else{
@@ -353,7 +353,7 @@ define(["dojo/_base/declare",
 				var _w = 0;
 				var _ld = null;
 				for(var i = 0; i < lineCount; i++){
-					if(lines[i].childElementCount > 0){
+					if(dripLang.getChildLength(lines[i]) > 0){
 						_ld = lines[i].lastChild;
 						_w = _ld.offsetLeft + _ld.offsetWidth;
 						if(_w > maxWidth){

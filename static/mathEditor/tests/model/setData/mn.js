@@ -1,4 +1,4 @@
-define([ "doh","mathEditor/Model" ], function(doh,Model) {
+define([ "doh","mathEditor/Model","mathEditor/lang" ], function(doh,Model,dripLang) {
 
 	doh.register("Model.setData.mn number-输入数字",[
 	    {
@@ -268,7 +268,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				t.is("mn", focusNode.nodeName);
   				t.is(1, model.getOffset());
   				t.is("1", focusNode.textContent);
-  				t.is(2, focusNode.parentNode.childElementCount);
+  				t.is(2, dripLang.getChildLength(focusNode.parentNode));
   			},
   			tearDown: function(){
   				
@@ -300,7 +300,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				t.is("mn", focusNode.nodeName);
 				t.is(1, model.getOffset());
 				t.is("1", focusNode.textContent);
-				t.is(2, line.firstChild.childElementCount);
+				t.is(2, dripLang.getChildLength(line.firstChild));
   			},
   			tearDown: function(){
   				
@@ -332,7 +332,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				t.is("mn", focusNode.nodeName);
 				t.is(1, model.getOffset());
 				t.is("1", focusNode.textContent);
-				t.is(2, line.firstChild.childElementCount);
+				t.is(2, dripLang.getChildLength(line.firstChild));
   			},
   			tearDown: function(){
   				
@@ -363,7 +363,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				var focusNode = model.getFocusNode();
   				t.is("mfrac", focusNode.nodeName);
   				t.is(0, model.getOffset());
-  				t.is(2, line.firstChild.childElementCount);
+  				t.is(2, dripLang.getChildLength(line.firstChild));
   				t.is(focusNode, line.firstChild.firstChild.nextSibling);
   			},
   			tearDown: function(){
@@ -395,7 +395,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				var focusNode = model.getFocusNode();
   				t.is("mfrac", focusNode.nodeName);
   				t.is(0, model.getOffset());
-  				t.is(2, line.firstChild.childElementCount);
+  				t.is(2, dripLang.getChildLength(line.firstChild));
   				t.is(focusNode, line.firstChild.firstChild.nextSibling.firstChild);
   			},
   			tearDown: function(){

@@ -144,6 +144,14 @@ define(["dojo/_base/array"],function(array){
 			width : measureNode.offsetWidth
 		};
 		return size;
+	},
+	
+	lang.getChildLength = function(parentNode){
+		if(parentNode.childElementCount){
+			return parentNode.childElementCount;
+		}else{
+			return parentNode.childNodes.length;
+		}
 	}
 
 	return lang;

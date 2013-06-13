@@ -1,4 +1,4 @@
-define([ "doh", "mathEditor/tests/testUtil", "mathEditor/Model" ], function(doh,testUtil,Model) {
+define([ "doh", "mathEditor/tests/testUtil", "mathEditor/Model","mathEditor/lang" ], function(doh,testUtil,Model,dripLang) {
 
 	// summary:
 	//		1.在空math中输入frac
@@ -75,7 +75,7 @@ define([ "doh", "mathEditor/tests/testUtil", "mathEditor/Model" ], function(doh,
 				t.t(node.parentNode.previousSibling == null);
 				testUtil.isPlaceHolder(t, model.anchor);
 				// 判断新的mfrac是添加在mstyle之后，而不是mstyle中
-				t.is(2, line.firstChild.childElementCount);
+				t.is(2, dripLang.getChildLength(line.firstChild));
 				// 确定新插入的mfrac在layout后
 				t.is(node.parentNode.parentNode.parentNode, line.firstChild.lastChild);
 			},
@@ -111,7 +111,7 @@ define([ "doh", "mathEditor/tests/testUtil", "mathEditor/Model" ], function(doh,
 				t.t(node.parentNode.previousSibling == null);
 				testUtil.isPlaceHolder(t, model.anchor);
 				// 判断新的mfrac是添加在mstyle之后，而不是mstyle中
-				t.is(2, line.firstChild.childElementCount);
+				t.is(2, dripLang.getChildLength(line.firstChild));
 				// 确定新插入的mfrac在layout后
 				t.is(node.parentNode.parentNode.parentNode, line.firstChild.lastChild);
 			},
@@ -147,7 +147,7 @@ define([ "doh", "mathEditor/tests/testUtil", "mathEditor/Model" ], function(doh,
 				t.t(node.parentNode.previousSibling == null);
 				testUtil.isPlaceHolder(t, model.anchor);
 				// 判断新的mfrac是添加在mstyle之后，而不是mstyle中
-				t.is(2, line.firstChild.childElementCount);
+				t.is(2, dripLang.getChildLength(line.firstChild));
 				// 确定新插入的mfrac在layout后
 				t.is(node.parentNode.parentNode.parentNode, line.firstChild.lastChild);
 			},
@@ -247,7 +247,7 @@ define([ "doh", "mathEditor/tests/testUtil", "mathEditor/Model" ], function(doh,
 				t.t(node.parentNode.previousSibling == null);
 				testUtil.isPlaceHolder(t, model.anchor);
 				// 判断新的mfrac是添加在mstyle之后，而不是mstyle中
-				t.is(2, line.firstChild.childElementCount);
+				t.is(2, dripLang.getChildLength(line.firstChild));
 				// 确定新插入的mfrac在layout前
 				t.is(node.parentNode.parentNode.parentNode, line.firstChild.firstChild);
 			},
@@ -283,7 +283,7 @@ define([ "doh", "mathEditor/tests/testUtil", "mathEditor/Model" ], function(doh,
 				t.t(node.parentNode.previousSibling == null);
 				testUtil.isPlaceHolder(t, model.anchor);
 				// 判断新的mfrac是添加在mstyle之后，而不是mstyle中
-				t.is(3, line.firstChild.childElementCount);
+				t.is(3, dripLang.getChildLength(line.firstChild));
 				// 确定新插入的mfrac在layout前
 				t.is(node.parentNode.parentNode.parentNode, line.firstChild.firstChild.nextSibling);
 			},

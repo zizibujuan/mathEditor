@@ -1,4 +1,4 @@
-define([ "doh","mathEditor/Model" ], function(doh,Model) {
+define([ "doh","mathEditor/Model","mathEditor/lang" ], function(doh,Model,dripLang) {
 
 	doh.register("Model.setData.fence fence对称的括号",[
 	    {
@@ -62,7 +62,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 			
 				var mfencedNode = node.parentNode.parentNode;
 				t.is("mfenced",mfencedNode.nodeName);
-				t.is(2, line.firstChild.childElementCount);
+				t.is(2, dripLang.getChildLength(line.firstChild));
 				t.is("mn", line.firstChild.firstChild.nodeName);
 				t.is("mfenced", line.firstChild.firstChild.nextSibling.nodeName);
 			},
@@ -97,7 +97,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 			
 				var mfencedNode = node.parentNode.parentNode;
 				t.is("mfenced",mfencedNode.nodeName);
-				t.is(2, line.firstChild.childElementCount);
+				t.is(2, dripLang.getChildLength(line.firstChild));
 				t.is("mfenced", line.firstChild.firstChild.nodeName);
 				t.is("mn", line.firstChild.firstChild.nextSibling.nodeName);
 			},
@@ -132,7 +132,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 			
 				var mfencedNode = node.parentNode.parentNode;
 				t.is("mfenced",mfencedNode.nodeName);
-				t.is(3, line.firstChild.childElementCount);
+				t.is(3, dripLang.getChildLength(line.firstChild));
 				t.is("mn", line.firstChild.firstChild.nodeName);
 				t.is("mfenced", line.firstChild.firstChild.nextSibling.nodeName);
 				t.is("mn", line.firstChild.lastChild.nodeName);

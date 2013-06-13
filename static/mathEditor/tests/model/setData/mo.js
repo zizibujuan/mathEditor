@@ -1,4 +1,4 @@
-define([ "doh","mathEditor/Model" ], function(doh,Model) {
+define([ "doh","mathEditor/Model","mathEditor/lang" ], function(doh,Model,dripLang) {
 
 	function testSupportOperator(t, model, operator){
 		// summary:
@@ -407,7 +407,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				var focusNode = model.getFocusNode();
   				t.is("mfrac", focusNode.nodeName);
   				t.is(0, model.getOffset());
-  				t.is(2, focusNode.parentNode.childElementCount);
+  				t.is(2, dripLang.getChildLength(focusNode.parentNode));
   				t.is(focusNode, line.firstChild.firstChild.nextSibling);
   			},
   			tearDown: function(){
@@ -439,7 +439,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				var focusNode = model.getFocusNode();
   				t.is("mfrac", focusNode.nodeName);
   				t.is(0, model.getOffset());
-  				t.is(2, focusNode.parentNode.parentNode.childElementCount);
+  				t.is(2, dripLang.getChildLengthfocusNode.parentNode.parentNode));
   				t.is(focusNode, line.firstChild.firstChild.nextSibling.firstChild);
   			},
   			tearDown: function(){

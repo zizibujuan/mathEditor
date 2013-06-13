@@ -1,4 +1,4 @@
-define([ "doh","mathEditor/Model" ], function(doh,Model) {
+define([ "doh","mathEditor/Model","mathEditor/lang" ], function(doh,Model,dripLang) {
 
 	doh.register("Model.setData.math",[
 	    {
@@ -23,7 +23,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				t.is(1, model.getOffset());// 表示已经移到math之后
   				t.t(model.isTextMode());
   				t.is("a", focusNode.textContent);
-  				t.is(2, focusNode.parentNode.childElementCount);
+  				t.is(2, dripLang.getChildLength(focusNode.parentNode));
   			},
   			tearDown: function(){
   				
