@@ -439,7 +439,7 @@ define([ "doh","mathEditor/Model","mathEditor/lang" ], function(doh,Model,dripLa
   				var focusNode = model.getFocusNode();
   				t.is("mfrac", focusNode.nodeName);
   				t.is(0, model.getOffset());
-  				t.is(2, dripLang.getChildLengthfocusNode.parentNode.parentNode));
+  				t.is(2, dripLang.getChildLength(focusNode.parentNode.parentNode));
   				t.is(focusNode, line.firstChild.firstChild.nextSibling.firstChild);
   			},
   			tearDown: function(){
