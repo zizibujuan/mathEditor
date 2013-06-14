@@ -1,4 +1,4 @@
-define([ "doh","mathEditor/Model" ], function(doh,Model) {
+define([ "doh", "mathEditor/Model", "mathEditor/lang" ], function(doh, Model, dripLang) {
 
 	// summary:
 	//		删除整个平方根(因为删除整个平方根的逻辑与删除分数的逻辑是一样的，所以不再提供测试用例，只测试平方根专有的逻辑)

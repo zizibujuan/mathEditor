@@ -22,7 +22,7 @@ define([ "doh","mathEditor/Model","mathEditor/lang" ], function(doh,Model,dripLa
   				t.is("text", focusNode.nodeName);
   				t.is(1, model.getOffset());// 表示已经移到math之后
   				t.t(model.isTextMode());
-  				t.is("a", focusNode.textContent);
+  				t.is("a", dripLang.getText(focusNode));
   				t.is(2, dripLang.getChildLength(focusNode.parentNode));
   			},
   			tearDown: function(){

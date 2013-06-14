@@ -1,4 +1,4 @@
-define([ "doh","mathEditor/Model" ], function(doh,Model) {
+define([ "doh", "mathEditor/Model", "mathEditor/lang" ], function(doh, Model, dripLang) {
 
 	// 无论是text模式还是mathml模式，都允许输入希腊字母
 	
@@ -15,7 +15,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				t.is("/root/line[1]/text[1]", model.getPath());
 				var focusNode = model.getFocusNode();
 				t.is(focusNode.nodeName, "text");
-				t.is("&#x3B1;", focusNode.textContent);
+				t.is("&#x3B1;", dripLang.getText(focusNode));
 				t.is(1, model.getOffset());
   			},
   			tearDown: function(){
@@ -34,7 +34,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				t.is("/root/line[1]/math[1]/mi[1]", model.getPath());
 				var focusNode = model.getFocusNode();
 				t.is(focusNode.nodeName, "mi");
-				t.is("&#x3B1;", focusNode.textContent);
+				t.is("&#x3B1;", dripLang.getText(focusNode));
 				t.is(1, model.getOffset());
   			},
   			tearDown: function(){

@@ -24,7 +24,6 @@ define(["dojo/_base/declare",
 	return declare("mathEditor.Editor",[_WidgetBase],{
 		model: null,
 		view: null,
-		textarea: null,
 		
 		// rows: int
 		//		编辑器中的行数，默认是两行。注意，既可以通过指定行来设置编辑器的高度，也可以通过设置height样式来设置。

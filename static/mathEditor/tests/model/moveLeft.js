@@ -1,4 +1,4 @@
-define([ "doh", "mathEditor/Model" ], function(doh, Model) {
+define([ "doh", "mathEditor/Model", "mathEditor/lang" ], function(doh, Model, dripLang) {
 	
 	doh.register("Model.moveLeft", [ {
 		name:"text模式下，输入一个换行符，然后执行一次左移",
@@ -161,7 +161,7 @@ define([ "doh", "mathEditor/Model" ], function(doh, Model) {
 			model.moveLeft();
 			model.moveLeft();
 			t.is("/root/line[1]/text[1]", model.getPath());
-			t.is("中",model.getFocusNode().textContent);
+			t.is("中",dripLang.getText(model.getFocusNode()));
 			t.is("text",model.getFocusNode().nodeName);
 			t.is(1, model.getOffset());
 			model.clear();
@@ -175,7 +175,7 @@ define([ "doh", "mathEditor/Model" ], function(doh, Model) {
 //			model.moveLeft();
 //			model.moveLeft();
 //			t.is("/root/line[1]/math[1]/mn[1]", model.getPath());
-//			t.is("1",model.getFocusNode().textContent);
+//			t.is("1",dripLang.getText(model.getFocusNode()));
 //			t.is("mn",model.getFocusNode().nodeName);
 //			t.is(1, model.getOffset());
 			

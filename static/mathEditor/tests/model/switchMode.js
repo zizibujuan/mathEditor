@@ -1,4 +1,4 @@
-define([ "doh","mathEditor/Model" ], function(doh,Model) {
+define([ "doh", "mathEditor/Model", "mathEditor/lang" ], function(doh, Model, dripLang) {
 
 	var layoutOffset = {before:0, after:1, select:2 /*当前节点处于选中状态*/};
 	// summary:
@@ -241,7 +241,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				t.t(model.isTextMode());
   				t.is("text", focusNode.nodeName);
   				t.is(3, model.getOffset());
-  				t.is("abc", focusNode.textContent);
+  				t.is("abc", dripLang.getText(focusNode));
   				t.is("/root/line[1]/text[1]", model.getPath());
   				t.is(1, line.childNodes.length);
   			},

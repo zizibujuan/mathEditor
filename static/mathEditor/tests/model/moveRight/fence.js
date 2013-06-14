@@ -1,4 +1,4 @@
-define([ "doh","mathEditor/Model" ], function(doh,Model) {
+define([ "doh", "mathEditor/Model", "mathEditor/lang" ], function(doh, Model, dripLang) {
 
 	// summary:
 	//		在括号上右移光标（目前只支持一个mrow子节点）
@@ -41,7 +41,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				var node = model.getFocusNode();
 				t.is("mn", node.nodeName);
 				t.is(0, model.getOffset());
-				t.is("123", node.textContent);
+				t.is("123", dripLang.getText(node));
   			},
   			tearDown: function(){
   				
@@ -107,7 +107,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				var node = model.getFocusNode();
 				t.is("mn", node.nodeName);
 				t.is(0, model.getOffset());
-				t.is("12", node.textContent);
+				t.is("12", dripLang.getText(node));
   			},
   			tearDown: function(){
   				
@@ -174,7 +174,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				var node = model.getFocusNode();
 				t.is("mn", node.nodeName);
 				t.is(0, model.getOffset());
-				t.is("123", node.textContent);
+				t.is("123", dripLang.getText(node));
   			},
   			tearDown: function(){
   				

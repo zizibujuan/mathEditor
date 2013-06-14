@@ -1,4 +1,4 @@
-define([ "doh","mathEditor/Model" ], function(doh,Model) {
+define([ "doh", "mathEditor/Model", "mathEditor/lang" ], function(doh, Model, dripLang) {
 
 	doh.register("Model.setData.text 在text中输入文本",[
 	    /********************text模式下，输入英文字母*******************/
@@ -13,7 +13,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				t.is("/root/line[1]/text[1]", model.getPath());
 				var focusNode = model.getFocusNode();
 				t.is(focusNode.nodeName, "text");
-				t.is("a", focusNode.textContent);
+				t.is("a", dripLang.getText(focusNode));
 				t.is(1, model.getOffset());
 			},
 			tearDown: function(){
@@ -30,7 +30,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				t.is("/root/line[1]/text[1]", model.getPath());
 				var focusNode = model.getFocusNode();
 				t.is(focusNode.nodeName, "text");
-				t.is("ab", focusNode.textContent);
+				t.is("ab", dripLang.getText(focusNode));
 				t.is(2, model.getOffset());
 			},
 			tearDown: function(){
@@ -48,7 +48,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				t.is("/root/line[1]/text[1]", model.getPath());
 				var focusNode = model.getFocusNode();
 				t.is(focusNode.nodeName, "text");
-				t.is("ab", focusNode.textContent);
+				t.is("ab", dripLang.getText(focusNode));
 				t.is(2, model.getOffset());
 			},
 			tearDown: function(){
@@ -67,7 +67,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				t.is("/root/line[1]/text[1]", model.getPath());
 				var focusNode = model.getFocusNode();
 				t.is(focusNode.nodeName, "text");
-				t.is("acb", focusNode.textContent);
+				t.is("acb", dripLang.getText(focusNode));
 				t.is(2, model.getOffset());
 			},
 			tearDown: function(){
@@ -86,7 +86,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				t.is("/root/line[1]/text[1]", model.getPath());
 				var focusNode = model.getFocusNode();
 				t.is(focusNode.nodeName, "text");
-				t.is("ba", focusNode.textContent);
+				t.is("ba", dripLang.getText(focusNode));
 				t.is(1, model.getOffset());
 			},
 			tearDown: function(){
@@ -107,14 +107,14 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				t.is("/root/line[1]/text[1]", model.getPath());
   				t.is("text", focusNode.nodeName);
   				t.is(1, model.getOffset());
-  				t.is("1", focusNode.textContent);
+  				t.is("1", dripLang.getText(focusNode));
   				
   				model.setData({data:"2"});
   				focusNode = model.getFocusNode();
   				t.is("/root/line[1]/text[1]", model.getPath());
   				t.is("text", focusNode.nodeName);
   				t.is(2, model.getOffset());
-  				t.is("12", focusNode.textContent);
+  				t.is("12", dripLang.getText(focusNode));
   				
   				model.anchor.offset--;
   				model.setData({data:"3"});
@@ -122,7 +122,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				t.is("/root/line[1]/text[1]", model.getPath());
   				t.is("text", focusNode.nodeName);
   				t.is(2, model.getOffset());
-  				t.is("132", focusNode.textContent);
+  				t.is("132", dripLang.getText(focusNode));
   			},
   			tearDown: function(){
   				
@@ -156,7 +156,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				t.is("/root/line[1]/text[2]", model.getPath());
   				t.is("text", focusNode.nodeName);
   				t.is(1, model.getOffset());
-  				t.is("a", focusNode.textContent);
+  				t.is("a", dripLang.getText(focusNode));
   			},
   			tearDown: function(){
   				
@@ -193,7 +193,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				t.is("/root/line[1]/text[2]", model.getPath());
   				t.is("text", focusNode.nodeName);
   				t.is(1, model.getOffset());
-  				t.is("a", focusNode.textContent);
+  				t.is("a", dripLang.getText(focusNode));
   			},
   			tearDown: function(){
   				
@@ -228,7 +228,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				t.is("/root/line[1]/text[2]", model.getPath());
   				t.is("text", focusNode.nodeName);
   				t.is(1, model.getOffset());
-  				t.is("abc", focusNode.textContent);
+  				t.is("abc", dripLang.getText(focusNode));
   			},
   			tearDown: function(){
   				
@@ -266,7 +266,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				t.is("/root/line[1]/text[2]", model.getPath());
   				t.is("text", focusNode.nodeName);
   				t.is(1, model.getOffset());
-  				t.is("abc", focusNode.textContent);
+  				t.is("abc", dripLang.getText(focusNode));
   			},
   			tearDown: function(){
   				
@@ -300,7 +300,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				t.is("/root/line[1]/text[1]", model.getPath());
   				t.is("text", focusNode.nodeName);
   				t.is(1, model.getOffset());
-  				t.is("a", focusNode.textContent);
+  				t.is("a", dripLang.getText(focusNode));
   			},
   			tearDown: function(){
   				
@@ -337,7 +337,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				t.is("/root/line[1]/text[1]", model.getPath());
   				t.is("text", focusNode.nodeName);
   				t.is(1, model.getOffset());
-  				t.is("a", focusNode.textContent);
+  				t.is("a", dripLang.getText(focusNode));
   			},
   			tearDown: function(){
   				
@@ -372,7 +372,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				t.is("/root/line[1]/text[1]", model.getPath());
   				t.is("text", focusNode.nodeName);
   				t.is(3, model.getOffset());
-  				t.is("abc", focusNode.textContent);
+  				t.is("abc", dripLang.getText(focusNode));
   			},
   			tearDown: function(){
   				
@@ -410,7 +410,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				t.is("/root/line[1]/text[1]", model.getPath());
   				t.is("text", focusNode.nodeName);
   				t.is(3, model.getOffset());
-  				t.is("abc", focusNode.textContent);
+  				t.is("abc", dripLang.getText(focusNode));
   			},
   			tearDown: function(){
   				

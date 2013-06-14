@@ -42,7 +42,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				t.t(node.parentNode.previousSibling == null); // 证明是分子。
 				t.is("mn", node.nodeName);
 				t.is(0, model.getOffset());
-				t.is("11", node.textContent);
+				t.is("11", dripLang.getText(node));
 			},
 			tearDown: function(){
 				
@@ -152,7 +152,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				t.t(node.parentNode.previousSibling == null); // 证明是分子。
 				t.is("mn", node.nodeName);
 				t.is(0, model.getOffset());
-				t.is("11", node.textContent);
+				t.is("11", dripLang.getText(node));
 			},
 			tearDown: function(){
 				
@@ -267,7 +267,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				t.t(node.parentNode.previousSibling == null); // 证明是分子。
 				t.is("mn", node.nodeName);
 				t.is(0, model.getOffset());
-				t.is("34", node.textContent);
+				t.is("34", dripLang.getText(node));
 			},
 			tearDown: function(){
 				
@@ -404,7 +404,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				t.t(node.parentNode.previousSibling == null); // 证明是分子。
 				t.is("mn", node.nodeName);
 				t.is(0, model.getOffset());
-				t.is("11", node.textContent);
+				t.is("11", dripLang.getText(node));
 			},
 			tearDown: function(){
 				
@@ -580,7 +580,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				t.t(node.parentNode.nextSibling == null); // 证明是分母。
 				t.is("mn", node.nodeName);
 				t.is(0, model.getOffset());
-				t.is("22", node.textContent);
+				t.is("22", dripLang.getText(node));
 			},
 			tearDown: function(){
 				
@@ -619,7 +619,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				t.t(node.parentNode.nextSibling == null); // 证明是分母。
 				t.is("mn", node.nodeName);
 				t.is(0, model.getOffset());
-				t.is("22", node.textContent);
+				t.is("22", dripLang.getText(node));
 			},
 			tearDown: function(){
 				
@@ -843,7 +843,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				t.t(node.parentNode.previousSibling != null);
 				t.is("mn", node.nodeName);
 				t.is(0, model.getOffset());
-				t.is("2", node.textContent);
+				t.is("2", dripLang.getText(node));
   			},
   			tearDown: function(){
   				

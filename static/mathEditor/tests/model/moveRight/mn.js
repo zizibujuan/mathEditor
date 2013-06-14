@@ -1,4 +1,4 @@
-define([ "doh","mathEditor/Model" ], function(doh,Model) {
+define([ "doh", "mathEditor/Model", "mathEditor/lang" ], function(doh, Model, dripLang) {
 
 	doh.register("Model.moveRight.mn 在mn节点中右移",[
 	    {
@@ -29,7 +29,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				t.is("/root/line[1]/math[1]/mn[2]", model.getPath()); 
   				t.is(node.nodeName, "mn");
   				t.is(1, model.getOffset());
-  				t.is("1", node.textContent);
+  				t.is("1", dripLang.getText(node));
   			},
   			tearDown: function(){
   				
@@ -62,7 +62,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				t.is("/root/line[1]/math[1]/mn[2]", model.getPath()); 
   				t.is(node.nodeName, "mn");
   				t.is(1, model.getOffset());
-  				t.is("12", node.textContent);
+  				t.is("12", dripLang.getText(node));
   			},
   			tearDown: function(){
   				

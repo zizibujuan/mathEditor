@@ -1,4 +1,4 @@
-define([ "doh","mathEditor/Model" ], function(doh,Model) {
+define([ "doh", "mathEditor/Model", "mathEditor/lang" ], function(doh, Model, dripLang) {
 
 	// summry:
 	//		光标在最后一行的结束位置：
@@ -131,7 +131,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				t.is("text", focusNode.nodeName);
   				t.is(0, model.getOffset());
   				t.is(1, model.getLineCount());
-  				t.is("abc", focusNode.textContent);
+  				t.is("abc", dripLang.getText(focusNode));
   			},
   			tearDown: function(){
   				
@@ -186,7 +186,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				t.is("text", focusNode.nodeName);
   				t.is(3, model.getOffset());
   				t.is(1, model.getLineCount());
-  				t.is("abcde", focusNode.textContent);
+  				t.is("abcde", dripLang.getText(focusNode));
   			},
   			tearDown: function(){
   				

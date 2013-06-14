@@ -1,4 +1,4 @@
-define([ "doh","mathEditor/Model" ], function(doh,Model) {
+define([ "doh", "mathEditor/Model", "mathEditor/lang" ], function(doh, Model, dripLang) {
 
 	// summary
 	//		这里的测试逻辑有：
@@ -42,7 +42,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				t.t(node.parentNode.nextSibling == null); // 证明是分母。
 				t.is("mn", node.nodeName);
 				t.is(2, model.getOffset());
-				t.is("22", node.textContent);
+				t.is("22", dripLang.getText(node));
   			},
   			tearDown: function(){
   				
@@ -152,7 +152,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				t.t(node.parentNode.nextSibling == null); // 证明是分母。
 				t.is("mn", node.nodeName);
 				t.is(2, model.getOffset());
-				t.is("22", node.textContent);
+				t.is("22", dripLang.getText(node));
   			},
   			tearDown: function(){
   				
@@ -265,7 +265,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				t.t(node.parentNode.nextSibling == null); // 证明是分母。
 				t.is("mn", node.nodeName);
 				t.is(2, model.getOffset());
-				t.is("22", node.textContent);
+				t.is("22", dripLang.getText(node));
   			},
   			tearDown: function(){
   				
@@ -380,7 +380,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				t.t(node.parentNode.nextSibling == null); // 证明是分母。
 				t.is("mn", node.nodeName);
 				t.is(2, model.getOffset());
-				t.is("22", node.textContent);
+				t.is("22", dripLang.getText(node));
 			},
 			tearDown: function(){
 				
@@ -497,7 +497,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				t.t(node.parentNode.previousSibling == null); // 证明是分子。
 				t.is("mn", node.nodeName);
 				t.is(2, model.getOffset());
-				t.is("11", node.textContent);
+				t.is("11", dripLang.getText(node));
   			},
   			tearDown: function(){
   				
@@ -734,7 +734,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				var node = model.getFocusNode();
 				t.is("mn", node.nodeName);
 				t.is(0, model.getOffset());
-				t.is("2", node.textContent);
+				t.is("2", dripLang.getText(node));
   				
   				model.moveLeft();
   				t.is("/root/line[1]/math[1]/mfrac[1]/mrow[1]/mn[1]", model.getPath());
@@ -742,7 +742,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				t.t(node.parentNode.previousSibling == null);
 				t.is("mn", node.nodeName);
 				t.is(1, model.getOffset());
-				t.is("1", node.textContent);
+				t.is("1", dripLang.getText(node));
   			},
   			tearDown: function(){
   				

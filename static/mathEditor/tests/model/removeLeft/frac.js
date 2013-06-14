@@ -1,4 +1,4 @@
-define([ "doh","mathEditor/Model" ], function(doh,Model) {
+define([ "doh", "mathEditor/Model", "mathEditor/lang" ], function(doh, Model, dripLang) {
 
 	// summary:
 	//		测试分数被mstyle封装的情况和没有被mstyle封装的情况。
@@ -110,7 +110,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				t.is("/root/line[1]/math[1]/mn[1]", model.getPath());
   				t.is("mn", focusNode.nodeName);
   				t.is(4, model.getOffset());
-  				t.is("1234", focusNode.textContent);
+  				t.is("1234", dripLang.getText(focusNode));
   				t.is(1, line.firstChild.childNodes.length)// 确保mfrac节点从math中删除
   			},
   			tearDown: function(){
@@ -143,7 +143,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				t.is("/root/line[1]/math[1]/mn[1]", model.getPath());
   				t.is("mn", focusNode.nodeName);
   				t.is(4, model.getOffset());
-  				t.is("1234", focusNode.textContent);
+  				t.is("1234", dripLang.getText(focusNode));
   				t.is(1, line.firstChild.childNodes.length)// 确保mfrac节点从math中删除
   			},
   			tearDown: function(){
@@ -295,7 +295,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				t.is("/root/line[1]/math[1]/mfrac[1]", model.getPath());
   				t.is("mfrac", focusNode.nodeName);
   				t.is(0, model.getOffset());
-  				t.is("34", focusNode.textContent);// 确保是第二个分数
+  				t.is("34", dripLang.getText(focusNode));// 确保是第二个分数
   				t.is(1, line.firstChild.childNodes.length)// 确保mfrac节点从math中删除
   			},
   			tearDown: function(){
@@ -326,7 +326,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				t.is("/root/line[1]/math[1]/mfrac[1]", model.getPath());
   				t.is("mfrac", focusNode.nodeName);
   				t.is(0, model.getOffset());
-  				t.is("34", focusNode.textContent);// 确保是第二个分数
+  				t.is("34", dripLang.getText(focusNode));// 确保是第二个分数
   				t.is(1, line.firstChild.childNodes.length)// 确保mfrac节点从math中删除
   			},
   			tearDown: function(){
@@ -359,7 +359,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				t.is("/root/line[1]/math[1]/mn[1]", model.getPath());
   				t.is("mn", focusNode.nodeName);
   				t.is(2, model.getOffset());
-  				t.is("12", focusNode.textContent);
+  				t.is("12", dripLang.getText(focusNode));
   				t.is(2, line.firstChild.childNodes.length);// 确保是两个节点
   				t.is("mn", line.firstChild.firstChild.nodeName);// 确保mfrac被删掉
   			},
@@ -393,7 +393,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				t.is("/root/line[1]/math[1]/mn[1]", model.getPath());
   				t.is("mn", focusNode.nodeName);
   				t.is(2, model.getOffset());
-  				t.is("12", focusNode.textContent);
+  				t.is("12", dripLang.getText(focusNode));
   				t.is(2, line.firstChild.childNodes.length);// 确保是两个节点
   				t.is("mn", line.firstChild.firstChild.nodeName);// 确保mfrac被删掉
   			},

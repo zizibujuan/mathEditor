@@ -468,7 +468,7 @@ define(["dojo/_base/declare",
 			// 这里在渲染前需要获取focusNode
 			var focusNode = this.model.getFocusNode();
 			if(this.model.getFocusNode().nodeName == "mo" && offset != 0){
-				offset = focusNode.textContent.length;
+				offset = dripLang.getText(focusNode).length;
 			}
 			var mrowNode = null;
 			if(focusDomNode.parentNode.className === "mrow"){
@@ -508,19 +508,20 @@ define(["dojo/_base/declare",
 				var childNodes = node.childNodes;
 				if(childNodes.length == 1 && childNodes[0].nodeType == TEXT){
 					// 如果childNodes的长度不是1，则offset对应的必是这些子节点的偏移量，而不是文本的
-					if(node.textContent.length == offset){
+					var nodeText = dripLang.getText(node);
+					if(nodeText.length == offset){
 						left += node.offsetWidth;
 					}else{
 						// 测宽度
 						var width = 0;
-						var text = node.textContent.substring(0, offset);
-						if(text != ""){
+						var subText = nodeText.substring(0, offset);
+						if(subText != ""){
 							// 加上padding-left的值
 							// 没有值的时候，不加padding-left值，这样前面是mo标签时，
 							// 就能正确的紧贴mo显示光标。
 							var paddingLeft = domStyle.get(node, "padding-left");
 							left += Math.floor(paddingLeft);
-							width = dripLang.measureTextSize(node, text).width;
+							width = dripLang.measureTextSize(node, subText).width;
 						}
 						left += width;
 					}

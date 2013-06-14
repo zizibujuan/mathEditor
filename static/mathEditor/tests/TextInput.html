@@ -9,36 +9,62 @@
    src="/mathJax/MathJax.js?config=MML_HTMLorMML">
 </script>
 <script type="text/javascript">
-require([ "doh", 
+require([ "doh/runner",
+          "dojo/robot", 
           "dojo/dom",
+          "dojo/keys",
           "dojo/dom-construct",
           "dojo/dom-class",
           "dojo/dom-style",
+          "mathEditor/TextInput",
+          "mathEditor/tests/MockEditor",
           "dojo/domReady!" ], function(
-        		  doh, 
+        		  doh,
+        		  robot, 
         		  dom,
+        		  keys,
         		  domConstruct,
         		  domClass,
-        		  domStyle) {
+        		  domStyle,
+        		  TextInput,
+        		  MockEditor) {
 	// TODO:需要mockEditor
 	doh.register("TextInput", [ 
 	{
-		name: "测试编辑器中各div的高度，编辑器中没有内容时",
+		name: "测试输入英文字符",
+		timeout: 6900,
 		setUp: function(){
-			
+			var container = this.container = dom.byId("container");
+			var mockEditor = new MockEditor();
+			var textInput = this.textInput = new TextInput({parentNode:container, host:mockEditor});
 		},
 		runTest: function(t){
-			
+			var d = new doh.Deferred();
+			var text = this.textInput.getElement();
+			robot.mouseMoveAt(text, 500);
+            robot.mouseClick({left:true}, 500);
+           
+            robot.keyPress(keys.SPACE, 500, {ctrl:true});
+            console.log("ime start");
+            // robot.keyPress(dojo.keys.TAB, 0, {shift: true})
+            robot.typeKeys("h", 500, 2500);
+            robot.keyPress(keys.SPACE, 0);
+            robot.keyPress(keys.SPACE, 500, {ctrl:true});
+            robot.sequence(d.getTestCallback(function(){
+                doh.is("hi", text.value);
+            }), 900);
+            return d;
 		},
 		tearDown: function(){
 			
 		}		
 	}]);
-	doh.runOnLoad();
+	doh.run();
 });
 
 </script>
 </head>
 <body>
+<div id="container"></div>
 </body>
 </html>

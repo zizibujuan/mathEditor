@@ -19,7 +19,7 @@ define([ "doh", "dojo/aspect", "mathEditor/Model","mathEditor/lang" ], function(
 				t.is("/root/line[1]/math[1]/mi[1]", model.getPath());
 				var focusNode = model.getFocusNode();
 				t.is("mi", focusNode.nodeName);
-				t.is("x", focusNode.textContent);
+				t.is("x", dripLang.getText(focusNode));
 				t.is(1, model.getOffset());
 			},
 			tearDown: function(){
@@ -38,12 +38,12 @@ define([ "doh", "dojo/aspect", "mathEditor/Model","mathEditor/lang" ], function(
 				t.is("/root/line[1]/math[1]/mi[2]", model.getPath());
 				var focusNode = model.getFocusNode();
 				t.is("mi", focusNode.nodeName);
-				t.is("y", focusNode.textContent);
+				t.is("y", dripLang.getText(focusNode));
 				t.is(1, model.getOffset());
 				
 				var previous = focusNode.previousSibling;
 				t.is("mi", previous.nodeName);
-				t.is("x", previous.textContent);
+				t.is("x", dripLang.getText(previous));
 			},
 			tearDown: function(){
 				
@@ -64,12 +64,12 @@ define([ "doh", "dojo/aspect", "mathEditor/Model","mathEditor/lang" ], function(
 				// FIXME:到底是选哪种好呢？
 				var focusNode = model.getFocusNode();
 				t.is("mi", focusNode.nodeName);
-				t.is("x", focusNode.textContent);
+				t.is("x", dripLang.getText(focusNode));
 				t.is(0, model.getOffset());
 				
 				var previous = focusNode.previousSibling;
 				t.is("mi", previous.nodeName);
-				t.is("y", previous.textContent);
+				t.is("y", dripLang.getText(previous));
 			},
 			tearDown: function(){
 				
@@ -89,16 +89,16 @@ define([ "doh", "dojo/aspect", "mathEditor/Model","mathEditor/lang" ], function(
 				t.is("/root/line[1]/math[1]/mi[3]", model.getPath());
 				var focusNode = model.getFocusNode();
 				t.is("mi", focusNode.nodeName);
-				t.is("y", focusNode.textContent);
+				t.is("y", dripLang.getText(focusNode));
 				t.is(0, model.getOffset());
 				
 				var previous = focusNode.previousSibling;
 				t.is("mi", previous.nodeName);
-				t.is("z", previous.textContent);
+				t.is("z", dripLang.getText(previous));
 				
 				var next = focusNode.previousSibling.previousSibling;
 				t.is("mi", next.nodeName);
-				t.is("x", next.textContent);
+				t.is("x", dripLang.getText(next));
 			},
 			tearDown: function(){
 				
@@ -130,10 +130,10 @@ define([ "doh", "dojo/aspect", "mathEditor/Model","mathEditor/lang" ], function(
   				var focusNode = model.getFocusNode();
   				t.is("mi", focusNode.nodeName);
   				t.is(1, model.getOffset());
-  				t.is("x", focusNode.textContent);
+  				t.is("x", dripLang.getText(focusNode));
   				t.is(3, focusNode.parentNode.childNodes.length);
-  				t.is("1", focusNode.previousSibling.textContent);
-  				t.is("2", focusNode.nextSibling.textContent);
+  				t.is("1", dripLang.getText(focusNode.previousSibling));
+  				t.is("2", dripLang.getText(focusNode.nextSibling));
   			},
   			tearDown: function(){
   				
@@ -165,9 +165,9 @@ define([ "doh", "dojo/aspect", "mathEditor/Model","mathEditor/lang" ], function(
   				var focusNode = model.getFocusNode();
   				t.is("mn", focusNode.nodeName);
   				t.is(0, model.getOffset());
-  				t.is("x", focusNode.previousSibling.textContent);
+  				t.is("x", dripLang.getText(focusNode.previousSibling));
   				t.is(2, focusNode.parentNode.childNodes.length);
-  				t.is("12", focusNode.textContent);
+  				t.is("12", dripLang.getText(focusNode));
   			},
   			tearDown: function(){
   				
@@ -199,9 +199,9 @@ define([ "doh", "dojo/aspect", "mathEditor/Model","mathEditor/lang" ], function(
   				var focusNode = model.getFocusNode();
   				t.is("mi", focusNode.nodeName);
   				t.is(1, model.getOffset());
-  				t.is("x", focusNode.textContent);
+  				t.is("x", dripLang.getText(focusNode));
   				t.is(2, focusNode.parentNode.childNodes.length);
-  				t.is("12", focusNode.previousSibling.textContent);
+  				t.is("12", dripLang.getText(focusNode.previousSibling));
   			},
   			tearDown: function(){
   				
@@ -232,7 +232,7 @@ define([ "doh", "dojo/aspect", "mathEditor/Model","mathEditor/lang" ], function(
   				var focusNode = model.getFocusNode();
   				t.is("mi", focusNode.nodeName);
   				t.is(1, model.getOffset());
-  				t.is("x", focusNode.textContent);
+  				t.is("x", dripLang.getText(focusNode));
   				t.is(2, dripLang.getChildLength(focusNode.parentNode));
   			},
   			tearDown: function(){
@@ -264,7 +264,7 @@ define([ "doh", "dojo/aspect", "mathEditor/Model","mathEditor/lang" ], function(
 				var focusNode = model.getFocusNode();
 				t.is("mi", focusNode.nodeName);
 				t.is(1, model.getOffset());
-				t.is("x", focusNode.textContent);
+				t.is("x", dripLang.getText(focusNode));
 				t.is(2, dripLang.getChildLength(line.firstChild));
   			},
   			tearDown: function(){

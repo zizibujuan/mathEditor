@@ -68,17 +68,22 @@ define(["dojo/_base/declare",
 				}));
 			}else if(has("ie") <= 8){
 				console.log("ie 8-");
-				var keytable = { 13:1, 27:1 };
-		        on(textarea, "keyup", lang.hitch(this,function (e) {
-		            if (this._inComposition && (!textarea.value || keytable[e.keyCode])){
-		            	setTimeout(this._onCompositionEnd, 0);
-		            }
-		                
-		            if ((textarea.value.charCodeAt(0)||0) < 129) {
-		                return;
-		            }
-		            this._inComposition ? this._onCompositionUpdate() : this._onCompositionStart();
-		        }));
+				on(textarea, "propertychange", lang.hitch(this,function(e){
+					console.log("ie8 text.value = ", textarea.value);
+					host.onTextInput(textarea.value);
+					textarea.value = "";
+				}));
+//				var keytable = { 13:1, 27:1 };
+//		        on(textarea, "keyup", lang.hitch(this,function (e) {
+//		            if (this._inComposition && (!textarea.value || keytable[e.keyCode])){
+//		            	setTimeout(this._onCompositionEnd, 0);
+//		            }
+//		                
+//		            if ((textarea.value.charCodeAt(0)||0) < 129) {
+//		                return;
+//		            }
+//		            this._inComposition ? this._onCompositionUpdate() : this._onCompositionStart();
+//		        }));
 			}else{
 				console.log("other browser");
 				// firefox

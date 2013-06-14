@@ -1,4 +1,4 @@
-define([ "doh","mathEditor/Model" ], function(doh,Model) {
+define([ "doh", "mathEditor/Model", "mathEditor/lang" ], function(doh, Model, dripLang) {
 
 	doh.register("Model.setData.tab 插入制表符",[
 		{
@@ -19,7 +19,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				t.is(1,model.getOffset()); // 在model中任何用转移符号表示的字符的长度都为1
 				// 判断插入的值
 				// 如果浏览器支持css3的tab-size，则值为\\tab,(否则插入四个&nbsp;暂不实现这个功能)
-				t.is("\t",model.getFocusNode().textContent);
+				t.is("\t",dripLang.getText(model.getFocusNode()));
 			},
 			tearDown: function(){
 				
@@ -39,7 +39,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				t.is(model.getFocusNode().nodeName,"text");
 				t.is(2,model.getOffset());
 				// 判断插入的值
-				t.is("a\t",model.getFocusNode().textContent);
+				t.is("a\t",dripLang.getText(model.getFocusNode()));
 			},
 			tearDown: function(){
 				

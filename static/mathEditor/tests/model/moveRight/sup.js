@@ -1,4 +1,4 @@
-define([ "doh","mathEditor/Model" ], function(doh,Model) {
+define([ "doh", "mathEditor/Model", "mathEditor/lang" ], function(doh, Model, dripLang) {
 
 	// summary:
 	//		在有上标的公式上右移光标(base的mrow部分要高亮显示)
@@ -74,7 +74,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				var node = model.getFocusNode();
 				t.is("mn", node.nodeName);
 				t.is(0, model.getOffset());
-				t.is("123", node.textContent);
+				t.is("123", dripLang.getText(node));
   			},
   			tearDown: function(){
   				
@@ -142,7 +142,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				var node = model.getFocusNode();
 				t.is("mn", node.nodeName);
 				t.is(0, model.getOffset());
-				t.is("5678", node.textContent);
+				t.is("5678", dripLang.getText(node));
   			},
   			tearDown: function(){
   				
@@ -210,7 +210,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				var node = model.getFocusNode();
 				t.is("mn", node.nodeName);
 				t.is(0, model.getOffset());
-				t.is("12", node.textContent);
+				t.is("12", dripLang.getText(node));
   			},
   			tearDown: function(){
   				
@@ -279,7 +279,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				var node = model.getFocusNode();
 				t.is("mn", node.nodeName);
 				t.is(0, model.getOffset());
-				t.is("12", node.textContent);
+				t.is("12", dripLang.getText(node));
   			},
   			tearDown: function(){
   				
@@ -350,7 +350,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				var node = model.getFocusNode();
 				t.is("mn", node.nodeName);
 				t.is(0, model.getOffset());
-				t.is("12", node.textContent);
+				t.is("12", dripLang.getText(node));
   			},
   			tearDown: function(){
   				

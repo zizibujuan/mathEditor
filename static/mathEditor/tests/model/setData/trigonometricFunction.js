@@ -1,5 +1,5 @@
 // 三角函数
-define([ "doh","mathEditor/Model" ], function(doh,Model) {
+define([ "doh", "mathEditor/Model", "mathEditor/lang" ], function(doh, Model, dripLang) {
 
 	function testSupport(t, model, tri){
 		model.setData({data:tri, nodeName:"mi"});
@@ -16,11 +16,11 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 		
 		var funNode = node.parentNode.previousSibling;
 		t.is("mo",funNode.nodeName);
-		t.is("&#x2061;",funNode.textContent);
+		t.is("&#x2061;",dripLang.getText(funNode));
 		
 		var triNode = funNode.previousSibling;
 		t.is("mi", triNode.nodeName);
-		t.is(tri, triNode.textContent);
+		t.is(tri, dripLang.getText(triNode));
 	}
 	
 	doh.register("Model.setData.trigonometricFunction 三角函数",[
@@ -87,11 +87,11 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				
   				var funNode = node.parentNode.previousSibling;
   				t.is("mo",funNode.nodeName);
-  				t.is("&#x2061;",funNode.textContent);
+  				t.is("&#x2061;",dripLang.getText(funNode));
   				
   				var triNode = funNode.previousSibling;
   				t.is("mi", triNode.nodeName);
-  				t.is("sin", triNode.textContent);
+  				t.is("sin", dripLang.getText(triNode));
   			},
   			tearDown: function(){
   				
@@ -114,14 +114,14 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				
   				var node = model.getFocusNode();
   				t.is("mi", node.nodeName);
-  				t.is("s", node.textContent);
+  				t.is("s", dripLang.getText(node));
   				t.is(1, model.getOffset());
   				
   				model.setData({data:"i"});
   				node = model.getFocusNode();
   				t.is("/root/line[1]/math[1]/mi[3]", model.getPath());
   				t.is("mi", node.nodeName);
-  				t.is("i", node.textContent);
+  				t.is("i", dripLang.getText(node));
   				t.is(1, model.getOffset());
   				
   				model.setData({data:"n"});
@@ -133,11 +133,11 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				
   				var funNode = node.parentNode.previousSibling;
   				t.is("mo",funNode.nodeName);
-  				t.is("&#x2061;",funNode.textContent);
+  				t.is("&#x2061;",dripLang.getText(funNode));
   				
   				var triNode = funNode.previousSibling;
   				t.is("mi", triNode.nodeName);
-  				t.is("sin", triNode.textContent);
+  				t.is("sin", dripLang.getText(triNode));
   			},
   			tearDown: function(){
   				
@@ -157,14 +157,14 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				
   				var node = model.getFocusNode();
   				t.is("mi", node.nodeName);
-  				t.is("s", node.textContent);
+  				t.is("s", dripLang.getText(node));
   				t.is(1, model.getOffset());
   				
   				model.setData({data:"n"});
   				node = model.getFocusNode();
   				t.is("/root/line[1]/math[1]/mi[3]", model.getPath());
   				t.is("mi", node.nodeName);
-  				t.is("n", node.textContent);
+  				t.is("n", dripLang.getText(node));
   				t.is(1, model.getOffset());
   				
   				// 在mi之间往前移动的逻辑是offset不变，node改变
@@ -188,11 +188,11 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				
   				var funNode = node.parentNode.previousSibling;
   				t.is("mo",funNode.nodeName);
-  				t.is("&#x2061;",funNode.textContent);
+  				t.is("&#x2061;",dripLang.getText(funNode));
   				
   				var triNode = funNode.previousSibling;
   				t.is("mi", triNode.nodeName);
-  				t.is("sin", triNode.textContent);
+  				t.is("sin", dripLang.getText(triNode));
   			},
   			tearDown: function(){
   				
@@ -212,14 +212,14 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				
   				var node = model.getFocusNode();
   				t.is("mi", node.nodeName);
-  				t.is("i", node.textContent);
+  				t.is("i", dripLang.getText(node));
   				t.is(1, model.getOffset());
   				
   				model.setData({data:"n"});
   				node = model.getFocusNode();
   				t.is("/root/line[1]/math[1]/mi[3]", model.getPath());
   				t.is("mi", node.nodeName);
-  				t.is("n", node.textContent);
+  				t.is("n", dripLang.getText(node));
   				t.is(1, model.getOffset());
   				
   				model.anchor.node = model.anchor.node.previousSibling;
@@ -242,11 +242,11 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				
   				var funNode = node.parentNode.previousSibling;
   				t.is("mo",funNode.nodeName);
-  				t.is("&#x2061;",funNode.textContent);
+  				t.is("&#x2061;",dripLang.getText(funNode));
   				
   				var triNode = funNode.previousSibling;
   				t.is("mi", triNode.nodeName);
-  				t.is("sin", triNode.textContent);
+  				t.is("sin", dripLang.getText(triNode));
   			},
   			tearDown: function(){
   				
@@ -286,7 +286,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				var focusNode = model.getFocusNode();
   				t.is("mi", focusNode.nodeName);
   				t.is(1, model.getOffset());
-  				t.is("s", focusNode.textContent);
+  				t.is("s", dripLang.getText(focusNode));
   				t.is(1, line.firstChild.childNodes.length);
   				
   				model.setData({data:"i"});
@@ -294,7 +294,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				var focusNode = model.getFocusNode();
   				t.is("mi", focusNode.nodeName);
   				t.is(1, model.getOffset());
-  				t.is("i", focusNode.textContent);
+  				t.is("i", dripLang.getText(focusNode));
   				t.is(2, line.firstChild.childNodes.length);
   				
   				model.setData({data:"n"});
@@ -306,11 +306,11 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				
   				var funNode = node.parentNode.previousSibling;
   				t.is("mo",funNode.nodeName);
-  				t.is("&#x2061;",funNode.textContent);
+  				t.is("&#x2061;",dripLang.getText(funNode));
   				
   				var triNode = funNode.previousSibling;
   				t.is("mi", triNode.nodeName);
-  				t.is("sin", triNode.textContent);
+  				t.is("sin", dripLang.getText(triNode));
   			},
   			tearDown: function(){
   				

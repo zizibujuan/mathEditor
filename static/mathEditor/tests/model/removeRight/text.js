@@ -1,4 +1,4 @@
-define([ "doh","mathEditor/Model" ], function(doh,Model) {
+define([ "doh", "mathEditor/Model", "mathEditor/lang" ], function(doh, Model, dripLang) {
 
 	// summary:
 	//		1.text节点中有3个字符，光标在第一个字符前面
@@ -27,7 +27,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				t.is("/root/line[1]/text[1]", model.getPath());
   				t.is("text", focusNode.nodeName);
   				t.is(0, model.getOffset());
-  				t.is("bc", focusNode.textContent);
+  				t.is("bc", dripLang.getText(focusNode));
   			},
   			tearDown: function(){
   				
@@ -52,7 +52,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				t.is("/root/line[1]/text[1]", model.getPath());
   				t.is("text", focusNode.nodeName);
   				t.is(1, model.getOffset());
-  				t.is("ac", focusNode.textContent);
+  				t.is("ac", dripLang.getText(focusNode));
   			},
   			tearDown: function(){
   				
@@ -77,7 +77,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				t.is("/root/line[1]/text[1]", model.getPath());
   				t.is("text", focusNode.nodeName);
   				t.is(2, model.getOffset());
-  				t.is("ab", focusNode.textContent);
+  				t.is("ab", dripLang.getText(focusNode));
   			},
   			tearDown: function(){
   				

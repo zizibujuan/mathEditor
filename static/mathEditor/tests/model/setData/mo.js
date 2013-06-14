@@ -7,7 +7,7 @@ define([ "doh","mathEditor/Model","mathEditor/lang" ], function(doh,Model,dripLa
 		t.is("/root/line[1]/math[1]/mo[1]", model.getPath());
 		var focusNode = model.getFocusNode();
 		t.is(focusNode.nodeName, "mo");
-		t.is(operator, focusNode.textContent);
+		t.is(operator, dripLang.getText(focusNode));
 		t.is(1, model.getOffset());
 	}
 	
@@ -25,7 +25,7 @@ define([ "doh","mathEditor/Model","mathEditor/lang" ], function(doh,Model,dripLa
   				t.is("/root/line[1]/math[1]/mo[2]", model.getPath());
   				var focusNode = model.getFocusNode();
   				t.is(focusNode.nodeName, "mo");
-  				t.is("+", focusNode.textContent);
+  				t.is("+", dripLang.getText(focusNode));
   				t.is(1, model.getOffset());
   				
   				// 判断有两个mo节点
@@ -77,7 +77,7 @@ define([ "doh","mathEditor/Model","mathEditor/lang" ], function(doh,Model,dripLa
   				t.is("/root/line[1]/math[1]/mo[1]", model.getPath());
   				var focusNode = model.getFocusNode();
   				t.is(focusNode.nodeName, "mo");
-  				t.is(focusNode.textContent, "==");
+  				t.is("==", dripLang.getText(focusNode));
   				t.is(1, model.getOffset());
   				t.is(1, focusNode.parentNode.childNodes.length);
   				model.clear();
@@ -90,7 +90,7 @@ define([ "doh","mathEditor/Model","mathEditor/lang" ], function(doh,Model,dripLa
   				t.is("/root/line[1]/math[1]/mo[2]", model.getPath());
   				var focusNode = model.getFocusNode();
   				t.is(focusNode.nodeName, "mo");
-  				t.is(focusNode.textContent, "=");
+  				t.is("=", dripLang.getText(focusNode));
   				t.is(1, model.getOffset());
   				t.is(2, focusNode.parentNode.childNodes.length);
   				model.clear();
@@ -103,7 +103,7 @@ define([ "doh","mathEditor/Model","mathEditor/lang" ], function(doh,Model,dripLa
   				t.is("/root/line[1]/math[1]/mo[2]", model.getPath());
   				var focusNode = model.getFocusNode();
   				t.is(focusNode.nodeName, "mo");
-  				t.is(focusNode.textContent, "==");
+  				t.is("==", dripLang.getText(focusNode));
   				t.is(1, model.getOffset());
   				t.is(2, focusNode.parentNode.childNodes.length);
   				model.clear();
@@ -155,7 +155,7 @@ define([ "doh","mathEditor/Model","mathEditor/lang" ], function(doh,Model,dripLa
   				t.is("/root/line[1]/math[1]/mo[1]", model.getPath());
   				var focusNode = model.getFocusNode();
   				t.is(focusNode.nodeName, "mo");
-  				t.is(focusNode.textContent, "!=");
+  				t.is("!=", dripLang.getText(focusNode));
   				t.is(1, model.getOffset());
   				t.is(1, focusNode.parentNode.childNodes.length);
   				model.clear();
@@ -168,7 +168,7 @@ define([ "doh","mathEditor/Model","mathEditor/lang" ], function(doh,Model,dripLa
   				t.is("/root/line[1]/math[1]/mo[2]", model.getPath());
   				var focusNode = model.getFocusNode();
   				t.is(focusNode.nodeName, "mo");
-  				t.is(focusNode.textContent, "=");
+  				t.is("=", dripLang.getText(focusNode));
   				t.is(1, model.getOffset());
   				t.is(2, focusNode.parentNode.childNodes.length);
   				model.clear();
@@ -181,7 +181,7 @@ define([ "doh","mathEditor/Model","mathEditor/lang" ], function(doh,Model,dripLa
   				t.is("/root/line[1]/math[1]/mo[2]", model.getPath());
   				var focusNode = model.getFocusNode();
   				t.is(focusNode.nodeName, "mo");
-  				t.is(focusNode.textContent, "!=");
+  				t.is("!=", dripLang.getText(focusNode));
   				t.is(1, model.getOffset());
   				t.is(2, focusNode.parentNode.childNodes.length);
   				model.clear();
@@ -239,10 +239,10 @@ define([ "doh","mathEditor/Model","mathEditor/lang" ], function(doh,Model,dripLa
   				var focusNode = model.getFocusNode();
   				t.is("mo", focusNode.nodeName);
   				t.is(1, model.getOffset());
-  				t.is("+", focusNode.textContent);
+  				t.is("+", dripLang.getText(focusNode));
   				t.is(3, focusNode.parentNode.childNodes.length);
-  				t.is("1", focusNode.previousSibling.textContent);
-  				t.is("2", focusNode.nextSibling.textContent);
+  				t.is("1", dripLang.getText(focusNode.previousSibling));
+  				t.is("2", dripLang.getText(focusNode.nextSibling));
   			},
   			tearDown: function(){
   				
@@ -274,7 +274,7 @@ define([ "doh","mathEditor/Model","mathEditor/lang" ], function(doh,Model,dripLa
   				var focusNode = model.getFocusNode();
   				t.is("mn", focusNode.nodeName);
   				t.is(0, model.getOffset());
-  				t.is("+", focusNode.previousSibling.textContent);
+  				t.is("+", dripLang.getText(focusNode.previousSibling));
   				t.is(2, focusNode.parentNode.childNodes.length);
   			},
   			tearDown: function(){
@@ -306,9 +306,9 @@ define([ "doh","mathEditor/Model","mathEditor/lang" ], function(doh,Model,dripLa
   				var focusNode = model.getFocusNode();
   				t.is("mo", focusNode.nodeName);
   				t.is(1, model.getOffset());
-  				t.is("+", focusNode.textContent);
+  				t.is("+", dripLang.getText(focusNode));
   				t.is(2, focusNode.parentNode.childNodes.length);
-  				t.is("12", focusNode.previousSibling.textContent);
+  				t.is("12", dripLang.getText(focusNode.previousSibling));
   			},
   			tearDown: function(){
   				
@@ -339,7 +339,7 @@ define([ "doh","mathEditor/Model","mathEditor/lang" ], function(doh,Model,dripLa
   				var focusNode = model.getFocusNode();
   				t.is("mo", focusNode.nodeName);
   				t.is(1, model.getOffset());
-  				t.is("+", focusNode.textContent);
+  				t.is("+", dripLang.getText(focusNode));
   				t.is(2, focusNode.parentNode.childNodes.length);
   				// 确保mo是mstyle的兄弟节点
   				t.is(focusNode, line.firstChild.lastChild);
@@ -373,7 +373,7 @@ define([ "doh","mathEditor/Model","mathEditor/lang" ], function(doh,Model,dripLa
   				var focusNode = model.getFocusNode();
   				t.is("mo", focusNode.nodeName);
   				t.is(1, model.getOffset());
-  				t.is("+", focusNode.textContent);
+  				t.is("+", dripLang.getText(focusNode));
   				t.is(2, focusNode.parentNode.childNodes.length);
   				// 确保mo是mstyle的兄弟节点
   				t.is(focusNode, line.firstChild.lastChild);

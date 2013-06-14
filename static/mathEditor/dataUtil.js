@@ -1,7 +1,9 @@
 define(["dojox/xml/parser",
-        "dojo/_base/array"], function(
+        "dojo/_base/array",
+        "./lang"], function(
         		xmlParser,
-        		array){
+        		array,
+        		dripLang){
 	// summary:
 	//		数据处理工具类，将xml字符串转换为html等。
 	var dataUtil = {};
@@ -18,7 +20,7 @@ define(["dojox/xml/parser",
 			var spans = line.childNodes;
 			array.forEach(spans, function(span, index){
 				if(span.nodeName == "text"){
-					lineString += "<span>"+span.textContent+"</span>";
+					lineString += "<span>" + dripLang.getText(span) + "</span>";
 				}else if(span.nodeName == "math"){
 					// TODO:如果math中不存在子节点，则显示占位符
 					lineString += "<span class=\"drip_math\">";

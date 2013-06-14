@@ -1,4 +1,4 @@
-define([ "doh","mathEditor/Model" ], function(doh,Model) {
+define([ "doh", "mathEditor/Model", "mathEditor/lang" ], function(doh, Model, dripLang) {
 
 	// FIXME：setData时，要根据光标两边的节点，来决定将值插入到哪个节点中。放在什么位置，必须要统一，根据实际情况，二选一。
 	// summary:
@@ -39,7 +39,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				var node = model.getFocusNode();
 				t.is("mn", node.nodeName);
 				t.is(0, model.getOffset());
-				t.is("12", node.textContent);
+				t.is("12", dripLang.getText(node));
   			},
   			tearDown: function(){
   				

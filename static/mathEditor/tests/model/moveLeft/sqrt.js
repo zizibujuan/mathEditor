@@ -38,7 +38,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				var node = model.getFocusNode();
 				t.is("mn", node.nodeName);
 				t.is(2, model.getOffset());
-				t.is("12", node.textContent);
+				t.is("12", dripLang.getText(node));
   			},
   			tearDown: function(){
   				
@@ -104,7 +104,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				var node = model.getFocusNode();
 				t.is("mn", node.nodeName);
 				t.is(2, model.getOffset());
-				t.is("12", node.textContent);
+				t.is("12", dripLang.getText(node));
   			},
   			tearDown: function(){
   				

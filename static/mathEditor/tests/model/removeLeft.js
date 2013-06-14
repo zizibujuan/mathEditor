@@ -1,4 +1,4 @@
-define([ "doh", "mathEditor/Model" ], function(doh, Model) {
+define([ "doh", "mathEditor/Model", "mathEditor/lang" ], function(doh, Model, dripLang) {
 	doh.register("Model.removeLeft", [
 	    {
 			name: "当没有任何内容时，removeLeft什么也不做",
@@ -65,7 +65,7 @@ define([ "doh", "mathEditor/Model" ], function(doh, Model) {
 				model.moveLeft();
 				t.is("我", model.removeLeft());
 				t.is("text", model.getFocusNode().nodeName);
-				t.is("你他", model.getFocusNode().textContent);
+				t.is("你他", dripLang.getText(model.getFocusNode()));
 				t.is(1, model.getOffset());
 			},
 			tearDown: function(){
@@ -84,7 +84,7 @@ define([ "doh", "mathEditor/Model" ], function(doh, Model) {
 				model.moveLeft();
 				t.is("你", model.removeLeft());
 				t.is("text", model.getFocusNode().nodeName);
-				t.is("我他", model.getFocusNode().textContent);
+				t.is("我他", dripLang.getText(model.getFocusNode()));
 				t.is(0, model.getOffset());
 			},
 			tearDown: function(){
@@ -102,7 +102,7 @@ define([ "doh", "mathEditor/Model" ], function(doh, Model) {
 				model.setData({data:"1"});
 				t.is("1", model.removeLeft());
 				t.is("text", model.getFocusNode().nodeName);
-				t.is("和", model.getFocusNode().textContent);
+				t.is("和", dripLang.getText(model.getFocusNode()));
 				t.is(1, model.getOffset());
 				// 确保math节点被删除
 				var line = model.getLineAt(0);
@@ -124,7 +124,7 @@ define([ "doh", "mathEditor/Model" ], function(doh, Model) {
 				model.moveLeft();
 				t.is("和", model.removeLeft());
 				t.is("mn", model.getFocusNode().nodeName);
-				t.is("1", model.getFocusNode().textContent);
+				t.is("1", dripLang.getText(model.getFocusNode()));
 				t.is(0, model.getOffset());
 				// 确保text节点被删除
 				var line = model.getLineAt(0);
@@ -146,7 +146,7 @@ define([ "doh", "mathEditor/Model" ], function(doh, Model) {
 				model.moveLeft();
 				t.is("我", model.removeLeft());
 				t.is("text", model.getFocusNode().nodeName);
-				t.is("你", model.getFocusNode().textContent);
+				t.is("你", dripLang.getText(model.getFocusNode()));
 				t.is(1, model.getOffset());
 				var line = model.getLineAt(0);
 				t.is(2, line.childNodes.length);
@@ -165,7 +165,7 @@ define([ "doh", "mathEditor/Model" ], function(doh, Model) {
 				model.setData({data:"1"});
 				model.setData({data:"a"});
 				t.is("a",model.removeLeft());
-				t.is("1", model.getFocusNode().textContent);
+				t.is("1", dripLang.getText(model.getFocusNode()));
 				t.is(1, model.getOffset());
 				var line = model.getLineAt(0);
 				t.is(1, line.firstChild.childNodes.length);
@@ -187,7 +187,7 @@ define([ "doh", "mathEditor/Model" ], function(doh, Model) {
 				model.setData({data:"1"});
 				model.setData({data:"+"});
 				t.is("+",model.removeLeft());
-				t.is("1", model.getFocusNode().textContent);
+				t.is("1", dripLang.getText(model.getFocusNode()));
 				t.is(1, model.getOffset());
 				var line = model.getLineAt(0);
 				t.is(1, line.firstChild.childNodes.length);

@@ -1,4 +1,4 @@
-define([ "doh","mathEditor/Model" ], function(doh,Model) {
+define([ "doh", "mathEditor/Model", "mathEditor/lang" ], function(doh, Model, dripLang) {
 	
 	function getNodeByXPath(xpath, node){
 		var xpathResult = document.evaluate(xpath, node,null, XPathResult.ORDERED_NODE_ITERATOR_TYPE, null);
@@ -92,35 +92,35 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				focusNode = model.getFocusNode();
   				t.is(focusNode.nodeName, "mn");
   				t.is(1, model.getOffset());
-  				t.is("1", focusNode.textContent);
+  				t.is("1", dripLang.getText(focusNode));
   				
   				model.setData({data:"+"});
   				focusNode = model.getFocusNode();
   				t.is("/root/line[1]/math[1]/mo[2]", model.getPath());
   				t.is(focusNode.nodeName, "mo");
   				t.is(1, model.getOffset());
-  				t.is("+", focusNode.textContent);
+  				t.is("+", dripLang.getText(focusNode));
   				
   				model.setData({data:"1"});
   				focusNode = model.getFocusNode();
   				t.is("/root/line[1]/math[1]/mn[3]", model.getPath());
   				t.is(focusNode.nodeName, "mn");
   				t.is(1, model.getOffset());
-  				t.is("1", focusNode.textContent);
+  				t.is("1", dripLang.getText(focusNode));
   				
   				model.setData({data:"="});
   				focusNode = model.getFocusNode();
   				t.is("/root/line[1]/math[1]/mo[4]", model.getPath());
   				t.is(focusNode.nodeName, "mo");
   				t.is(1, model.getOffset());
-  				t.is("=", focusNode.textContent);
+  				t.is("=", dripLang.getText(focusNode));
   				
   				model.setData({data:"2"});
   				focusNode = model.getFocusNode();
   				t.is("/root/line[1]/math[1]/mn[5]", model.getPath());
   				t.is(focusNode.nodeName, "mn");
   				t.is(1, model.getOffset());
-  				t.is("2", focusNode.textContent);
+  				t.is("2", dripLang.getText(focusNode));
   			},
   			tearDown: function(){
   				
@@ -137,7 +137,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				model.setData({data:"",removeCount:2});
   				t.is("/root/line[1]/text[1]", model.getPath());
   				t.is(model.getFocusNode().nodeName, "text");
-  				t.is("你", model.getFocusNode().textContent);
+  				t.is("你", dripLang.getText(model.getFocusNode()));
   				t.is(1, model.getOffset());
   				model.clear();
   				// TODO：如果删除的text界面中没有任何内容，则应该删除该节点
@@ -147,7 +147,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				model.setData({data:"3",removeCount:1});
   				t.is("/root/line[1]/math[1]/mn[1]", model.getPath());
   				t.is(model.getFocusNode().nodeName, "mn");
-  				t.is("13", model.getFocusNode().textContent);
+  				t.is("13", dripLang.getText(model.getFocusNode()));
   				t.is(2, model.getOffset());
   			},
   			tearDown: function(){
@@ -171,7 +171,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				model.setData({data:"2"});
   				t.is("/root/line[1]/math[1]/mn[1]", model.getPath());
   				t.is(model.getFocusNode().nodeName, "mn");
-  				t.is("2", model.getFocusNode().textContent);
+  				t.is("2", dripLang.getText(model.getFocusNode()));
   				t.is(1, model.getOffset());
   			},
   			tearDown: function(){
@@ -200,9 +200,9 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				t.is("math", children[1].nodeName);
   				t.is("text", children[2].nodeName);
   				
-  				t.is("你", children[0].textContent);
-  				t.is("1", children[1].textContent);
-  				t.is("我", children[2].textContent);
+  				t.is("你", dripLang.getText(children[0]));
+  				t.is("1", dripLang.getText(children[1]));
+  				t.is("我", dripLang.getText(children[2]));
   			},
   			tearDown: function(){
   				

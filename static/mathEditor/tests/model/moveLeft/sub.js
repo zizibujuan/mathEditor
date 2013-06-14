@@ -1,4 +1,4 @@
-define([ "doh","mathEditor/Model" ], function(doh,Model) {
+define([ "doh", "mathEditor/Model", "mathEditor/lang" ], function(doh, Model, dripLang) {
 
 	doh.register("Model.moveLeft.sub 在有下标的符号中左移光标",[
 	    {
@@ -55,7 +55,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				var node = model.getFocusNode();
 				t.is("mn", node.nodeName);
 				t.is(2, model.getOffset());
-				t.is("12", node.textContent);
+				t.is("12", dripLang.getText(node));
   			},
   			tearDown: function(){
   				
@@ -123,7 +123,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				var node = model.getFocusNode();
 				t.is("mn", node.nodeName);
 				t.is(3, model.getOffset());
-				t.is("345", node.textContent);
+				t.is("345", dripLang.getText(node));
   			},
   			tearDown: function(){
   				
@@ -192,7 +192,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				var node = model.getFocusNode();
 				t.is("mn", node.nodeName);
 				t.is(3, model.getOffset());
-				t.is("345", node.textContent);
+				t.is("345", dripLang.getText(node));
   			},
   			tearDown: function(){
   				
@@ -262,7 +262,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				var node = model.getFocusNode();
 				t.is("mn", node.nodeName);
 				t.is(3, model.getOffset());
-				t.is("345", node.textContent);
+				t.is("345", dripLang.getText(node));
   			},
   			tearDown: function(){
   				
@@ -333,7 +333,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				var node = model.getFocusNode();
 				t.is("mn", node.nodeName);
 				t.is(2, model.getOffset());
-				t.is("12", node.textContent);
+				t.is("12", dripLang.getText(node));
   			},
   			tearDown: function(){
   				

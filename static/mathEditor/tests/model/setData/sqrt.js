@@ -77,7 +77,7 @@ define([ "doh","mathEditor/Model","mathEditor/lang" ], function(doh,Model,dripLa
 				var node = model.getFocusNode();
 				t.is("mn", node.nodeName);
 				t.is(1, model.getOffset());
-				t.is("1", node.textContent);
+				t.is("1", dripLang.getText(node));
 			},
 			tearDown: function(){
 				
@@ -97,7 +97,7 @@ define([ "doh","mathEditor/Model","mathEditor/lang" ], function(doh,Model,dripLa
 				var node = model.getFocusNode();
 				t.is("mi", node.nodeName);
 				t.is(1, model.getOffset());
-				t.is("x", node.textContent);
+				t.is("x", dripLang.getText(node));
 			},
 			tearDown: function(){
 				
@@ -117,7 +117,7 @@ define([ "doh","mathEditor/Model","mathEditor/lang" ], function(doh,Model,dripLa
 				var node = model.getFocusNode();
 				t.is("mo", node.nodeName);
 				t.is(1, model.getOffset());
-				t.is("+", node.textContent);
+				t.is("+", dripLang.getText(node));
 			},
 			tearDown: function(){
 				

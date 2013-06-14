@@ -1,4 +1,4 @@
-define([ "doh","mathEditor/Model" ], function(doh,Model) {
+define([ "doh", "mathEditor/Model", "mathEditor/lang" ], function(doh, Model, dripLang) {
 
 	// summary:
 	//		1.根式中的根数为空时，左删除时，删掉整个根式，同时将根次中的内容放在之前的根式前,根式最后一个节点是token节点
@@ -37,7 +37,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				t.is("/root/line[1]/math[1]/mn[1]", model.getPath());
   				t.is("mn", focusNode.nodeName);
   				t.is(2, model.getOffset());
-  				t.is("12", focusNode.textContent);
+  				t.is("12", dripLang.getText(focusNode));
   				// 确认mroot已经被删除掉了
   				t.is(focusNode, line.firstChild.firstChild);
   				t.is(1, line.firstChild.childNodes.length);
@@ -114,7 +114,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				t.is("/root/line[1]/math[1]/mn[1]", model.getPath());
   				t.is("mn", focusNode.nodeName);
   				t.is(0, model.getOffset());
-  				t.is("12", focusNode.textContent);
+  				t.is("12", dripLang.getText(focusNode));
   				// 确认mroot已经被删除掉了
   				t.is(focusNode, line.firstChild.firstChild);
   				t.is(1, line.firstChild.childNodes.length);

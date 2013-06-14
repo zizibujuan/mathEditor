@@ -256,46 +256,46 @@ define([ "dojo/_base/declare",
 		_splitNodeByNewLine: function(focusNode, offset, firstLine, lastLine){
 			var beforeNode=null,afterNode=null;
 			var xmlDoc = this.doc;
-			var textLen = focusNode.textContent.length;
+			var textLen = dripLang.getText(focusNode).length;
 			if(offset == 0){
 				var previousNode = focusNode.previousSibling;
 				if(!previousNode || previousNode.nodeName != "text"){
 					beforeNode = xmlDoc.createElement("text");
-					beforeNode.textContent = firstLine;
+					dripLang.setText(beforeNode, firstLine);
 					dripLang.insertNodeBefore(beforeNode, focusNode);
 					afterNode = focusNode;
 				}else{
-					previousNode.textContent += firstLine;
+					dripLang.appendTextEnd(previousNode, firstLine);
 					beforeNode = previousNode;
 					afterNode = focusNode;
 				}
 				
 				if(lastLine && lastLine != ""){
-					afterNode.textContent = lastLine + afterNode.textContent;
+					dripLang.appendTextStart(afterNode, lastLine);
 				}
 			}else if(offset == textLen){
 				var nextNode = focusNode.nextSibling;
 				if(!nextNode || nextNode.nodeName != "text"){
 					beforeNode = focusNode;
-					beforeNode.textContent += firstLine;
+					dripLang.appendTextEnd(beforeNode, firstLine);
 					
 					if(lastLine.length > 0){
 						afterNode = xmlDoc.createElement("text");
-						afterNode.textContent = lastLine;
+						dripLang.setText(afterNode, lastLine)
 						dripLang.insertNodeAfter(afterNode, focusNode);
 					}
 				}else{
-					focusNode.textContent += firstLine;
+					dripLang.appendTextEnd(focusNode, firstLine);
 					beforeNode = focusNode;
 					afterNode = nextNode;
-					afterNode.textContent = lastLine + afterNode.textContent;
+					dripLang.appendTextStart(afterNode, lastLine);
 				}
 			}else if(0 < offset && offset < textLen){
-				var oldText = focusNode.textContent;
-				focusNode.textContent = oldText.substring(0, offset)+firstLine;
+				var oldText = dripLang.getText(focusNode);
+				dripLang.setText(focusNode, oldText.substring(0, offset)+firstLine);
 				beforeNode = focusNode;
 				afterNode = xmlDoc.createElement("text");
-				afterNode.textContent = lastLine + oldText.substring(offset);
+				dripLang.setText(afterNode, lastLine + oldText.substring(offset));
 				dripLang.insertNodeAfter(afterNode, focusNode);
 			}
 			return {beforeNode: beforeNode, afterNode: afterNode};
@@ -332,8 +332,10 @@ define([ "dojo/_base/declare",
 					this.path.push({nodeName: nodeName, offset: 1});
 				}
 				
-				var oldText = node.textContent;
-				node.textContent = dripString.insertAtOffset(oldText, offset, line);
+				var oldText = dripLang.getText(node);
+				var newText = dripString.insertAtOffset(oldText, offset, line);
+				dripLang.setText(node, newText);
+				
 				offset += line.length;
 				return {node: node, offset: offset};
 			}
@@ -363,7 +365,7 @@ define([ "dojo/_base/declare",
 					
 					if(lastLine && lastLine != ""){
 						afterNode = xmlDoc.createElement("text");
-						afterNode.textContent = lastLine;
+						dripLang.setText(afterNode, lastLine);
 						node.appendChild(afterNode);
 					}
 				}else{
@@ -375,7 +377,7 @@ define([ "dojo/_base/declare",
 				if(this._isLineNode(node)){
 					var nodeName = "text";
 					var newNode = xmlDoc.createElement(nodeName);
-					newNode.textContent = firstLine;
+					dripLang.setText(newNode, firstLine);
 					
 					node.appendChild(newNode);
 					
@@ -387,7 +389,7 @@ define([ "dojo/_base/declare",
 							afterNode = xmlDoc.createElement("text");
 							dripLang.insertNodeAfter(afterNode, beforeNode);
 						}
-						afterNode.textContent = lastLine + afterNode.textContent;
+						dripLang.appendTextStart(afterNode, lastLine);
 					}
 					
 				}else{
@@ -407,7 +409,8 @@ define([ "dojo/_base/declare",
 			if(lines.length > 0){
 				array.forEach(lines, function(line){
 					var newLineNode = xmlDoc.createElement(nodeName);
-					newLineNode.textContent = line;
+					dripLang.setText(newLineNode, line);
+					
 					dripLang.insertNodeAfter(newLineNode, traceLine);
 					traceLine = newLineNode;
 				});
@@ -451,8 +454,8 @@ define([ "dojo/_base/declare",
 			var nodeName = "mi";
 			
 			// 往前找两位
-			while(preNode && preNode.nodeName == nodeName && preNode.textContent.length == 1){
-				preMis.unshift(preNode.textContent);
+			while(preNode && preNode.nodeName == nodeName && dripLang.getText(preNode).length == 1){
+				preMis.unshift(dripLang.getText(preNode));
 				preNode = node.previousSibling;
 				if(preMis.length == 2){
 					break;
@@ -465,8 +468,8 @@ define([ "dojo/_base/declare",
 				}
 			}else if(preMis.length == 1){
 				var nextNode = node.nextSibling;
-				if(nextNode && nextNode.nodeName == nodeName && nextNode.textContent.length == 1){
-					var nextMi = nextNode.textContent;
+				if(nextNode && nextNode.nodeName == nodeName && dripLang.getText(nextNode).length == 1){
+					var nextMi = dripLang.getText(nextNode);
 					var text = preMis[0]+miContext+nextMi;
 					if(dripLang.isTrigonometric(text)){
 						return {functionName: text, preMis: preMis, nextMis: nextMis};
@@ -475,8 +478,8 @@ define([ "dojo/_base/declare",
 			}else if(preMis.length == 0){
 				var nextNode = node.nextSibling;
 				var nextMis = [];
-				while(nextNode && nextNode.nodeName == nodeName && nextNode.textContent.length == 1){
-					nextMis.push(nextNode.textContent);
+				while(nextNode && nextNode.nodeName == nodeName && dripLang.getText(nextNode).length == 1){
+					nextMis.push(dripLang.getText(nextNode));
 					nextNode = nextNode.nextSibling;
 					if(nextMis.length == 2){
 						break;
@@ -519,7 +522,7 @@ define([ "dojo/_base/declare",
 				else if(node.nodeName == "mi" || node.nodeName == "mo"){
 					offset = 1;
 				}else{
-					offset = node.textContent.length;
+					offset = dripLang.getText(node).length;
 				}
 			}else if(preLength == 1){
 				// 此时，nextMis.length == 2
@@ -535,7 +538,7 @@ define([ "dojo/_base/declare",
 				if(node.nodeName == "mi" || node.nodeName == "mo"){
 					offset = 1;
 				}else{
-					offset = node.textContent.length;
+					offset = dripLang.getText(node).length;
 				}
 			}else if(preLength == 0){
 				// 删除前面的字符
@@ -547,7 +550,7 @@ define([ "dojo/_base/declare",
 				if(node.nodeName == "mi" || node.nodeName == "mo"){
 					offset = 1;
 				}else{
-					offset = node.textContent.length;
+					offset = dripLang.getText(node).length;
 				}
 			}
 			
@@ -577,7 +580,8 @@ define([ "dojo/_base/declare",
 				
 				if(offset === layoutOffset.select){
 					var newNode = xmlDoc.createElement(nodeName);
-					newNode.textContent = miContent;
+					dripLang.setText(newNode, miContent);
+					
 					node.appendChild(newNode);
 					this.path.push({nodeName:nodeName, offset:1});
 					node = newNode;
@@ -610,17 +614,18 @@ define([ "dojo/_base/declare",
 				// FIXME:是否需要根据offset定位插入点呢？等写了相应的测试用例之后，再添加这个逻辑
 				//console.error("测试这段代码有没有被执行过");
 				var newNode = xmlDoc.createElement(nodeName);
-				newNode.textContent = moContent;
+				dripLang.setText(newNode, moContent);
+				
 				node.appendChild(newNode);
 				this.path.push({nodeName:nodeName, offset:1});
 				node = newNode;
 				offset = 1; // 操作符号的offset要么是1，要么是0
 			}else{
 				// 所有的操作符，都是一个单独的符号，用一个mo封装。
-				if(moContent == "=" && node.nodeName == "mo" && node.textContent == "="){
-					node.textContent += "=";
-				}else if(moContent == "=" && node.nodeName == "mo" && node.textContent == "!"){
-					node.textContent += "=";
+				if(moContent == "=" && node.nodeName == "mo" && dripLang.getText(node) == "="){
+					dripLang.appendTextEnd(node, "=");
+				}else if(moContent == "=" && node.nodeName == "mo" && dripLang.getText(node) == "!"){
+					dripLang.appendTextEnd(node, "=");
 				}else{
 					if(offset == 0){
 						// 放在节点前面
@@ -632,7 +637,7 @@ define([ "dojo/_base/declare",
 							this._splitNodeIfNeed(nodeName);
 						}
 						var newNode = xmlDoc.createElement(nodeName);
-						newNode.textContent = moContent;
+						dripLang.setText(newNode, moContent);
 						
 						var mstyleNode = node.parentNode;
 						if(this._isMstyleAndHasOneChild(mstyleNode)){
@@ -686,7 +691,7 @@ define([ "dojo/_base/declare",
 					if(prev && prev.nodeName === "mn"){
 						// path和anchor保持不变
 						// 修改prev中的值
-						prev.textContent = prev.textContent + mnContent;
+						dripLang.appendTextEnd(prev, mnContent);
 					}else{
 						// 在node前插入一个mn节点
 						return this._insertNewTokenNodeBefore(nodeName, mnContent, node);
@@ -699,7 +704,8 @@ define([ "dojo/_base/declare",
 					// 修改prev中的值
 					var next = node.nextSibling;
 					if(next && next.nodeName === "mn"){
-						next.textContent = mnContent + next.textContent;
+						dripLang.appendTextStart(next, mnContent)
+						
 					}else{
 						// 在node后追加一个mn节点
 						return this._insertNewTokenNodeAfter("mn", mnContent, node);
@@ -709,7 +715,8 @@ define([ "dojo/_base/declare",
 				
 				if(offset === layoutOffset.select){
 					var newNode = xmlDoc.createElement(nodeName);
-					newNode.textContent = mnContent;
+					dripLang.setText(newNode, mnContent);
+					
 					node.appendChild(newNode);
 					this.path.push({nodeName:nodeName, offset:1});
 					node = newNode;
@@ -721,8 +728,9 @@ define([ "dojo/_base/declare",
 			// 剩下的就是token类型的节点了。
 			// 唯一特殊的就是mn节点了，可以在mn前或后面追加数字
 			if(node.nodeName === "mn"){
-				var oldText = node.textContent;
-				node.textContent = dripString.insertAtOffset(oldText, offset, mnContent);
+				var oldText = dripLang.getText(node);
+				dripLang.setText(node, dripString.insertAtOffset(oldText, offset, mnContent));
+				
 				offset += mnContent.length;
 				return {node:node, offset:offset};
 			}
@@ -732,7 +740,7 @@ define([ "dojo/_base/declare",
 				if(prev && prev.nodeName === "mn"){
 					// path和anchor保持不变
 					// 修改prev中的值
-					prev.textContent = prev.textContent + mnContent;
+					dripLang.appendTextEnd(prev, mnContent);
 				}else{
 					// 在node前插入一个mn节点
 					return this._insertNewTokenNodeBefore(nodeName, mnContent, node);
@@ -740,7 +748,7 @@ define([ "dojo/_base/declare",
 			}else{
 				var next = node.nextSibling;
 				if(next && next.nodeName === "mn"){
-					next.textContent = mnContent + next.textContent;
+					dripLang.appendTextStart(next, mnContent);
 				}else{
 					// 在node后追加一个mn节点
 					return this._insertNewTokenNodeAfter("mn", mnContent, node);
@@ -751,7 +759,7 @@ define([ "dojo/_base/declare",
 		
 		_insertNewTokenNodeAfter: function(newNodeName, content,existNode){
 			var tokenNode = this.doc.createElement(newNodeName);
-			tokenNode.textContent = content;
+			dripLang.setText(tokenNode, content);
 			
 			var mstyleNode = existNode.parentNode;
 			if(this._isMstyleAndHasOneChild(mstyleNode)){
@@ -775,7 +783,7 @@ define([ "dojo/_base/declare",
 		
 		_insertNewTokenNodeBefore:  function(nodeName, content,existNode){
 			var tokenNode = this.doc.createElement(nodeName);
-			tokenNode.textContent = content;
+			dripLang.setText(tokenNode, content);
 			
 			var mstyleNode = existNode.parentNode;
 			if(this._isMstyleAndHasOneChild(mstyleNode)){
@@ -875,8 +883,8 @@ define([ "dojo/_base/declare",
 				var mrow = xmlDoc.createElement("mrow");
 				var placeHolder = xmlUtil.getPlaceHolder(xmlDoc);
 				
-				mi.textContent = data;
-				mo.textContent = STRING_FUNCTION_APPLICATION;
+				dripLang.setText(mi, data);
+				dripLang.setText(mo, STRING_FUNCTION_APPLICATION);
 				
 				mrow.appendChild(placeHolder);
 				
@@ -896,8 +904,8 @@ define([ "dojo/_base/declare",
 				var mrow = xmlDoc.createElement("mrow");
 				var placeHolder = xmlUtil.getPlaceHolder(xmlDoc);
 				
-				mi.textContent = data;
-				mo.textContent = STRING_FUNCTION_APPLICATION;
+				dripLang.setText(mi, data);
+				dripLang.setText(mo, STRING_FUNCTION_APPLICATION);
 				mrow.appendChild(placeHolder);
 
 				dripLang.insertNodeAfter(mi, node);
@@ -1286,7 +1294,7 @@ define([ "dojo/_base/declare",
 				return;
 			}
 			
-			var textContent = node.textContent;
+			var textContent = dripLang.getText(node);
 			var textLength = textContent.length;
 			
 			if(0 < offset && offset < textLength){
@@ -1296,8 +1304,8 @@ define([ "dojo/_base/declare",
 				
 				var node2 = this.doc.createElement(node.nodeName);//因为是拆分
 				
-				node.textContent = part1;
-				node2.textContent = part2;
+				dripLang.setText(node, part1);
+				dripLang.setText(node2, part2);
 				
 				dripLang.insertNodeAfter(node2, node);
 			}
@@ -1374,7 +1382,7 @@ define([ "dojo/_base/declare",
 						this.path.push(pos);
 						if(prev.nodeName === "text"){
 							this.anchor.node = prev;
-							this.anchor.offset = prev.textContent.length;
+							this.anchor.offset = dripLang.getText(prev).length;
 						}
 					}else if(offset === 1){
 						// 先获取下一个text节点，如果没有获取到，则插入一个空白的text节点。
@@ -1501,7 +1509,8 @@ define([ "dojo/_base/declare",
 								var scriptingNode = node.parentNode.parentNode;
 								dripLang.insertNodeBefore(node, scriptingNode);
 								var moNode = this.doc.createElement("mo");
-								moNode.textContent = data;
+								dripLang.setText(moNode, data);
+								
 								dripLang.insertNodeBefore(moNode,scriptingNode);
 								insertPlaceholder = true;
 								this.path.pop(); // 当前的base node
@@ -1883,7 +1892,7 @@ define([ "dojo/_base/declare",
 						}else{
 							this._moveLineEnd(line);
 							if(line.lastChild.nodeName === "text" && next.firstChild.nodeName === "text"){
-								line.lastChild.textContent = line.lastChild.textContent + next.firstChild.textContent;
+								dripLang.appendTextEnd(line.lastChild, dripLang.getText(next.firstChild));
 								next.removeChild(next.firstChild);
 							}
 							var nextChildLength = next.childNodes.length;
@@ -1958,7 +1967,8 @@ define([ "dojo/_base/declare",
 							// 删除节点
 							next.parentNode.removeChild(next);
 						}else{
-							next.textContent = next.textContent.substring(1, nextLength);
+							var oldText = dripLang.getText(next);
+							dripLang.setText(next, oldText.substring(1, nextLength));
 						}
 					}
 					
@@ -1978,7 +1988,7 @@ define([ "dojo/_base/declare",
 							this.anchor.node = next;
 							this.anchor.offset = 0;
 							node.parentNode.removeChild(node);
-							return node.textContent;
+							return dripLang.getText(node);
 						}
 						// 找不到后一个节点，则找前一个节点
 						var prev = node.previousSibling;
@@ -2000,24 +2010,24 @@ define([ "dojo/_base/declare",
 						}
 						var removed = null;
 						if(this._isTokenNode(node.nodeName)){
-							removed = node.textContent;
+							removed = dripLang.getText(node);
 						}
 						node.parentNode.removeChild(node);
 						return removed;
 					}else{
-						var oldText = node.textContent;
+						var oldText = dripLang.getText(node);
 						var removed = oldText.charAt(offset);
 						var newText = dripString.insertAtOffset(oldText, offset+1, "", 1);
-						node.textContent = newText;
+						dripLang.setText(node, newText);
 						// anchor.node和anchor.offset的值都不变，path的值也都不变。
 						return removed;
 					}
 				}else{
 					// 在之间
-					var oldText = node.textContent;
+					var oldText = dripLang.getText(node);
 					var removed = oldText.charAt(offset);
 					var newText = dripString.insertAtOffset(oldText, offset+1, "", 1);
-					node.textContent = newText;
+					dripLang.setText(node, newText);
 					// anchor.node和anchor.offset的值都不变，path的值也都不变。
 					return removed;
 				}
@@ -2049,7 +2059,7 @@ define([ "dojo/_base/declare",
 					if(line.childNodes.length > 0){
 						// FIXME：解决多个节点都复制的问题
 						if(prev.lastChild.nodeName === "text" && line.firstChild.nodeName === "text"){
-							prev.lastChild.textContent = prev.lastChild.textContent + line.firstChild.textContent;
+							dripLang.appendTextEnd(prev.lastChild, dripLang.getText(line.firstChild));
 							line.removeChild(line.firstChild);
 						}
 						var childLength = line.childNodes.length;
@@ -2127,17 +2137,18 @@ define([ "dojo/_base/declare",
 							// 删除节点
 							prev.parentNode.removeChild(prev);
 						}else{
-							prev.textContent = prev.textContent.substring(0, prevLength-1);
+							var oldText = dripLang.getText(prev);
+							dripLang.setText(prev, oldText.substring(0, prevLength - 1));
 						}
 					}
 					return;
 				}
 				
 				if(contentLength > 1){
-					var oldText = node.textContent;
+					var oldText = dripLang.getText(node);
 					var removed = oldText.charAt(offset - 1);
 					newText = dripString.insertAtOffset(oldText, offset, "", 1);
-					node.textContent = newText;
+					dripLang.setText(node, newText);
 					// path不变，anchor.node不变
 					this.anchor.offset--;
 					return removed;
@@ -2157,7 +2168,7 @@ define([ "dojo/_base/declare",
 							this.anchor.offset = 1;
 						}
 						node.parentNode.removeChild(node);
-						return node.textContent;
+						return dripLang.getText(node);
 					}
 					// 若找不到前一个兄弟节点，则找父节点, FIXME：这里的逻辑还不严谨
 					this.path.pop();
@@ -2170,7 +2181,7 @@ define([ "dojo/_base/declare",
 						this.anchor.offset = 0;
 					}
 					parentNode.removeChild(node);
-					return node.textContent;
+					return dripLang.getText(node);
 				}else if(contentLength == 0){
 					// 现在只有为占位符的时候，长度才为0
 				}
@@ -2195,7 +2206,8 @@ define([ "dojo/_base/declare",
 								// 删除节点
 								prev.parentNode.removeChild(prev);
 							}else{
-								prev.textContent = prev.textContent.substring(0, prevLength-1);
+								var oldText = dripLang.getText(prev);
+								dripLang.setText(prev, oldText.substring(0, prevLength - 1));
 							}
 						}
 						
@@ -2335,7 +2347,7 @@ define([ "dojo/_base/declare",
 				// 只有token节点，才需要计算
 				var nodeName = tokenNode.nodeName;
 				if(nodeName === "mn" || nodeName === "text"){
-					length = tokenNode.textContent.length;
+					length = dripLang.getText(tokenNode).length;
 				}else if(nodeName === "mo" || nodeName === "mi"){
 					// mo和mi的长度永远为1
 					length = 1;
@@ -2388,7 +2400,7 @@ define([ "dojo/_base/declare",
 			var nodeName = node.nodeName;
 			if(nodeName === "line"){
 				return node;
-			}else if(nodeName === "text" && offset === node.textContent.length  && !node.nextSibling){
+			}else if(nodeName === "text" && offset === dripLang.getText(node).length  && !node.nextSibling){
 				this.path.pop();// 从路径中移除text节点
 				return node.parentNode;
 			}else if(nodeName === "math" && offset === 1 && !node.nextSibling){
@@ -2472,7 +2484,7 @@ define([ "dojo/_base/declare",
 			var lastChildNodeName = lastChild.nodeName;
 			if(lastChildNodeName === "text"){
 				this.anchor.node = lastChild;
-				this.anchor.offset = lastChild.textContent.length;
+				this.anchor.offset = dripLang.getText(lastChild).length;
 				this.path.push({nodeName: lastChildNodeName, offset: childCount});
 				return;
 			}
@@ -2697,7 +2709,7 @@ define([ "dojo/_base/declare",
 			if(xmlUtil.isPlaceHolder(node))return false;
 			var offset = anchor.offset;
 			
-			if(this._isTokenNode(node.nodeName) && 0 <= offset && offset < node.textContent.length){
+			if(this._isTokenNode(node.nodeName) && 0 <= offset && offset < dripLang.getText(node).length){
 				return true;
 			}
 			
@@ -2709,7 +2721,7 @@ define([ "dojo/_base/declare",
 			if(xmlUtil.isPlaceHolder(node))return false;
 			var offset = anchor.offset;
 			
-			if(this._isTokenNode(node.nodeName) && 0 < offset && offset <= node.textContent.length){
+			if(this._isTokenNode(node.nodeName) && 0 < offset && offset <= dripLang.getText(node).length){
 				return true;
 			}
 			
@@ -2874,7 +2886,7 @@ define([ "dojo/_base/declare",
 						// math到text
 						this._movePathToPreviousSibling(prev);
 						this.anchor.node = prev;
-						this.anchor.offset = prev.textContent.length - 1;
+						this.anchor.offset = dripLang.getText(prev).length - 1;
 						this.mode = "text";
 					}
 				}
@@ -3613,9 +3625,9 @@ define([ "dojo/_base/declare",
 			var focusNode = this.anchor.node;
 			var offset = this.anchor.offset;
 			
-			var oldText = focusNode.textContent;
+			var oldText = dripLang.getText(focusNode);
 			var newText = dripString.insertAtOffset(oldText, offset, charData);
-			focusNode.textContent = newText;
+			dripLang.setText(focusNode, newText);
 			// 注意，这里输入的char，不管几个字符都当作一个长度处理，如&123;也当作一个字符处理。
 			offset += 1;
 			

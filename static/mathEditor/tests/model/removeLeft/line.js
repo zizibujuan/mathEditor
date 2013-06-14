@@ -1,4 +1,4 @@
-define([ "doh","mathEditor/Model" ], function(doh,Model) {
+define([ "doh", "mathEditor/Model", "mathEditor/lang" ], function(doh, Model, dripLang) {
 
 	// summry:
 	//		光标在第一行的起始位置：
@@ -196,7 +196,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				t.is("text", focusNode.nodeName);
   				t.is(3, model.getOffset());
   				t.is(1, model.getLineCount());
-  				t.is("abcde", focusNode.textContent);
+  				t.is("abcde", dripLang.getText(focusNode));
   			},
   			tearDown: function(){
   				

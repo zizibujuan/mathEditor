@@ -1,5 +1,5 @@
 // CJK 中日韩统一表意文字（CJK Unified Ideographs）
-define([ "doh","mathEditor/Model" ], function(doh,Model) {
+define([ "doh", "mathEditor/Model", "mathEditor/lang" ], function(doh, Model, dripLang) {
 
 	doh.register("Model.setData.CJK 中日韩文字",[
 		{
@@ -13,7 +13,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				t.is("/root/line[1]/text[1]", model.getPath());
 				var focusNode = model.getFocusNode();
 				t.is(focusNode.nodeName, "text");
-				t.is("水", focusNode.textContent);
+				t.is("水", dripLang.getText(focusNode));
 				t.is(1, model.getOffset());
 			},
 			tearDown: function(){
@@ -30,7 +30,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				t.is("/root/line[1]/text[1]", model.getPath());
 				var focusNode = model.getFocusNode();
 				t.is(focusNode.nodeName, "text");
-				t.is("大海", focusNode.textContent);
+				t.is("大海", dripLang.getText(focusNode));
 				t.is(2, model.getOffset());
 			},
 			tearDown: function(){
@@ -48,7 +48,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				t.is("/root/line[1]/text[1]", model.getPath());
 				var focusNode = model.getFocusNode();
 				t.is(focusNode.nodeName, "text");
-				t.is("大海", focusNode.textContent);
+				t.is("大海", dripLang.getText(focusNode));
 				t.is(2, model.getOffset());
 			},
 			tearDown: function(){
@@ -67,7 +67,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				t.is("/root/line[1]/text[1]", model.getPath());
 				var focusNode = model.getFocusNode();
 				t.is(focusNode.nodeName, "text");
-				t.is("大水海", focusNode.textContent);
+				t.is("大水海", dripLang.getText(focusNode));
 				t.is(2, model.getOffset());
 			},
 			tearDown: function(){
@@ -86,7 +86,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				t.is("/root/line[1]/text[1]", model.getPath());
 				var focusNode = model.getFocusNode();
 				t.is(focusNode.nodeName, "text");
-				t.is("海大", focusNode.textContent);
+				t.is("海大", dripLang.getText(focusNode));
 				t.is(1, model.getOffset());
 			},
 			tearDown: function(){

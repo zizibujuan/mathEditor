@@ -1,4 +1,4 @@
-define([ "doh","mathEditor/Model" ], function(doh,Model) {
+define([ "doh", "mathEditor/Model", "mathEditor/lang" ], function(doh, Model, dripLang) {
 
 	doh.register("Model.removeLeft.mn",[
 	    {
@@ -113,7 +113,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				t.is("mi", focusNode.nodeName);
   				t.is(0, model.getOffset());
   				t.is(2, focusNode.parentNode.childNodes.length);
-  				t.is("1", focusNode.previousSibling.textContent);
+  				t.is("1", dripLang.getText(focusNode.previousSibling));
   			},
   			tearDown: function(){
   				
@@ -145,7 +145,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				t.is("mn", focusNode.nodeName);
   				t.is(1, model.getOffset());
   				t.is(1, focusNode.parentNode.childNodes.length);
-  				t.is("2", focusNode.textContent);
+  				t.is("2", dripLang.getText(focusNode));
   			},
   			tearDown: function(){
   				
@@ -177,7 +177,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				t.is("mn", focusNode.nodeName);
   				t.is(2, model.getOffset());
   				t.is(1, focusNode.parentNode.childNodes.length);
-  				t.is("12", focusNode.textContent);
+  				t.is("12", dripLang.getText(focusNode));
   			},
   			tearDown: function(){
   				

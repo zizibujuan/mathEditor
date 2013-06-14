@@ -1,4 +1,4 @@
-define([ "doh","mathEditor/Model" ], function(doh,Model) {
+define([ "doh", "mathEditor/Model", "mathEditor/lang" ], function(doh, Model, dripLang) {
 
 	doh.register("Model.setData.inferredFrac 分数,推断出分子",[
 		{
@@ -77,8 +77,8 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				t.is("math", children[1].nodeName);
   				t.is("text", children[2].nodeName);
   				
-  				t.is("你", children[0].textContent);
-  				t.is("我", children[2].textContent);
+  				t.is("你", dripLang.getText(children[0]));
+  				t.is("我", dripLang.getText(children[2]));
   			},
   			tearDown: function(){
   				
@@ -117,7 +117,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				// 判断分子的值为1
   				var numeratorNode = node.parentNode.previousSibling.firstChild;
   				t.is("mn", numeratorNode.nodeName);
-  				t.is("1", numeratorNode.textContent);
+  				t.is("1", dripLang.getText(numeratorNode));
   			},
   			tearDown: function(){
   				
@@ -150,7 +150,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				
   				// 判断分子的值为1
   				t.is("mn", node.nodeName);
-  				t.is("1", node.textContent);
+  				t.is("1", dripLang.getText(node));
   			},
   			tearDown: function(){
   				

@@ -69,7 +69,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				t.is("/root/line[1]/math[1]/mn[1]", model.getPath()); 
   				t.is(node.nodeName, "mn");
   				t.is(0, model.getOffset());
-  				t.is("1", node.textContent);
+  				t.is("1", dripLang.getText(node));
   			},
   			tearDown: function(){
   				
@@ -102,7 +102,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				t.is("/root/line[1]/math[1]/mn[1]", model.getPath()); 
   				t.is(node.nodeName, "mn");
   				t.is(1, model.getOffset());
-  				t.is("12", node.textContent);
+  				t.is("12", dripLang.getText(node));
   			},
   			tearDown: function(){
   				

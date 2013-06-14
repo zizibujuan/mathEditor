@@ -67,7 +67,7 @@ define([ "doh","mathEditor/Model","mathEditor/lang" ], function(doh,Model,dripLa
 				
 				var baseNode = superscriptNode.parentNode.previousSibling.firstChild;
 				t.is("mn", baseNode.nodeName);
-				t.is("1", baseNode.textContent);
+				t.is("1", dripLang.getText(baseNode));
 			},
 			tearDown: function(){
 				
@@ -98,7 +98,7 @@ define([ "doh","mathEditor/Model","mathEditor/lang" ], function(doh,Model,dripLa
 				
 				var baseNode = superscriptNode.parentNode.previousSibling.firstChild;
 				t.is("mi", baseNode.nodeName);
-				t.is("x", baseNode.textContent);
+				t.is("x", dripLang.getText(baseNode));
 			},
 			tearDown: function(){
 				
@@ -132,7 +132,7 @@ define([ "doh","mathEditor/Model","mathEditor/lang" ], function(doh,Model,dripLa
 				t.is("drip_placeholder_box", baseNode.getAttribute("class"));
 				
 				var line = model.getLineAt(0);
-				t.is("+", line.firstChild.firstChild.textContent);
+				t.is("+", dripLang.getText(line.firstChild.firstChild));
 				t.is(2, dripLang.getChildLength(line.firstChild));
 			},
 			tearDown: function(){
@@ -164,7 +164,7 @@ define([ "doh","mathEditor/Model","mathEditor/lang" ], function(doh,Model,dripLa
 				
 				var baseNode = superscriptNode.parentNode.previousSibling.firstChild;
 				t.is("mn", baseNode.nodeName);
-				t.is("1", baseNode.textContent);
+				t.is("1", dripLang.getText(baseNode));
 			},
 			tearDown: function(){
 				
@@ -244,7 +244,7 @@ define([ "doh","mathEditor/Model","mathEditor/lang" ], function(doh,Model,dripLa
 				
 				var baseNode = superscriptNode.parentNode.previousSibling.firstChild;
 				t.is("mn", baseNode.nodeName);
-				t.is("12", baseNode.textContent);
+				t.is("12", dripLang.getText(baseNode));
 				
 				t.is(2, dripLang.getChildLength(line.firstChild));
 			},
@@ -325,7 +325,7 @@ define([ "doh","mathEditor/Model","mathEditor/lang" ], function(doh,Model,dripLa
 				t.is("mn", node.nodeName);
 				t.is(1, model.getOffset());
 				t.is(1, dripLang.getChildLength(line.firstChild));
-				t.is("123", node.textContent);
+				t.is("123", dripLang.getText(node));
 			},
 			tearDown: function(){
 				
@@ -399,7 +399,7 @@ define([ "doh","mathEditor/Model","mathEditor/lang" ], function(doh,Model,dripLa
 				t.is("mn", node.nodeName);
 				t.is(3, model.getOffset());
 				t.is(1, dripLang.getChildLength(line.firstChild));
-				t.is("123", node.textContent);
+				t.is("123", dripLang.getText(node));
 			},
 			tearDown: function(){
 				
@@ -564,7 +564,7 @@ define([ "doh","mathEditor/Model","mathEditor/lang" ], function(doh,Model,dripLa
 				t.is("mn", node.nodeName);
 				t.is(0, model.getOffset());
 				// 占位符
-				t.is("x", line.firstChild.lastChild.firstChild.firstChild.textContent);
+				t.is("x", dripLang.getText(line.firstChild.lastChild.firstChild.firstChild));
   			},
   			tearDown: function(){
   				

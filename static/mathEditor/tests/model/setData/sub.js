@@ -1,4 +1,4 @@
-define([ "doh","mathEditor/Model" ], function(doh,Model) {
+define([ "doh", "mathEditor/Model", "mathEditor/lang" ], function(doh, Model, dripLang) {
 
 	// 因为sub和sup的逻辑是一样的，底层走的是相同的代码，所以不再详细写测试用例了。
 	doh.register("Model.setData.sub 下标",[
@@ -59,7 +59,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 				
 				var baseNode = subscriptNode.parentNode.previousSibling.firstChild;
 				t.is("mn", baseNode.nodeName);
-				t.is("1", baseNode.textContent);
+				t.is("1", dripLang.getText(baseNode));
 			},
 			tearDown: function(){
 				

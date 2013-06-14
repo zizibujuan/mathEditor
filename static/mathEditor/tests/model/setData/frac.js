@@ -336,8 +336,8 @@ define([ "doh", "mathEditor/tests/testUtil", "mathEditor/Model","mathEditor/lang
   				t.is("math", children[1].nodeName);
   				t.is("text", children[2].nodeName);
   				
-  				t.is("你", children[0].textContent);
-  				t.is("我", children[2].textContent);
+  				t.is("你", dripLang.getText(children[0]));
+  				t.is("我", dripLang.getText(children[2]));
   			},
   			tearDown: function(){
   				
@@ -370,7 +370,7 @@ define([ "doh", "mathEditor/tests/testUtil", "mathEditor/Model","mathEditor/lang
   				
   				// 判断分子的值为1
   				t.is("mn", node.nodeName);
-  				t.is("1", node.textContent);
+  				t.is("1", dripLang.getText(node));
   			},
   			tearDown: function(){
   				

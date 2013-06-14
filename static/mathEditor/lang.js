@@ -3,6 +3,7 @@ define(["dojo/_base/array"],function(array){
 	var mathLayoutNodeNames = {"mfrac":1,"mroot":1,"msqrt":1,"msub":1,"msup":1};
 	var mathTokenNodeNames = {"mi":1, "mn":1, "mo":1, "mtext":1, "mspace":1, "ms":1};
 	var mathLayoutNodeWithInferredMrow = {"math":1, "mstyle":1, "msqrt":1};
+	var ELEMENT_NODE = 1, TEXT_NODE = 3;
 	// TODO:重构，这个模块的名称不准确。
 	var lang = {};
 	
@@ -58,7 +59,7 @@ define(["dojo/_base/array"],function(array){
 	},
 	
 	lang.isFunctionApplication = function(node){
-		return node.nodeName === "mo" && node.textContent === this.STRING_FUNCTION_APPLICATION;
+		return node.nodeName === "mo" && this.getText(node) === this.STRING_FUNCTION_APPLICATION;
 	},
 	
 	lang.insertNodeAfter = function(newNode, existingNode){
@@ -151,6 +152,74 @@ define(["dojo/_base/array"],function(array){
 			return parentNode.childElementCount;
 		}else{
 			return parentNode.childNodes.length;
+		}
+	},
+	
+	lang.getText = function(node /*element node*/){
+		// summary:
+		//		获取element node中的值。
+		//		这里只假定element中有一个节点，并且这个节点是text节点
+		
+		if(node.textContent)return node.textContent;
+		
+		var firstChild = node.firstChild;
+		if(firstChild == null){
+			return "";
+		}
+		if(firstChild.nodeType === TEXT_NODE){
+			return firstChild.nodeValue;
+		}
+		return "";
+	},
+	
+	lang.setText = function(node/*element node*/, value){
+		if(node.textContent){
+			node.textContent = value;
+			return;
+		}
+		
+		if(node.nodeType == 1){
+			// 因为假定element node中只有一个text节点，所以直接删除第一个节点即可
+			if(node.firstChild){
+				node.removeChild(node.firstChild);
+			}
+			node.appendChild(node.ownerDocument.createTextNode(value));
+		}
+	},
+	
+	lang.appendTextEnd = function(node/*element node*/, value){
+		// summary:
+		//		在element node节点最后追加字符串
+		
+		if(node.textContent){
+			node.textContent += value;
+			return;
+		}
+		if(node.nodeType == 1){
+			// 因为假定element node中只有一个text节点，所以直接删除第一个节点即可
+			if(node.firstChild){
+				value = node.firstChild.nodeValue + value;
+				node.removeChild(node.firstChild);
+			}
+			node.appendChild(node.ownerDocument.createTextNode(value));
+		}
+	},
+	
+	lang.appendTextStart = function(node/*element node*/, value){
+		// summary:
+		//		在element node节点最前面追加字符串
+		
+		if(node.textContent){
+			node.textContent = value + node.textContent;
+			return;
+		}
+		if(node.nodeType == 1){
+			// 因为假定element node中只有一个text节点，所以直接删除第一个节点即可
+			if(node.firstChild){
+				value = value + node.firstChild.nodeValue;
+				node.removeChild(node.firstChild);
+			}
+			node.appendChild(node.ownerDocument.createTextNode(value));
 		}
 	}
 

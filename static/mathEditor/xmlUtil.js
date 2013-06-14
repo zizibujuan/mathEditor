@@ -1,5 +1,6 @@
-define({
-	createEmptyFrac: function(xmlDoc){
+define(["./lang"],function(dripLang){
+	var xmlUtil = {};
+	xmlUtil.createEmptyFrac = function(xmlDoc){
 		// summary:
 		//		创建一个分数，分子已经给定，分母使用占位符。
 		//		返回的结果是分子获取焦点。
@@ -24,7 +25,7 @@ define({
 		return {rootNode:mstyle,focusNode:mn1};
 	},
 	
-	createFracWithNumerator: function(xmlDoc, numeratorNode){
+	xmlUtil.createFracWithNumerator = function(xmlDoc, numeratorNode){
 		// summary:
 		//		创建一个分数，分子已经给定，分母使用占位符。
 		//		返回的结果是分母获取焦点。
@@ -48,7 +49,7 @@ define({
 		return {rootNode:mstyle,focusNode:mn2};
 	},
 	
-	createScriptingWithBase: function(xmlDoc, baseNode, nodeName){
+	xmlUtil.createScriptingWithBase = function(xmlDoc, baseNode, nodeName){
 		// summary:
 		//		创建一个上标，base值已存在，superscript为空节点
 		//<msup> base superscript </msup>
@@ -72,7 +73,7 @@ define({
 		return {rootNode:container,focusNode:script};
 	},
 	
-	createEmptyScripting: function(xmlDoc, nodeName){
+	xmlUtil.createEmptyScripting = function(xmlDoc, nodeName){
 		// summary:
 		//		创建一个上标，base值已存在，superscript为空节点
 		//<msup> base superscript </msup>
@@ -96,7 +97,7 @@ define({
 		return {rootNode:container,focusNode:script};
 	},
 	
-	createEmptyMsqrt: function(xmlDoc){
+	xmlUtil.createEmptyMsqrt = function(xmlDoc){
 		// summary:
 		//		创建一个平方根。注意，msqrt中包含一个隐含的mrow节点，所以不需要显式添加mrow节点。
 		// <msqrt> base </msqrt>
@@ -108,7 +109,7 @@ define({
 		return {rootNode:msqrt,focusNode:base};
 	},
 	
-	createEmptyMroot: function(xmlDoc){
+	xmlUtil.createEmptyMroot = function(xmlDoc){
 		// summary:
 		//		创建一个平方根
 		// <msqrt> base </msqrt>
@@ -127,7 +128,7 @@ define({
 		return {rootNode:mroot,focusNode:index};
 	},
 	
-	createEmptyMfenced: function(xmlDoc, open){
+	xmlUtil.createEmptyMfenced = function(xmlDoc, open){
 		// summary:
 		//		创建空的mfenced节点
 		//		xmlDoc:xml
@@ -151,7 +152,7 @@ define({
 		return {rootNode:mfenced,focusNode:placeHolder};
 	},
 	
-	createTrigonometric: function(xmlDoc, parentNode, miText){
+	xmlUtil.createTrigonometric = function(xmlDoc, parentNode, miText){
 		// summary:
 		//		创建三角函数
 		// xmlDoc: XML
@@ -169,21 +170,18 @@ define({
 		
 	},
 	
-	isPlaceHolder: function(node){
+	xmlUtil.isPlaceHolder = function(node){
 		return node.getAttribute("class") === "drip_placeholder_box";
 	},
 	
-	removePlaceHolder: function(node){
-//		node.removeAttribute("class");
-//		node.removeAttribute("style");
-//		node.textContent = "";
+	xmlUtil.removePlaceHolder = function(node){
 		if(node.parentNode){
 			node.parentNode.removeChild(node);
 		}
 		
 	},
 	
-	getPlaceHolder: function(xmlDoc){
+	xmlUtil.getPlaceHolder = function(xmlDoc){
 		// summary:
 		//		在节点上加上占位框的样式，本想直接添加一个className，但是会被mathjax的样式覆盖，
 		//		所以在节点上添加一个className,但是真正的效果是通过style中属性实现的。
@@ -191,8 +189,8 @@ define({
 		var node = xmlDoc.createElement("mn");
 		node.setAttribute("class", "drip_placeholder_box");
 		node.setAttribute("style", "border:1px dotted black; padding:1px;background-color: #cccccc;color: #cccccc;");
-		node.textContent = "8";
+		dripLang.setText(node, 8);
 		return node;
 	}
-	
+	return xmlUtil;
 });

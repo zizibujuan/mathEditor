@@ -1,4 +1,4 @@
-define([ "doh","mathEditor/Model" ], function(doh,Model) {
+define([ "doh", "mathEditor/Model", "mathEditor/lang" ], function(doh, Model, dripLang) {
 
 	/**
 	 * 注意：不要强行使用\n作为换行符号，而是应该使用操作系统支持的换行符号。
@@ -48,7 +48,7 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				t.is("line", model.getFocusNode().nodeName);
   				t.is(0, model.getOffset());
   				
-  				t.is("a", model.getLineAt(0).childNodes[0].textContent);
+  				t.is("a", dripLang.getText(model.getLineAt(0).childNodes[0]));
   				t.is(0, model.getLineAt(1).childNodes.length);
   			},
   			tearDown: function(){
@@ -71,8 +71,8 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				t.is("text", model.getFocusNode().nodeName);
   				t.is(1, model.getOffset());
   				
-  				t.is("a", model.getLineAt(0).childNodes[0].textContent);
-  				t.is("b", model.getLineAt(1).childNodes[0].textContent);
+  				t.is("a", dripLang.getText(model.getLineAt(0).childNodes[0]));
+  				t.is("b", dripLang.getText(model.getLineAt(1).childNodes[0]));
   			},
   			tearDown: function(){
   				
@@ -113,8 +113,8 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				t.is("text", model.getFocusNode().nodeName);
   				t.is(0, model.getOffset());
   				
-  				t.is("a", model.getLineAt(0).childNodes[0].textContent);
-  				t.is("b", model.getLineAt(1).childNodes[0].textContent);
+  				t.is("a", dripLang.getText(model.getLineAt(0).childNodes[0]));
+  				t.is("b", dripLang.getText(model.getLineAt(1).childNodes[0]));
   			},
   			tearDown: function(){
   				
