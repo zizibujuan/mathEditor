@@ -1,4 +1,4 @@
-define([ "doh","mathEditor/Model" ], function(doh,Model) {
+define([ "doh", "mathEditor/Model", "mathEditor/lang" ], function(doh, Model, dripLang) {
 	// 原则：在移动光标时，出现在两个节点之间时，根据移动方向的就近原则来放置，但是不管放在哪里，他们都表示相同的位置。
 	// summary
 	//		右移的测试逻辑有：
