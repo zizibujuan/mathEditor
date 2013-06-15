@@ -59,57 +59,8 @@ define(["dojo/_base/declare",
 			textarea.autocapitalize = "off";
 			textarea.spellcheck = false;
 			
-			if(sniff("chrome")){
-				// chrome
-				console.log("chrome");
-				on(textarea, "textInput", lang.hitch(this,function(e){
-					var inputData = e.data;
-					host.onTextInput(inputData);
-				}));
-			}else if(has("ie") <= 8){
-				console.log("ie 8-");
-				on(textarea, "propertychange", lang.hitch(this,function(e){
-					console.log("ie8 text.value = ", textarea.value);
-					host.onTextInput(textarea.value);
-					textarea.value = "";
-				}));
-//				var keytable = { 13:1, 27:1 };
-//		        on(textarea, "keyup", lang.hitch(this,function (e) {
-//		            if (this._inComposition && (!textarea.value || keytable[e.keyCode])){
-//		            	setTimeout(this._onCompositionEnd, 0);
-//		            }
-//		                
-//		            if ((textarea.value.charCodeAt(0)||0) < 129) {
-//		                return;
-//		            }
-//		            this._inComposition ? this._onCompositionUpdate() : this._onCompositionStart();
-//		        }));
-			}else{
-				console.log("other browser");
-				// firefox
-				on(textarea, "input", lang.hitch(this,function(e){
-					this._onInput(e);
-				}));
-				on(textarea, "compositionstart", lang.hitch(this,function(e){
-					this._inComposition = true;
-				}));
-				on(textarea, "compositionend", lang.hitch(this,function(e){
-					this._inComposition = false;
-				}));
-			}
-			// TODO： 添加支持ie8，ie9和ie10的输入事件。
-			
-			on(textarea, "blur", lang.hitch(this,function(e){
-				console.log("textarea失去焦点");
-				host.onBlur();
-			}));
-			
-			on(textarea, "focus", lang.hitch(this,function(e){
-				console.log("textarea获取焦点");
-				host.onFocus();
-			}));
-			
 			// FIXME:一种重构思路是将key与方法绑定，然后根据key自动调用方法，即把if改为json对象
+			// 浏览器通用的事件放在上面。
 			on(textarea, "keydown", lang.hitch(this,function(e){
 				console.log(e, e.keyCode);
 				if(e.keyCode === keys.LEFT_ARROW){
@@ -144,6 +95,61 @@ define(["dojo/_base/declare",
 				}
 				
 			}));
+			
+			on(textarea, "blur", lang.hitch(this,function(e){
+				console.log("textarea失去焦点");
+				host.onBlur();
+			}));
+			
+			on(textarea, "focus", lang.hitch(this,function(e){
+				console.log("textarea获取焦点");
+				host.onFocus();
+			}));
+			
+			if(sniff("chrome")){
+				// chrome
+				console.log("chrome");
+				on(textarea, "textInput", lang.hitch(this,function(e){
+					var inputData = e.data;
+					host.onTextInput(inputData);
+				}));
+				return;
+			}
+			
+			// TODO： 添加支持ie8，ie9和ie10的输入事件。
+			if(has("ie") <= 8){
+				console.log("ie 8-");
+				require(["mathEditor/IEInputEvent"], function(IEInputEvent){
+					var inputEvent = new IEInputEvent({target: textarea});
+					inputEvent.on(function(inputData){
+						textarea.value = "";
+						host.onTextInput(inputData);
+					});
+					on(textarea, "blur", lang.hitch(this,function(e){
+						console.log("textarea失去焦点");
+						host.onBlur();
+					}));
+					
+					on(textarea, "focus", lang.hitch(this,function(e){
+						console.log("textarea获取焦点");
+						host.onFocus();
+					}));
+				});
+				
+			}else{
+				console.log("other browser");
+				// firefox
+				on(textarea, "input", lang.hitch(this,function(e){
+					this._onInput(e);
+				}));
+				on(textarea, "compositionstart", lang.hitch(this,function(e){
+					this._inComposition = true;
+				}));
+				on(textarea, "compositionend", lang.hitch(this,function(e){
+					this._inComposition = false;
+				}));
+			}
+			
 		},
 		
 		// 下面三个方法，只有是ie8以下版本时，才用到

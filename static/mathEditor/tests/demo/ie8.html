@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<script type="text/javascript" 
+	data-dojo-config="
+		async:true,
+		parseOnLoad:true,
+		isDebug:true" 
+	src="/dojo/dojo.js"></script>
+	
+<script type="text/javascript">
+require(["dojo/on", "dojo/dom","mathEditor/IEInputEvent"], function(on, dom, IEInputEvent){
+	var view = dom.byId("view");
+	
+	var input = dom.byId("input");
+	var logDiv = dom.byId("logDiv");
+	
+	on(input, "keyup", function(e){
+		log("keyup", e, e.keyCode, e.charCode);
+	});
+	
+	on(input, "change", function(e){
+		log("change", e, e.keyCode, e.charCode);
+	});
+	var inputEvent = new IEInputEvent({target:input});
+	inputEvent.on(function(data){
+		console.log("ie8_inputEvent ",data);
+		input.value = "";
+		view.innerHTML = data;
+	});
+	
+	function log(){
+		var span = document.createElement("div");
+		var len = arguments.length;
+		var content = "";
+		for(var i = 0; i < len; i++){
+			content += arguments[i]+" ";
+		}
+		span.innerHTML = content;
+		
+		logDiv.appendChild(span);
+	}
+});
+</script>
+</head>
+<body>
+<div>
+<span id="view"></span>
+<textarea rows="3" cols="20" id="input"></textarea>
+
+<div id="logDiv">
+</div>
+</div>
+</body>
+</html>

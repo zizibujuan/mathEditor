@@ -81,7 +81,7 @@ define(["dojo/_base/declare",
 				position: "absolute",
 				cursor: "text"
 			};
-			debugger;
+			
 			// 添加一个处理scroller的div
 			var scrollerDiv = this.scrollerDiv = domConstruct.create("div",{"style":scrollerStyle}, this.parentNode);
 			
@@ -167,7 +167,7 @@ define(["dojo/_base/declare",
 		asyncRender: function(){
 			// summary:
 			//		使用mathjax异步绘制所有的mathml脚本
-			debugger;
+			
 			this.textLayer.innerHTML = this.model.getHTML();
 			
 			console.log("after set innerHTML");
@@ -197,7 +197,7 @@ define(["dojo/_base/declare",
 			
 			console.log("Typeset完成后执行此方法");
 			console.log(this.contentDiv);
-			debugger;
+			
 			this._autoHeight();
 			
 			// TODO：宽度可拖拽
@@ -274,7 +274,7 @@ define(["dojo/_base/declare",
 			
 			// 只有当x轴滚动条出现的时候，计算高度时，才加上滚动条的高度
 			if(contentDiv.scrollHeight > contentDiv.clientHeight){
-				debugger;
+				
 				// 当高度增加的时候要相应的增加高度
 				var pxHeightNoScrollbar = contentDiv.scrollHeight + "px";
 				var pxHeightWithScrollbar = (contentDiv.scrollHeight) +"px";// +this.scrollbarWidth
