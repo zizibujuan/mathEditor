@@ -30,6 +30,13 @@ require([ "doh",
 			this.editor = new Editor({width:100, rows:2}, editorContainer);
 		},
 		runTest: function(t){
+			// 先整明白style height, clientHeight, offsetHeight, scrollHeight之间的关系
+			//		style height
+			//		clientHeight = CSS height + CSS padding - height of horizontal scrollbar
+			//		offsetHeight
+			//		scrollHeight
+			
+			
 			// clientHeight = css height + css apddiing - height of hScroll（包含水平滚动条的高度）
 			// clientWidth = css width + css padding (不包含垂直滚动条的宽度)
 			
@@ -41,6 +48,7 @@ require([ "doh",
 			var editorContainer = this.editorContainer;
 			var deferred = new doh.Deferred();
 			this.editor.view._asyncExecute(deferred.getTestCallback(function(){
+				debugger;
 				t.is(32, editorContainer.clientHeight);
 				t.is(34, editorContainer.offsetHeight);
 				t.is(32, editorContainer.scrollHeight);

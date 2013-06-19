@@ -247,6 +247,19 @@ define(["dojo/_base/declare",
 			
 		},
 		
+
+		/*
+		 * 在chrome浏览器的content-box模式下：
+		 * 		css height
+		 * 		clientHeight = css element height + padding top + padding bottom - height of h scrollbar;
+		 * 		offsetHeight = css element height + padding top + padding bottom + border top + border bottom
+		 * 		scrollHeight = css conent height + padding top + padding bottom
+		 * 
+		 * 		有水平滚动条
+		 * 		css content height =  margin top + border top + padding top + css element height + padding bottom + border bottom + margin bottom
+		 * 		
+		 * 		content height是内容的高度，element height是节点本身的高度
+		 */
 		_autoHeight: function(){
 			// summary:
 			//		根据内容的高度，自动缩放高度，直到初始高度。
@@ -320,6 +333,18 @@ define(["dojo/_base/declare",
 			}
 		},
 		
+		/*
+		 * 在chrome浏览器的content-box模式下：
+		 * 		css width
+		 * 		clientWidth = css element width + padding left + padding right - width of v scrollbar;
+		 * 		offsetWidth = css element width + padding left + padding right + border left + border right
+		 * 		scrollWidth = css conent Width + padding left + padding right(如果有垂直滚动条则不计算padding right)
+		 * 
+		 * 		有垂直滚动条
+		 * 		css content width = margin left + border left + padding left + css element width + padding right + border right(注意没有margin right)
+		 * 
+		 * 		content width是内容的宽度，element width是节点本身的宽度
+		 */
 		_scrollToLeft: function(){
 			// summary;
 			//		水平移动滚动条。

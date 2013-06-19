@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<script type="text/javascript" src="/dojo/dojo.js" data-dojo-config="isDebug:true,async:true,cacheBust:new Date()"></script>
+<script type="text/javascript">
+require(["dojo/dom", "dojo/domReady!"], function(dom){
+
+	for(var i = 0; i < 4; i++){
+		var boxId = "box"+(i+1);
+		var box = dom.byId(boxId);
+		var logDiv = dom.byId("logDiv"+(i+1));
+		
+
+		log(logDiv, boxId+".clientWidth = ", box.clientWidth);
+		log(logDiv, boxId+".offsetWidth = ", box.offsetWidth);
+		log(logDiv, boxId+".scrollWidth = ", box.scrollWidth);
+		log(logDiv, boxId+".clientHeight = ", box.clientHeight);
+		log(logDiv, boxId+".offsetHeight = ", box.offsetHeight);
+		log(logDiv, boxId+".scrollHeight = ", box.scrollHeight);
+	}
+	
+	function log(parentDiv){
+		var span = document.createElement("div");
+		var len = arguments.length;
+		var content = "";
+		for(var i = 1; i < len; i++){
+			content += arguments[i]+" ";
+		}
+		span.innerHTML = content;
+		
+		parentDiv.appendChild(span);
+	}
+});
+</script>
+
+<style type="text/css">
+div{
+	/*box-sizing:border-box;*/
+}
+</style>
+</head>
+<body>
+
+
+<div id="box1" style="padding:1px 2px 3px 4px; margin:3px; border: 5px solid black; width:100px; height:100px">
+aa
+</div>
+<div id="logDiv1"></div>
+<div id="box2" style="padding:1px 2px 3px 4px; margin:3px; border: 5px solid black; width:100px; height:100px; overflow: scroll;">
+<div style="height:200px;width:200px; border:1px solid red; padding:2px; margin: 3px">a</div>
+</div>
+<div id="logDiv2"></div>
+<div id="box3" style="padding:1px 2px 3px 4px; margin:3px; border: 5px solid black; width:100px; height:100px; overflow-x:scroll">
+<div style="width:200px;" >a</div>
+</div>
+<div id="logDiv3"></div>
+<div id="box4" style="padding:1px 2px 3px 4px; margin:3px; border: 5px solid black; width:100px; height:100px; overflow-y:scroll">
+<div style="height:200px">a</div>
+</div>
+<div id="logDiv4"></div>
+</body>
+</html>
