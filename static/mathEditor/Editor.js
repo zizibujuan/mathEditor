@@ -77,9 +77,9 @@ define(["dojo/_base/declare",
 			var borderWidth = this.borderWidth = domStyle.get(domNode, "border-width");
 			console.log("border-width",this.borderWidth);
 			
-			var height = this._computeEditorHeight();
-			var width = this._computeEditorWidth();
-			domStyle.set(domNode, {"height": height + "px", "width": width + "px"});
+			var elementHeight = this._computeEditorHeight();
+			var elementWidth = this._computeEditorWidth();
+			domStyle.set(domNode, {"height": elementHeight + "px", "width": elementWidth + "px"});
 			
 			var textInput = new TextInput({parentNode: this.domNode, host: this});
 			var model = this.model = new Model();
@@ -89,7 +89,8 @@ define(["dojo/_base/declare",
 				textarea: textInput.getElement(),
 				borderWidth: borderWidth,
 				paddingTop: this.paddingTop,
-				paddingRight: this.paddingRight
+				paddingRight: this.paddingRight,
+				editorWidth: elementWidth // editorWidth是编辑器的所有宽度，包括边框
 			});
 			this.view.hScrollBarAlwaysVisible = this.hScrollBarAlwaysVisible;
 			

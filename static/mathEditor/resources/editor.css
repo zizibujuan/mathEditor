@@ -1,7 +1,9 @@
 .drip_editor {
 	position: relative;
 	border-radius:3px;
-	border:solid 1px #CCC
+	border:solid 1px #CCC;
+    overflow: hidden;
+    font-size: 12px;
 }
 
 .drip_layer {
@@ -581,6 +583,8 @@ background-position: -480px -90px;
     resize: none;
     outline: none;
     overflow: hidden;
+    padding: 0 1px;
+    margin: 0 -1px;
 }
 
 .drip_text-input .drip_composition {

@@ -53,11 +53,13 @@ define(["dojo/_base/declare",
 		
 		paddingTop: 0,
 		
-		paddingLeft: 0,
+		paddingRight: 0,
 		
 		// borderWidth: int
 		//		编辑器边框的宽度
 		borderWidth: 0,
+		
+		editorWidth: 0,
 		
 		constructor: function(options){
 			lang.mixin(this, options);
@@ -66,14 +68,16 @@ define(["dojo/_base/declare",
 			var scrollerStyle={
 				position: "absolute",
 				height: "100%",
-				width: "100%"/*,
+				width: this.editorWidth+"px"/*,
 				"overflow-x":"scroll"*/
 					//overflow:"hidden"//刚开始的时候不显示scroll
 			};
 			if(this.hScrollBarAlwaysVisible){
 				scrollerStyle["overflow-x"] = "scroll";
 			}else{
-				scrollerStyle["overflow"] = "auto";
+				// 
+				scrollerStyle["overflow-x"] = "auto";
+				scrollerStyle["overflow-y"] = "visible";
 			}
 			// FIXME: 当出现滚动条的时候，不要在原有内容之上添加滚动条，而是在原来高度的基础上添加一个滚动条的高度。
 			
@@ -218,6 +222,7 @@ define(["dojo/_base/declare",
 			}
 			
 			// 如果math获取焦点，则将math周围添加一个边框,FIXME:以下代码和光标无关，应该放在另一个方法中。
+			// FIXME：这个边框的位置是相对于编辑器的左上角的，不能相对于浏览器窗口的左上角，这样编辑器上面div高度调整时，这个框不至于脱离原来的编辑器。
 			if(this.model.isMathMLMode()){
 				var mathContainer = focusInfo.mathNodeContainer;
 				// 使用math节点下的mrow节点的样式
@@ -253,7 +258,13 @@ define(["dojo/_base/declare",
 		 * 		css height
 		 * 		clientHeight = css element height + padding top + padding bottom - height of h scrollbar;
 		 * 		offsetHeight = css element height + padding top + padding bottom + border top + border bottom
-		 * 		scrollHeight = css conent height + padding top + padding bottom
+		 * 
+		 * 		如果element height大于content height
+		 * 		scrollHeight = clientHeight
+		 * 		如果element height小于content height
+		 * 		scrollHeight = css content height + padding top + padding bottom
+		 * 
+		 * 		content height = element height
 		 * 
 		 * 		有水平滚动条
 		 * 		css content height =  margin top + border top + padding top + css element height + padding bottom + border bottom + margin bottom
@@ -268,7 +279,8 @@ define(["dojo/_base/declare",
 			// 则与scrollerDiv的clientWidth和clientHeight的值相等；否则与contentDiv的scrollWidth和scrollHeight的值相等。
 			var contentDiv = this.contentDiv;
 			var scrollerDiv = this.scrollerDiv;
-		
+			var textLayer = this.textLayer;// 决定实际高度的是textLayer
+			debugger;
 			// 实现方法，增加的时候简单，难点是减少的时候。
 			//	记录下最长的宽度（超出部分）
 			
@@ -282,6 +294,7 @@ define(["dojo/_base/declare",
 			
 			// 宽度要不要也做成可扩展的呢？
 			// 高度可扩展
+			
 			
 			
 			
@@ -301,8 +314,11 @@ define(["dojo/_base/declare",
 				if(scrollerDiv.clientHeight < contentDiv.clientHeight){
 					// 当每次出现滚动条的时候，都会将scrollerDiv的高度和宽度减去滚动条的宽度，
 					// 所以这里需要重新设置scrollerDiv的宽和高
-					domStyle.set(scrollerDiv, {height: (contentDiv.scrollHeight + this.scrollbarWidth)+"px"});
 					
+					
+					// 设置height两次，第一次是给恰好的高度去掉已有的滚动条；第二次是恢复到实际的高度
+					domStyle.set(scrollerDiv, {height: (contentDiv.scrollHeight + this.scrollbarWidth)+"px"});
+					domStyle.set(scrollerDiv, {height: (contentDiv.scrollHeight)+"px"});
 				}
 				
 				//domStyle.set(contentDiv,{"width":(this.parentNode.clientWidth-this.scrollbarWidth)+"px"});
@@ -336,9 +352,14 @@ define(["dojo/_base/declare",
 		/*
 		 * 在chrome浏览器的content-box模式下：
 		 * 		css width
-		 * 		clientWidth = css element width + padding left + padding right - width of v scrollbar;
+		 * 		clientWidth = css element width + padding left + padding right - width of v scrollbar(如果存在垂直滚动条);
 		 * 		offsetWidth = css element width + padding left + padding right + border left + border right
-		 * 		scrollWidth = css conent Width + padding left + padding right(如果有垂直滚动条则不计算padding right)
+		 * 
+		 * 		当content width小于 element width时
+		 * 		scrollWidth = clientWidth
+		 * 		当content width大于 element width时，出现了水平滚动条（不管有没有垂直滚动条）
+		 * 		scrollWidth = css content Width + padding left + padding right(如果有垂直滚动条则不计算padding right)
+		 * 		
 		 * 
 		 * 		有垂直滚动条
 		 * 		css content width = margin left + border left + padding left + css element width + padding right + border right(注意没有margin right)
@@ -350,7 +371,6 @@ define(["dojo/_base/declare",
 			//		水平移动滚动条。
 
 			//	scrollerDiv.clientWidth-scrollbarWidth
-			
 			var contentDiv = this.contentDiv;
 			var scrollerDiv = this.scrollerDiv;
 			
@@ -358,10 +378,16 @@ define(["dojo/_base/declare",
 			console.log("contentDiv.clientWidth:",contentDiv.clientWidth);
 			console.log("contentDiv.scrollWidth - contentDiv.clientWidth=",contentDiv.scrollWidth - contentDiv.clientWidth);
 			
+			
 			if(contentDiv.scrollWidth - contentDiv.clientWidth > 0){
-				scrollerDiv.scrollLeft += (contentDiv.scrollWidth - contentDiv.clientWidth);
+				scrollerDiv.scrollLeft += (contentDiv.scrollWidth - contentDiv.clientWidth)+4;
 				console.log("scrollerDiv.scrollLeft=", scrollerDiv.scrollLeft);
+				// scrollerDiv的宽度保持不变
+				//domStyle.set(scrollerDiv, "width", (contentDiv.scrollWidth + this.paddingRight) + "px");
 				domStyle.set(contentDiv, "width", contentDiv.scrollWidth + "px");
+				
+				domStyle.set(scrollerDiv,"height", (contentDiv.scrollHeight + this.scrollbarWidth)+"px");
+				// 有水平滚动条时，让编辑器的高度加一个水平滚动条的高度
 			}else{
 				// 减小宽度
 				if(contentDiv.scrollWidth <= this.minWidth){

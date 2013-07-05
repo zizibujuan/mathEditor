@@ -42,26 +42,26 @@ require([ "doh",
 			
 			// scrollWidth = 
 			
-			// 默认的lineHeight为15,边框的宽度为1，paddingTop为2
+			// 默认的lineHeight为15,边框的宽度为1，paddingTop=2, paddingBottom=1
 			// 所以编辑器的内容高度clientHeight应该为15*2 + paddingTop，总体高度offsetHeight应该为 15*2 + paddingTop + 1*2
 			// 高度
 			var editorContainer = this.editorContainer;
 			var deferred = new doh.Deferred();
 			this.editor.view._asyncExecute(deferred.getTestCallback(function(){
-				debugger;
+
 				t.is(32, editorContainer.clientHeight);
-				t.is(34, editorContainer.offsetHeight);
+				t.is(34, editorContainer.offsetHeight);// border = 1
 				t.is(32, editorContainer.scrollHeight);
 				
 				var scroller = editorContainer.lastChild;
-				t.is(32, scroller.clientHeight);
+				t.is(32, scroller.clientHeight);// 32
 				t.is(32, scroller.offsetHeight);
 				t.is(32, scroller.scrollHeight);
 				
 				var content = scroller.firstChild;
-				t.is(32, content.clientHeight);
-				t.is(32, content.offsetHeight);
-				t.is(32, content.scrollHeight);
+				t.is(32, content.clientHeight); // 30 + 2 + 0 - 0
+				t.is(32, content.offsetHeight); // 30 + 2 + 0 + 0 + 0 + 0;
+				t.is(32, content.scrollHeight); // = clientHeight
 				
 				// 宽度
 				// 内容宽度clientWidth = 100 + paddingRight
@@ -98,7 +98,6 @@ require([ "doh",
 			var editorContainer = this.editorContainer;
 			var deferred = new doh.Deferred();
 			this.editor.view._asyncExecute(deferred.getTestCallback(function(){
-				debugger;
 				t.is(32, editorContainer.clientHeight);
 				t.is(34, editorContainer.offsetHeight);
 				t.is(32, editorContainer.scrollHeight);
@@ -111,7 +110,7 @@ require([ "doh",
 				var content = scroller.firstChild;
 				t.is(32, content.clientHeight);
 				t.is(32, content.offsetHeight);
-				t.is(32, content.scrollHeight);		
+				t.is(32, content.scrollHeight);	
 			}));
 			return deferred;	
 		},
@@ -131,16 +130,17 @@ require([ "doh",
 			var editorContainer = this.editorContainer;
 			var deferred = new doh.Deferred();
 			this.editor.view._asyncExecute(deferred.getTestCallback(function(){
-				debugger;
-				var scrollHeight = 47 + 15;
+				// 当不需要显示滚动条的时候，scroller的高与其父节点的高保持一直
+				// 当scroller中需要显示横向滚动条时，scroller的高要加上滚动条的高度，
+				// 即将滚动条显示在内容区域之外
 				t.is(47, editorContainer.clientHeight);
 				t.is(49, editorContainer.offsetHeight);
-				t.is(scrollHeight, editorContainer.scrollHeight);
+				t.is(47, editorContainer.scrollHeight);
 				
 				var scroller = editorContainer.lastChild;
-				t.is(scrollHeight, scroller.clientHeight);
-				t.is(scrollHeight, scroller.offsetHeight);
-				t.is(scrollHeight, scroller.scrollHeight);
+				t.is(47, scroller.clientHeight);
+				t.is(47, scroller.offsetHeight);
+				t.is(47, scroller.scrollHeight);
 				
 				var content = scroller.firstChild;
 				t.is(47, content.clientHeight);
