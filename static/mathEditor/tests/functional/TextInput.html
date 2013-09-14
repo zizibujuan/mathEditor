@@ -3,7 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <title>View Test</title>
-
+<script type="text/javascript" src="/dojo/dojo.js" data-dojo-config="isDebug:true,async:true"></script>
+<script type="text/javascript">
+alert("aa");
+require(["dojo/dom", "dojo/domReady!"],function(dom){
+	alert("a");
+});
+</script>
 </head>
 <body>
 <div id="container"></div>
