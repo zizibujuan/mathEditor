@@ -36,6 +36,18 @@ define(["dojo/_base/declare",
 		_inComposition: false,
 		
 		constructor: function(args){
+			// summary:
+			//		创建一个接受用户输入器
+			// parentNode: String|DomNode
+			//		放置用户输入器的容器
+			// host: Editor
+			//		编辑器
+			// example:
+			// |	<div id="container"></div>
+			// example:
+			// |	var editor = new Editor({});
+			// |	var textInput = new TextInput({ parentNode: "container", host: editor });
+			
 			lang.mixin(this, args);
 			keys.EQUAL = sniff("chrome") ? 187 : 61;// =
 			
