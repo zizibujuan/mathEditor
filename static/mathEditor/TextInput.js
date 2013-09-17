@@ -149,9 +149,11 @@ define(["dojo/_base/declare",
 				});
 				
 			}else{
+				
 				console.log("other browser");
 				// firefox
 				on(textarea, "input", lang.hitch(this,function(e){
+					console.log("input");
 					this._onInput(e);
 				}));
 				on(textarea, "compositionstart", lang.hitch(this,function(e){

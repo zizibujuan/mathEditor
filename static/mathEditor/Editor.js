@@ -68,7 +68,7 @@ define(["dojo/_base/declare",
 	    
 		postCreate: function(){
 			this.inherited(arguments);
-			debugger;
+			
 			var domNode = this.domNode;
 			domClass.add(domNode, "drip_editor");
 			// 计算滚动条的宽度

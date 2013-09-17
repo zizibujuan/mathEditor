@@ -280,7 +280,7 @@ define(["dojo/_base/declare",
 			var contentDiv = this.contentDiv;
 			var scrollerDiv = this.scrollerDiv;
 			var textLayer = this.textLayer;// 决定实际高度的是textLayer
-			debugger;
+			
 			// 实现方法，增加的时候简单，难点是减少的时候。
 			//	记录下最长的宽度（超出部分）
 			
