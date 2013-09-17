@@ -4,8 +4,9 @@ define(["dojo/_base/declare",
         		_WidgetBase){
 	
 	return declare("mathEditor.tests.MockEditor", [_WidgetBase], {
+		
 		onTextInput: function(inputData){
-			
+			this.domNode.innerHTML = inputData;
 		},
 		
 		onFocus: function(){

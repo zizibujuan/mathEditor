@@ -5,13 +5,25 @@
 <title>View Test</title>
 <script type="text/javascript" src="/dojo/dojo.js" data-dojo-config="isDebug:true,async:true"></script>
 <script type="text/javascript">
-alert("aa");
-require(["dojo/dom", "dojo/domReady!"],function(dom){
-	alert("a");
+var ready = false;
+var mockEditor = null;
+require(["dojo/dom",
+         "mathEditor/TextInput",
+         "mathEditor/tests/MockEditor",
+         "dojo/domReady!"],function(
+        		 dom,
+        		 TextInput,
+        		 MockEditor){
+	mockEditor = new MockEditor({style:"height:20px"}, "editor");
+	var textInput = new TextInput({parentNode: "container", host: mockEditor});
+	
+	ready = true;
 });
 </script>
 </head>
 <body>
+<div id="editor"></div>
 <div id="container"></div>
+
 </body>
 </html>
