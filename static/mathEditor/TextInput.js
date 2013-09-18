@@ -129,8 +129,8 @@ define(["dojo/_base/declare",
 			}
 			
 			// TODO： 添加支持ie8，ie9和ie10的输入事件。
-			if(has("ie") <= 8){
-				console.log("ie 8-");
+			if(has("ie") <= 9){
+				console.log("ie 9-");
 				require(["mathEditor/IEInputEvent"], function(IEInputEvent){
 					var inputEvent = new IEInputEvent({target: textarea});
 					inputEvent.on(function(inputData){
@@ -147,22 +147,27 @@ define(["dojo/_base/declare",
 						host.onFocus();
 					}));
 				});
-				
-			}else{
-				
-				console.log("other browser");
-				// firefox
-				on(textarea, "input", lang.hitch(this,function(e){
-					console.log("input");
-					this._onInput(e);
-				}));
-				on(textarea, "compositionstart", lang.hitch(this,function(e){
-					this._inComposition = true;
-				}));
-				on(textarea, "compositionend", lang.hitch(this,function(e){
-					this._inComposition = false;
-				}));
+				return;
 			}
+			
+			if(has("ie") > 9){
+				console.log("is ie 10+");
+				return;
+			}
+			
+			console.log("other browser");
+			// firefox
+			on(textarea, "input", lang.hitch(this,function(e){
+				console.log("input");
+				this._onInput(e);
+			}));
+			on(textarea, "compositionstart", lang.hitch(this,function(e){
+				this._inComposition = true;
+			}));
+			on(textarea, "compositionend", lang.hitch(this,function(e){
+				this._inComposition = false;
+			}));
+			
 			
 		},
 		
