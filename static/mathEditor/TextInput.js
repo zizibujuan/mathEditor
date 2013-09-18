@@ -49,7 +49,7 @@ define(["dojo/_base/declare",
 			// |	var textInput = new TextInput({ parentNode: "container", host: editor });
 			
 			lang.mixin(this, args);
-			keys.EQUAL = sniff("chrome") ? 187 : 61;// =
+			keys.EQUAL = (sniff("chrome") || sniff("ie")) ? 187 : 61;// =
 			
 			var textarea = this.textarea = domConstruct.create("textarea",{style:{position:"absolute"}}, this.parentNode);
 			var host = this.host;
