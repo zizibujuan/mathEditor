@@ -151,7 +151,17 @@ define(["dojo/_base/declare",
 			}
 			
 			if(has("ie") > 9){
-				console.log("is ie 10+");
+				console.log("ie 10+");
+				on(textarea, "textinput", lang.hitch(this,function(e){
+					console.log("ie 10+ input event", e);
+					this._onInput(e);
+				}));
+				on(textarea, "compositionstart", lang.hitch(this,function(e){
+					this._inComposition = true;
+				}));
+				on(textarea, "compositionend", lang.hitch(this,function(e){
+					this._inComposition = false;
+				}));
 				return;
 			}
 			

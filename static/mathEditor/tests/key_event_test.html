@@ -91,8 +91,7 @@ require(["dojo/dom", "dojo/on"],function(dom,on){
 	on(text,"input",function(e){
 		inputCount++;
 		//console.log(e.constructor==UIEvent);
-		logKeyboardEvent(e);
-		console.log(e.type,"textarea.value=='"+this.value+"'","第"+inputCount+"次执行",e);
+		console.log(e.type,"textarea.value=='"+this.value+"'","第"+inputCount+"次执行","e.data="+ e.data, e);
 		var self = this;
 		//e.stopPropagation();
 		//e.preventDefault();
