@@ -210,7 +210,7 @@ define(["dojo/_base/declare",
 			}
 		},
 		
-		inputEnter: function(){
+		inputEnter: function(e){
 			// summary:
 			//		输入回车符号
 			

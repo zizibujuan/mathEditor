@@ -98,7 +98,7 @@ define(["dojo/_base/declare",
 					host.switchInputMode();
 					event.stop(e);
 				}else if(e.keyCode === keys.ENTER){
-					host.inputEnter();
+					host.inputEnter(e);
 					// 回车换行。
 					event.stop(e);
 				}else if(e.keyCode == keys.TAB){
