@@ -75,6 +75,5 @@ define([ "mathEditor/tests/layer/Cursor",
          "mathEditor/tests/string",
          "mathEditor/tests/MathJaxView",
          "mathEditor/tests/Editor",
-         "mathEditor/tests/TextInput",
          "mathEditor/tests/ContentAssist",
          "mathEditor/tests/mathContentAssist"], 1);
