@@ -71,31 +71,32 @@ define(["dojo/_base/declare",
 			
 			var domNode = this.domNode;
 			domClass.add(domNode, "drip_editor");
-			// 计算滚动条的宽度
-			this.scrollbarWidth = dripDom.scrollbarWidth();
-			// 编辑器的边框宽度
-			var borderWidth = this.borderWidth = domStyle.get(domNode, "border-width");
-			console.log("border-width",this.borderWidth);
+			var textInput = new TextInput({parentNode: domNode, host: this});
+			var model = this.model = new Model();
 			
+			// 计算滚动条的宽度
+			var scrollbarWidth = this.scrollbarWidth = dripDom.scrollbarWidth();
+			// 设置编辑器最外层div的大小，
+			// 因为这里只是设置大小，并不需要读取大小，所以并不需要放在dom中。
+			// 这样放置好后，就不需要调整大小，不会出现编辑器初始化时晃动。
 			var elementHeight = this._computeEditorHeight();
 			var elementWidth = this._computeEditorWidth();
 			domStyle.set(domNode, {"height": elementHeight + "px", "width": elementWidth + "px"});
 			
-			var textInput = new TextInput({parentNode: this.domNode, host: this});
-			var model = this.model = new Model();
-			this.view = new View({
+			var view = this.view = new View({
 				model: this.model, 
-				parentNode: this.domNode,
+				parentNode: domNode,
 				textarea: textInput.getElement(),
-				borderWidth: borderWidth,
 				paddingTop: this.paddingTop,
 				paddingRight: this.paddingRight,
-				editorWidth: elementWidth // editorWidth是编辑器的所有宽度，包括边框
+				// editorWidth是编辑器的所有宽度，包括边框
+				editorWidth: elementWidth,
+				hScrollBarAlwaysVisible: this.hScrollBarAlwaysVisible,
+				scrollbarWidth: scrollbarWidth
 			});
-			this.view.hScrollBarAlwaysVisible = this.hScrollBarAlwaysVisible;
 			
 			// FIXME：是否需要移动代码到更合适的地方。
-			var contentAssist = this.contentAssist = new ContentAssist({view:this.view});
+			var contentAssist = this.contentAssist = new ContentAssist({view: view});
 			// 一个错误的理解：现在放在modeChanging中了，应该是不需要在这里重新setData了，而是在半路修改了data的值。
 			// 不,因为应用时，之前的setData方法都已经执行完了。
 			// 将contentAssist与model.onModelChanging绑定，只是为了更好的在model的上下文中进行推断值，
@@ -108,6 +109,18 @@ define(["dojo/_base/declare",
 				textInput.resetValue();
 			},true);
 			
+			
+			
+		},
+		
+		startup: function(){
+			this.inherited(arguments);
+			
+			
+			// 编辑器的边框宽度
+			var borderWidth = this.borderWidth = domStyle.get(this.domNode, "border-width");
+			console.log("border-width",this.borderWidth);
+			this.view.resize(borderWidth);
 		},
 		
 		_computeEditorHeight: function(){
@@ -150,6 +163,7 @@ define(["dojo/_base/declare",
 			//		当编辑器获取焦点时触发
 			this.view.focus();
 		},
+		
 		
 		/*************************************************************************/
 		/** 需要在Editor中定义一套公用的api，作为所有访问的入口                          */

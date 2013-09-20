@@ -19,7 +19,11 @@
 </script>
 
 <script type="text/javascript">
-require(["dojo/parser","mathEditor/Editor"]);
+require(["dojo/parser","mathEditor/Editor"], function(parser, Editor){
+	var editor = new Editor({rows: 2, width:500});
+	editor.placeAt("editor2");
+	editor.startup();
+});
 </script>
 </head>
 <body class="claro">
@@ -27,6 +31,8 @@ require(["dojo/parser","mathEditor/Editor"]);
 <div data-dojo-type="mathEditor/Editor" data-dojo-props="width:500,rows:2">
 </div>
 </div>
+
+<div id="editor2"></div>
 
 <textarea rows="2" cols="5" style=""></textarea>
 <div>

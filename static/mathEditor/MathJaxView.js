@@ -86,28 +86,13 @@ define(["dojo/_base/declare",
 				cursor: "text"
 			};
 			
-			// 添加一个处理scroller的div
-			var scrollerDiv = this.scrollerDiv = domConstruct.create("div",{"style":scrollerStyle}, this.parentNode);
-			
-			var contentDiv = this.contentDiv = domConstruct.create("div",{"style":contentStyle}, scrollerDiv);
-			var scrollbarWidth = this.scrollbarWidth = dripDom.scrollbarWidth();
-//			console.log("scrollbarWidth:",this.scrollbarWidth);
-			// 编辑器的padding在contentDiv上设置。
-			domStyle.set(contentDiv,{
-				"width":(scrollerDiv.clientWidth-this.paddingRight)+"px", 
-				"height":(scrollerDiv.clientHeight-this.paddingTop)+"px",
-				"paddingTop": this.paddingTop+"px", 
-				"paddingRight": this.paddingRight+"px"
-			});
-			
-			this.minHeight = contentDiv.clientHeight;
-			this.minWidth = scrollerDiv.clientWidth;
-			
+			// 添加一个处理scroller的div,下面设置的两个class主要是在调试时用来快速识别出div的作用，并没有在上面添加样式。
+			var scrollerDiv = this.scrollerDiv = domConstruct.create("div",{"style":scrollerStyle, "class":"scroller"}, this.parentNode);
+			var contentDiv = this.contentDiv = domConstruct.create("div",{"style":contentStyle, "class":"content"}, scrollerDiv);
 			// 内容层
 			// 在内容层，通过在右侧使用padding-right为光标预留位置
 			var textLayer = this.textLayer = domConstruct.create("div",{"class":"drip_layer drip_text"}, contentDiv);
-			// 去掉了textLayer的宽度为100%的设置，需要计算出合适的宽度
-			domStyle.set(textLayer, "width", (scrollerDiv.clientWidth-this.paddingRight) + "px");
+			
 			
 			// 光标层， 看是否需要把光标放到光标层中
 			var cursor = this.cursor = new Cursor({parentEl:contentDiv});
@@ -118,7 +103,28 @@ define(["dojo/_base/declare",
 			textLayer.innerHTML = this.model.getHTML();
 			
 			aspect.after(this.model, "onChanged", lang.hitch(this,this._onModelChanged));
+		},
+		
+		resize: function(borderWidth){
+			this.borderWidth = borderWidth;
 			
+			var contentDiv = this.contentDiv;
+			var scrollerDiv = this.scrollerDiv;
+			var textLayer = this.textLayer;
+			
+			this.minHeight = contentDiv.clientHeight;
+			this.minWidth = scrollerDiv.clientWidth;
+			
+			// 编辑器的padding在contentDiv上设置。
+			domStyle.set(contentDiv,{
+				"width": (scrollerDiv.clientWidth - this.paddingRight) + "px", 
+				"height": (scrollerDiv.clientHeight - this.paddingTop) + "px",
+				"paddingTop": this.paddingTop + "px",
+				"paddingRight": this.paddingRight + "px"
+			});
+			
+			// 去掉了textLayer的宽度为100%的设置，需要计算出合适的宽度
+			domStyle.set(textLayer, "width", (scrollerDiv.clientWidth - this.paddingRight) + "px");
 		},
 		
 		_onMouseDownHandler: function(e){
