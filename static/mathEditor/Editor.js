@@ -60,9 +60,10 @@ define(["dojo/_base/declare",
 	    },
 		
 	    _setValueAttr: function(value){
+	    	// 设置时，是
 	    	this.model.clear();
 	    	if(value && value != ""){
-	    		this.model.setData({data:value});
+	    		this.model.loadData(value);
 	    	}
 	    },
 	    
