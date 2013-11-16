@@ -215,6 +215,7 @@ define(["dojo/_base/declare",
 			var removed = this.model.removeLeft();
 			if(removed != ""){
 				this.model.onChanged();
+				this._onChanged();
 			}
 		},
 		
@@ -222,6 +223,7 @@ define(["dojo/_base/declare",
 			var removed = this.model.removeRight();
 			if(removed != ""){
 				this.model.onChanged();
+				this._onChanged();
 			}
 		},
 		
@@ -234,13 +236,17 @@ define(["dojo/_base/declare",
 			}else{
 				this.model.setData({data:"\n"});
 			}
+			this._onChanged();
 		},
 		
 		inputTab: function(){
 			// summary:
 			//		输入制表符
 			
-			this.model.setData({data:"\t"});
+			var _tab = "\t";
+			this.model.setData({data: _tab});
+			
+			this._onChanged(_tab);
 		},
 		
 		switchInputMode: function(){
@@ -249,6 +255,12 @@ define(["dojo/_base/declare",
 			
 			this.model.toMathMLMode();
 			this.model.onChanged();
+			
+			this._onChanged();
+		},
+		
+		isEmpty: function(){
+			return this.model.isEmpty();
 		},
 		
 		// FIXME：如何测试这个方法中的逻辑呢？
@@ -273,6 +285,12 @@ define(["dojo/_base/declare",
 			// 注意，悄悄应用匹配规则的情况，这是我们推荐的。
 			var data = {data: inputData};
 			model.setData(data);
+			
+			this._onChanged(data);
+		},
+		
+		_onChanged: function(data){
+			this.emit("change", data);
 		},
 		
 		destroy: function(){
