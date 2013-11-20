@@ -1,37 +1,31 @@
-define([ "doh","mathEditor/Model" ], function(doh,Model) {
+define([ "intern!tdd", 
+         "intern/chai!assert",
+         "mathEditor/Model" ], function(
+        		 tdd,
+        		 assert,
+        		 Model) {
 
-	doh.register("Model.loadData 加载xml文件",[
-	    {
-	    	name: "加载空内容",
-  			setUp: function(){
-  				this.model = new Model({});
-  			},
-  			runTest: function(t){
-  				var model = this.model;
+	with(tdd){
+		suite("Model.loadData 加载xml文件", function(){
+			var model = null;
+			beforeEach(function () {
+				model = new Model({});
+			});
+			
+			test("加载空内容", function(){
   				model.loadData();
-  				t.t(model.isEmpty());
+  				assert.ok(model.isEmpty());
   				
   				model.clear();
   				model.loadData("");
-  				t.t(model.isEmpty());
-  			},
-  			tearDown: function(){
-  				
-  			}
-	    },{
-	    	name: "加载xml字符串",
-  			setUp: function(){
-  				this.model = new Model({});
-  			},
-  			runTest: function(t){
-  				var model = this.model;
+  				assert.ok(model.isEmpty());
+			});
+			
+			test("加载xml字符串", function(){
   				model.loadData("<root><line><text>a</text></line></root>");
-  				t.is(1, model.getLineCount());
-  			},
-  			tearDown: function(){
-  				
-  			}
-	    }
-	                             
-	]);
+  				assert.equal(1, model.getLineCount());
+			});
+		});
+	}
+	
 });

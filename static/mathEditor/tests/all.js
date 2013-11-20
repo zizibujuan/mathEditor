@@ -1,3 +1,2 @@
-define([
-        "./Demo"
-], function(){});
+define(["./dataUtil",
+        "./model/loadData"], function(){});
