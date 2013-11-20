@@ -66,7 +66,7 @@ define({
 	
 	// Non-functional test suite(s) to run in each browser
 	// /* 'myPackage/tests/foo', 'myPackage/tests/bar' */
-	suites: [  ],
+	suites: [ "mathEditor/tests/all" ],
 
 	// Functional test suite(s) to run in each browser once non-functional tests are completed
 	functionalSuites: [ "mathEditor/tests/functional/TextInput" ],
