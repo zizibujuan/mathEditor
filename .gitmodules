@@ -1,0 +1,9 @@
+[submodule "static/dijit"]
+	path = static/dijit
+	url = https://github.com/dojo/dijit.git
+[submodule "static/dojox"]
+	path = static/dojox
+	url = https://github.com/dojo/dojox.git
+[submodule "static/dojo"]
+	path = static/dojo
+	url = https://github.com/dojo/dojo.git
