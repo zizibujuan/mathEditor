@@ -1,5 +1,6 @@
 mathEditor
 ==========
+[![Build Status](https://travis-ci.org/zizibujuan/mathEditor.png?branch=master)](https://travis-ci.org/zizibujuan/mathEditor)
 
 visual math editor
 
