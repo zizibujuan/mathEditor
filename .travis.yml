@@ -1,0 +1,19 @@
+language: node_js
+node_js:
+  - "0.10"
+env:
+  global:
+    - SAUCE_USERNAME: jinzw
+    - SAUCE_ACCESS_KEY: ce82cb32-53d1-4beb-a908-24fc80298021
+install:
+  - ls
+  - npm install
+  - ls
+  - cd static
+  - ls
+  - ln -s ../node_modules node_modules
+  - ls
+  - cd ..
+  - ls
+  - cd static
+script: node node_modules/intern/runner.js config=mathEditor/tests/intern
