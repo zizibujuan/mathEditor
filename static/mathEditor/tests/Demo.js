@@ -7,6 +7,7 @@ define(["intern!tdd",
 		suite("demo", function(){
 			test("xxx", function(){
 				assert.ok(true);
+				assert.equal(1,1);
 			});
 		});
 	}

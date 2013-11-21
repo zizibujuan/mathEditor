@@ -1,12 +1,21 @@
-define([ "doh","mathEditor/Model","mathEditor/lang" ], function(doh,Model,dripLang) {
+define([ "intern!tdd", 
+         "intern/chai!assert",
+         "mathEditor/Model",
+         "mathEditor/lang" ], function(
+        		 tdd,
+        		 assert,
+        		 Model,
+        		 dripLang) {
 
-	doh.register("Model.setData.fence fence对称的括号",[
-	    {
-			name: "mathml模式下，在空的model上输入()/[]/{}/||",
-			setUp: function(){
-				this.model = new Model({});
-			},
-			runTest: function(t){
+	with(tdd){
+		suite("Model.setData.fence fence对称的括号", function(){
+			
+			var model = null;
+			beforeEach(function () {
+				model = new Model({});
+			});
+			
+			test("mathml模式下，在空的model上输入()/[]/{}/||", function(){
 				/**
 				 * <mfenced open="[" close="}" separators="sep#1 sep#2 ... sep#(n-1)">
 				 * <mrow><mi>x</mi></mrow>
@@ -18,29 +27,20 @@ define([ "doh","mathEditor/Model","mathEditor/lang" ], function(doh,Model,dripLa
 				 * 
 				 * 括号，不弹出提示，自动完成。不要在提示框中添加就可以实现。
 				 */
-				var model = this.model;
 				model.toMathMLMode();
 				model.setData({data:"("});
-				t.is("/root/line[1]/math[1]/mfenced[1]/mrow[1]/mn[1]", model.getPath());
+				assert.equal("/root/line[1]/math[1]/mfenced[1]/mrow[1]/mn[1]", model.getPath());
 				
 				var node = model.getFocusNode();
-				t.is("mn", node.nodeName);
-				t.is("drip_placeholder_box", node.getAttribute("class"));
-				t.is(0, model.getOffset());
+				assert.equal("mn", node.nodeName);
+				assert.equal("drip_placeholder_box", node.getAttribute("class"));
+				assert.equal(0, model.getOffset());
 			
 				var mfencedNode = node.parentNode.parentNode;
-				t.is("mfenced",mfencedNode.nodeName);
-			},
-			tearDown: function(){
-				
-			}
-		},{
-			name: "在token节点后添加mfenced",
-			setUp: function(){
-				this.model = new Model({});
-			},
-			runTest: function(t){
-				var model = this.model;
+				assert.equal("mfenced",mfencedNode.nodeName);
+			});
+			
+			test("在token节点后添加mfenced", function(){
 				model.loadData("<root><line><math><mn>12</mn></math></line></root>");
 				model.mode = "mathml";
 				var line = model.getLineAt(0);
@@ -53,29 +53,21 @@ define([ "doh","mathEditor/Model","mathEditor/lang" ], function(doh,Model,dripLa
 				model.path.push({nodeName:"mn", offset:1});
 				
 				model.setData({data:"("});
-				t.is("/root/line[1]/math[1]/mfenced[2]/mrow[1]/mn[1]", model.getPath());
+				assert.equal("/root/line[1]/math[1]/mfenced[2]/mrow[1]/mn[1]", model.getPath());
 				
 				var node = model.getFocusNode();
-				t.is("mn", node.nodeName);
-				t.is("drip_placeholder_box", node.getAttribute("class"));
-				t.is(0, model.getOffset());
+				assert.equal("mn", node.nodeName);
+				assert.equal("drip_placeholder_box", node.getAttribute("class"));
+				assert.equal(0, model.getOffset());
 			
 				var mfencedNode = node.parentNode.parentNode;
-				t.is("mfenced",mfencedNode.nodeName);
-				t.is(2, dripLang.getChildLength(line.firstChild));
-				t.is("mn", line.firstChild.firstChild.nodeName);
-				t.is("mfenced", line.firstChild.firstChild.nextSibling.nodeName);
-			},
-			tearDown: function(){
-				
-			}
-		},{
-			name: "在token节点前添加mfenced",
-			setUp: function(){
-				this.model = new Model({});
-			},
-			runTest: function(t){
-				var model = this.model;
+				assert.equal("mfenced",mfencedNode.nodeName);
+				assert.equal(2, dripLang.getChildLength(line.firstChild));
+				assert.equal("mn", line.firstChild.firstChild.nodeName);
+				assert.equal("mfenced", line.firstChild.firstChild.nextSibling.nodeName);
+			});
+			
+			test("在token节点前添加mfenced", function(){
 				model.loadData("<root><line><math><mn>12</mn></math></line></root>");
 				model.mode = "mathml";
 				var line = model.getLineAt(0);
@@ -88,29 +80,21 @@ define([ "doh","mathEditor/Model","mathEditor/lang" ], function(doh,Model,dripLa
 				model.path.push({nodeName:"mn", offset:1});
 				
 				model.setData({data:"("});
-				t.is("/root/line[1]/math[1]/mfenced[1]/mrow[1]/mn[1]", model.getPath());
+				assert.equal("/root/line[1]/math[1]/mfenced[1]/mrow[1]/mn[1]", model.getPath());
 				
 				var node = model.getFocusNode();
-				t.is("mn", node.nodeName);
-				t.is("drip_placeholder_box", node.getAttribute("class"));
-				t.is(0, model.getOffset());
+				assert.equal("mn", node.nodeName);
+				assert.equal("drip_placeholder_box", node.getAttribute("class"));
+				assert.equal(0, model.getOffset());
 			
 				var mfencedNode = node.parentNode.parentNode;
-				t.is("mfenced",mfencedNode.nodeName);
-				t.is(2, dripLang.getChildLength(line.firstChild));
-				t.is("mfenced", line.firstChild.firstChild.nodeName);
-				t.is("mn", line.firstChild.firstChild.nextSibling.nodeName);
-			},
-			tearDown: function(){
-				
-			}
-		},{
-			name: "在mn节点之间添加mfenced",
-			setUp: function(){
-				this.model = new Model({});
-			},
-			runTest: function(t){
-				var model = this.model;
+				assert.equal("mfenced",mfencedNode.nodeName);
+				assert.equal(2, dripLang.getChildLength(line.firstChild));
+				assert.equal("mfenced", line.firstChild.firstChild.nodeName);
+				assert.equal("mn", line.firstChild.firstChild.nextSibling.nodeName);
+			});
+			
+			test("在mn节点之间添加mfenced", function(){
 				model.loadData("<root><line><math><mn>123</mn></math></line></root>");
 				model.mode = "mathml";
 				var line = model.getLineAt(0);
@@ -123,26 +107,23 @@ define([ "doh","mathEditor/Model","mathEditor/lang" ], function(doh,Model,dripLa
 				model.path.push({nodeName:"mn", offset:1});
 				
 				model.setData({data:"("});
-				t.is("/root/line[1]/math[1]/mfenced[2]/mrow[1]/mn[1]", model.getPath());
+				assert.equal("/root/line[1]/math[1]/mfenced[2]/mrow[1]/mn[1]", model.getPath());
 				
 				var node = model.getFocusNode();
-				t.is("mn", node.nodeName);
-				t.is("drip_placeholder_box", node.getAttribute("class"));
-				t.is(0, model.getOffset());
+				assert.equal("mn", node.nodeName);
+				assert.equal("drip_placeholder_box", node.getAttribute("class"));
+				assert.equal(0, model.getOffset());
 			
 				var mfencedNode = node.parentNode.parentNode;
-				t.is("mfenced",mfencedNode.nodeName);
-				t.is(3, dripLang.getChildLength(line.firstChild));
-				t.is("mn", line.firstChild.firstChild.nodeName);
-				t.is("mfenced", line.firstChild.firstChild.nextSibling.nodeName);
-				t.is("mn", line.firstChild.lastChild.nodeName);
-			},
-			tearDown: function(){
-				
-			}
-		}
-		
-		// 在mn之间插入fenced
-	                             
-	]);
+				assert.equal("mfenced",mfencedNode.nodeName);
+				assert.equal(3, dripLang.getChildLength(line.firstChild));
+				assert.equal("mn", line.firstChild.firstChild.nodeName);
+				assert.equal("mfenced", line.firstChild.firstChild.nextSibling.nodeName);
+				assert.equal("mn", line.firstChild.lastChild.nodeName);
+			});
+			
+			// TODO: 在mn之间插入fenced
+		});
+	}
+
 });

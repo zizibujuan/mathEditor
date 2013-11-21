@@ -1,14 +1,22 @@
-define([ "doh","mathEditor/Model","mathEditor/lang" ], function(doh,Model,dripLang) {
+define([ "intern!tdd", 
+         "intern/chai!assert",
+         "mathEditor/Model",
+         "mathEditor/lang" ], function(
+        		 tdd,
+        		 assert,
+        		 Model,
+        		 dripLang) {
 
-	doh.register("Model.setData.math",[
-	    {
-	    	name: "在空的math前插入字母",
-  			setUp: function(){
-  				this.model = new Model({});
-  			},
-  			runTest: function(t){
-  				var model = this.model;
-  				model.loadData("<root><line><math></math></line></root>");
+	with(tdd){
+		suite("Model.setData.math", function(){
+			
+			var model = null;
+			beforeEach(function () {
+				model = new Model({});
+			});
+			
+			test("在空的math前插入字母", function(){
+				model.loadData("<root><line><math></math></line></root>");
   				model.mode = "text";
   				var line = model.getLineAt(0);
   				model.anchor.node = line.firstChild;
@@ -17,18 +25,15 @@ define([ "doh","mathEditor/Model","mathEditor/lang" ], function(doh,Model,dripLa
   				model.path.push({nodeName: "line", offset: 1});
   				model.path.push({nodeName: "math", offset: 1});
   				model.setData({data: "a"});
-  				t.is("/root/line[1]/text[1]", model.getPath());
+  				assert.equal("/root/line[1]/text[1]", model.getPath());
   				var focusNode = model.getFocusNode();
-  				t.is("text", focusNode.nodeName);
-  				t.is(1, model.getOffset());// 表示已经移到math之后
-  				t.t(model.isTextMode());
-  				t.is("a", dripLang.getText(focusNode));
-  				t.is(2, dripLang.getChildLength(focusNode.parentNode));
-  			},
-  			tearDown: function(){
-  				
-  			}
-	    }
-	                             
-	]);
+  				assert.equal("text", focusNode.nodeName);
+  				assert.equal(1, model.getOffset());// 表示已经移到math之后
+  				assert.ok(model.isTextMode());
+  				assert.equal("a", dripLang.getText(focusNode));
+  				assert.equal(2, dripLang.getChildLength(focusNode.parentNode));
+			});
+		});
+	}
+	
 });

@@ -1,4 +1,4 @@
-define([ "mathEditor/tests/layer/Cursor",
+define([ "mathEditor/tests/layer/Cursor", // 未迁移 
          "mathEditor/tests/dataUtil",
          
          "mathEditor/tests/model/loadData",
@@ -16,14 +16,14 @@ define([ "mathEditor/tests/layer/Cursor",
          "mathEditor/tests/model/setData/mo",
          "mathEditor/tests/model/setData/trigonometricFunction",
          "mathEditor/tests/model/setData/greekLetter",
-         //"mathEditor/tests/model/setData/inferredFrac",
+         //"mathEditor/tests/model/setData/inferredFrac",// 未迁移
          "mathEditor/tests/model/setData/frac",
          "mathEditor/tests/model/setData/sqrt",
          "mathEditor/tests/model/setData/root",
          "mathEditor/tests/model/setData/sub",
          "mathEditor/tests/model/setData/sup",
          "mathEditor/tests/model/setData/fence",
-         
+         // TODO:迁移到这里
          "mathEditor/tests/model/moveLeft/frac",
          "mathEditor/tests/model/moveLeft/line",
          "mathEditor/tests/model/moveLeft/text",

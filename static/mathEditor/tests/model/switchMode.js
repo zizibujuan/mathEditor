@@ -1,33 +1,41 @@
-define([ "doh", "mathEditor/Model", "mathEditor/lang" ], function(doh, Model, dripLang) {
+define(["intern!tdd", 
+        "intern/chai!assert", 
+         "mathEditor/Model", 
+         "mathEditor/lang" ], function(
+        		 tdd,
+        		 assert, 
+        		 Model, 
+        		 dripLang) {
 
-	var layoutOffset = {before:0, after:1, select:2 /*当前节点处于选中状态*/};
-	// summary:
-	//		在mathml和text两个模式之间切换。
-	//		从text模式切换到mathml模式：
-	//		1.line中没有任何内容，则在line中插入一个math节点
-	//		2.光标在text的前面，offset==0，则在text前面插入math节点
-	//		3.光标在text的后面，offset==contentLength，则在text后面插入math节点
-	//		4.光标在text的中间，0 < offset < contentLength，则将text拆分为两个text，并在其间插入math节点
-	//		从mathml模式切换到text模式：
-	//		1.如果math中没有内容，则删除math节点，line中只有一个math节点
-	//		2.如果math中没有内容，则删除math节点，math前没有节点,后面有一个text节点
-	//		3.如果math中没有内容，则删除math节点，math前没有节点,后面有一个layout节点
-	//		4.如果math中没有内容，则删除math节点，math前是一个text节点
-	//		5.如果math中没有内容，则删除math节点，math前是一个math节点
-	//		6.如果math中有内容，则将光标放在math之后，即offset=1
-	//		右移进math节点
-	//		1.
-	//		右移出math节点
-	//		左移进math节点
-	//		左移出math节点
-	doh.register("Model.switchMode",[
-	    {
-	    	name: "从text模式切换到mathml模式，line中没有任何内容，则在line中插入一个math节点。",
-  			setUp: function(){
-  				this.model = new Model({});
-  			},
-  			runTest: function(t){
-  				var model = this.model;
+	with(tdd){
+		suite("Model.switchMode", function(){
+			// summary:
+			//		在mathml和text两个模式之间切换。
+			//		从text模式切换到mathml模式：
+			//		1.line中没有任何内容，则在line中插入一个math节点
+			//		2.光标在text的前面，offset==0，则在text前面插入math节点
+			//		3.光标在text的后面，offset==contentLength，则在text后面插入math节点
+			//		4.光标在text的中间，0 < offset < contentLength，则将text拆分为两个text，并在其间插入math节点
+			//		从mathml模式切换到text模式：
+			//		1.如果math中没有内容，则删除math节点，line中只有一个math节点
+			//		2.如果math中没有内容，则删除math节点，math前没有节点,后面有一个text节点
+			//		3.如果math中没有内容，则删除math节点，math前没有节点,后面有一个layout节点
+			//		4.如果math中没有内容，则删除math节点，math前是一个text节点
+			//		5.如果math中没有内容，则删除math节点，math前是一个math节点
+			//		6.如果math中有内容，则将光标放在math之后，即offset=1
+			//		右移进math节点
+			//		1.
+			//		右移出math节点
+			//		左移进math节点
+			//		左移出math节点
+			var layoutOffset = {before:0, after:1, select:2 /*当前节点处于选中状态*/};
+			var model = null;
+			
+			beforeEach(function () {
+				model = new Model({});
+			});
+			
+			test("从text模式切换到mathml模式，line中没有任何内容，则在line中插入一个math节点。", function(){
   				model.loadData("<root><line></line></root>");
   				model.mode = "text";
   				var line = model.getLineAt(0);
@@ -39,22 +47,15 @@ define([ "doh", "mathEditor/Model", "mathEditor/lang" ], function(doh, Model, dr
   				
   				model.switchMode();
   				var focusNode = model.getFocusNode();
-  				t.t(model.isMathMLMode());
-  				t.is("math", focusNode.nodeName);
-  				t.is(layoutOffset.select, model.getOffset());
-  				t.is("/root/line[1]/math[1]", model.getPath());
-  				t.is(1, line.childNodes.length);
-  			},
-  			tearDown: function(){
-  				
-  			}
-	    },{
-	    	name: "从text模式切换到mathml模式，光标在text的前面，offset==0，则在text前面插入math节点。",
-  			setUp: function(){
-  				this.model = new Model({});
-  			},
-  			runTest: function(t){
-  				var model = this.model;
+  				assert.ok(model.isMathMLMode());
+  				assert.equal("math", focusNode.nodeName);
+  				assert.equal(layoutOffset.select, model.getOffset());
+  				assert.equal("/root/line[1]/math[1]", model.getPath());
+  				assert.equal(1, line.childNodes.length);
+			});
+			
+			
+			test("从text模式切换到mathml模式，光标在text的前面，offset==0，则在text前面插入math节点。", function(){
   				model.loadData("<root><line><text>abc</text></line></root>");
   				model.mode = "text";
   				var line = model.getLineAt(0);
@@ -67,22 +68,14 @@ define([ "doh", "mathEditor/Model", "mathEditor/lang" ], function(doh, Model, dr
   				
   				model.switchMode();
   				var focusNode = model.getFocusNode();
-  				t.t(model.isMathMLMode());
-  				t.is("math", focusNode.nodeName);
-  				t.is(layoutOffset.select, model.getOffset());
-  				t.is("/root/line[1]/math[1]", model.getPath());
-  				t.is(2, line.childNodes.length);
-  			},
-  			tearDown: function(){
-  				
-  			}
-	    },{
-	    	name: "从text模式切换到mathml模式，光标在text的后面，offset==contentLength，则在text后面插入math节点。",
-  			setUp: function(){
-  				this.model = new Model({});
-  			},
-  			runTest: function(t){
-  				var model = this.model;
+  				assert.ok(model.isMathMLMode());
+  				assert.equal("math", focusNode.nodeName);
+  				assert.equal(layoutOffset.select, model.getOffset());
+  				assert.equal("/root/line[1]/math[1]", model.getPath());
+  				assert.equal(2, line.childNodes.length);
+			});
+			
+			test("从text模式切换到mathml模式，光标在text的后面，offset==contentLength，则在text后面插入math节点。", function(){
   				model.loadData("<root><line><text>abc</text></line></root>");
   				model.mode = "text";
   				var line = model.getLineAt(0);
@@ -95,23 +88,15 @@ define([ "doh", "mathEditor/Model", "mathEditor/lang" ], function(doh, Model, dr
   				
   				model.switchMode();
   				var focusNode = model.getFocusNode();
-  				t.t(model.isMathMLMode());
-  				t.is("math", focusNode.nodeName);
-  				t.is(layoutOffset.select, model.getOffset());
-  				t.is("/root/line[1]/math[2]", model.getPath());
-  				t.is(2, line.childNodes.length);
-  			},
-  			tearDown: function(){
-  				
-  			}
-	    },{
-	    	name: "从text模式切换到mathml模式，光标在text的中间，0 < offset < contentLength，则将text拆分为两个text，并在其间插入math节点。",
-  			setUp: function(){
-  				this.model = new Model({});
-  			},
-  			runTest: function(t){
-  				var model = this.model;
-  				model.loadData("<root><line><text>abc</text></line></root>");
+  				assert.ok(model.isMathMLMode());
+  				assert.equal("math", focusNode.nodeName);
+  				assert.equal(layoutOffset.select, model.getOffset());
+  				assert.equal("/root/line[1]/math[2]", model.getPath());
+  				assert.equal(2, line.childNodes.length);
+			});
+			
+			test("从text模式切换到mathml模式，光标在text的中间，0 < offset < contentLength，则将text拆分为两个text，并在其间插入math节点。", function(){
+				model.loadData("<root><line><text>abc</text></line></root>");
   				model.mode = "text";
   				var line = model.getLineAt(0);
   				model.anchor.node = line.firstChild;
@@ -123,26 +108,18 @@ define([ "doh", "mathEditor/Model", "mathEditor/lang" ], function(doh, Model, dr
   				
   				model.switchMode();
   				var focusNode = model.getFocusNode();
-  				t.t(model.isMathMLMode());
-  				t.is("math", focusNode.nodeName);
-  				t.is(layoutOffset.select, model.getOffset());
-  				t.is("/root/line[1]/math[2]", model.getPath());
-  				t.is(3, line.childNodes.length);
-  				t.is("text", line.childNodes[0].nodeName);
-  				t.is("math", line.childNodes[1].nodeName);
-  				t.is("text", line.childNodes[2].nodeName);
-  			},
-  			tearDown: function(){
-  				
-  			}
-	    },{
-	    	name: "从mathml模式切换到text模式，如果math中没有内容，则删除math节点，line中只有一个math节点。",
-  			setUp: function(){
-  				this.model = new Model({});
-  			},
-  			runTest: function(t){
-  				var model = this.model;
-  				model.loadData("<root><line><math></math></line></root>");
+  				assert.ok(model.isMathMLMode());
+  				assert.equal("math", focusNode.nodeName);
+  				assert.equal(layoutOffset.select, model.getOffset());
+  				assert.equal("/root/line[1]/math[2]", model.getPath());
+  				assert.equal(3, line.childNodes.length);
+  				assert.equal("text", line.childNodes[0].nodeName);
+  				assert.equal("math", line.childNodes[1].nodeName);
+  				assert.equal("text", line.childNodes[2].nodeName);
+			});
+			
+			test("从mathml模式切换到text模式，如果math中没有内容，则删除math节点，line中只有一个math节点。", function(){
+				model.loadData("<root><line><math></math></line></root>");
   				model.mode = "mathml";
   				var line = model.getLineAt(0);
   				model.anchor.node = line.firstChild;
@@ -154,23 +131,15 @@ define([ "doh", "mathEditor/Model", "mathEditor/lang" ], function(doh, Model, dr
   				
   				model.switchMode();
   				var focusNode = model.getFocusNode();
-  				t.t(model.isTextMode());
-  				t.is("line", focusNode.nodeName);
-  				t.is(0, model.getOffset());
-  				t.is("/root/line[1]", model.getPath());
-  				t.is(0, line.childNodes.length);
-  			},
-  			tearDown: function(){
-  				
-  			}
-	    },{
-	    	name: "从mathml模式切换到text模式，如果math中没有内容，则删除math节点，math前没有节点,后面有一个text节点。",
-  			setUp: function(){
-  				this.model = new Model({});
-  			},
-  			runTest: function(t){
-  				var model = this.model;
-  				model.loadData("<root><line><math></math><text>abc</text></line></root>");
+  				assert.ok(model.isTextMode());
+  				assert.equal("line", focusNode.nodeName);
+  				assert.equal(0, model.getOffset());
+  				assert.equal("/root/line[1]", model.getPath());
+  				assert.equal(0, line.childNodes.length);
+			});
+			
+			test("从mathml模式切换到text模式，如果math中没有内容，则删除math节点，math前没有节点,后面有一个text节点。", function(){
+				model.loadData("<root><line><math></math><text>abc</text></line></root>");
   				model.mode = "mathml";
   				var line = model.getLineAt(0);
   				model.anchor.node = line.firstChild;
@@ -182,23 +151,15 @@ define([ "doh", "mathEditor/Model", "mathEditor/lang" ], function(doh, Model, dr
   				
   				model.switchMode();
   				var focusNode = model.getFocusNode();
-  				t.t(model.isTextMode());
-  				t.is("text", focusNode.nodeName);
-  				t.is(0, model.getOffset());
-  				t.is("/root/line[1]/text[1]", model.getPath());
-  				t.is(1, line.childNodes.length);
-  			},
-  			tearDown: function(){
-  				
-  			}
-	    },{
-	    	name: "从mathml模式切换到text模式，如果math中没有内容，则删除math节点，math前没有节点,后面有一个layout节点。",
-  			setUp: function(){
-  				this.model = new Model({});
-  			},
-  			runTest: function(t){
-  				var model = this.model;
-  				model.loadData("<root><line><math></math><math><msqrt><mrow><mn>1</mn></mrow></msqrt></math></line></root>");
+  				assert.ok(model.isTextMode());
+  				assert.equal("text", focusNode.nodeName);
+  				assert.equal(0, model.getOffset());
+  				assert.equal("/root/line[1]/text[1]", model.getPath());
+  				assert.equal(1, line.childNodes.length);
+			});
+			
+			test("从mathml模式切换到text模式，如果math中没有内容，则删除math节点，math前没有节点,后面有一个layout节点。", function(){
+				model.loadData("<root><line><math></math><math><msqrt><mrow><mn>1</mn></mrow></msqrt></math></line></root>");
   				model.mode = "mathml";
   				var line = model.getLineAt(0);
   				model.anchor.node = line.firstChild;
@@ -210,23 +171,15 @@ define([ "doh", "mathEditor/Model", "mathEditor/lang" ], function(doh, Model, dr
   				
   				model.switchMode();
   				var focusNode = model.getFocusNode();
-  				t.t(model.isTextMode());
-  				t.is("math", focusNode.nodeName);
-  				t.is(0, model.getOffset());
-  				t.is("/root/line[1]/math[1]", model.getPath());
-  				t.is(1, line.childNodes.length);
-  			},
-  			tearDown: function(){
-  				
-  			}
-	    },{
-	    	name: "从mathml模式切换到text模式，如果math中没有内容，则删除math节点，math前是一个text节点。",
-  			setUp: function(){
-  				this.model = new Model({});
-  			},
-  			runTest: function(t){
-  				var model = this.model;
-  				model.loadData("<root><line><text>abc</text><math></math></line></root>");
+  				assert.ok(model.isTextMode());
+  				assert.equal("math", focusNode.nodeName);
+  				assert.equal(0, model.getOffset());
+  				assert.equal("/root/line[1]/math[1]", model.getPath());
+  				assert.equal(1, line.childNodes.length);
+			});
+			
+			test("从mathml模式切换到text模式，如果math中没有内容，则删除math节点，math前是一个text节点。", function(){
+				model.loadData("<root><line><text>abc</text><math></math></line></root>");
   				model.mode = "mathml";
   				var line = model.getLineAt(0);
   				model.anchor.node = line.lastChild;
@@ -238,24 +191,16 @@ define([ "doh", "mathEditor/Model", "mathEditor/lang" ], function(doh, Model, dr
   				
   				model.switchMode();
   				var focusNode = model.getFocusNode();
-  				t.t(model.isTextMode());
-  				t.is("text", focusNode.nodeName);
-  				t.is(3, model.getOffset());
-  				t.is("abc", dripLang.getText(focusNode));
-  				t.is("/root/line[1]/text[1]", model.getPath());
-  				t.is(1, line.childNodes.length);
-  			},
-  			tearDown: function(){
-  				
-  			}
-	    },{
-	    	name: "从mathml模式切换到text模式，如果math中有内容，则将光标放在math之后，即offset=1。",
-  			setUp: function(){
-  				this.model = new Model({});
-  			},
-  			runTest: function(t){
-  				var model = this.model;
-  				model.loadData("<root><line><math><mn>123</mn></math></line></root>");
+  				assert.ok(model.isTextMode());
+  				assert.equal("text", focusNode.nodeName);
+  				assert.equal(3, model.getOffset());
+  				assert.equal("abc", dripLang.getText(focusNode));
+  				assert.equal("/root/line[1]/text[1]", model.getPath());
+  				assert.equal(1, line.childNodes.length);
+			});
+			
+			test("从mathml模式切换到text模式，如果math中有内容，则将光标放在math之后，即offset=1。", function(){
+				model.loadData("<root><line><math><mn>123</mn></math></line></root>");
   				model.mode = "mathml";
   				var line = model.getLineAt(0);
   				model.anchor.node = line.firstChild.firstChild;
@@ -268,16 +213,14 @@ define([ "doh", "mathEditor/Model", "mathEditor/lang" ], function(doh, Model, dr
   				
   				model.switchMode();
   				var focusNode = model.getFocusNode();
-  				t.t(model.isTextMode());
-  				t.is("math", focusNode.nodeName);
-  				t.is(layoutOffset.after, model.getOffset());
-  				t.is("/root/line[1]/math[1]", model.getPath());
-  				t.is(1, line.childNodes.length);
-  			},
-  			tearDown: function(){
-  				
-  			}
-	    }
-                    
-	]);
+  				assert.ok(model.isTextMode());
+  				assert.equal("math", focusNode.nodeName);
+  				assert.equal(layoutOffset.after, model.getOffset());
+  				assert.equal("/root/line[1]/math[1]", model.getPath());
+  				assert.equal(1, line.childNodes.length);
+			});
+			
+		});
+	}
+	
 });

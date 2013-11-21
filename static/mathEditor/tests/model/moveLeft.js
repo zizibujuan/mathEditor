@@ -1,4 +1,11 @@
-define([ "doh", "mathEditor/Model", "mathEditor/lang" ], function(doh, Model, dripLang) {
+define([ "intern!tdd", 
+         "intern/chai!assert",
+         "mathEditor/Model", 
+         "mathEditor/lang" ], function(
+        		 tdd,
+        		 assert,
+        		 Model, 
+        		 dripLang) {
 	
 	doh.register("Model.moveLeft", [ {
 		name:"text模式下，输入一个换行符，然后执行一次左移",
