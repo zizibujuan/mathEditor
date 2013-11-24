@@ -23,12 +23,13 @@ define([ "mathEditor/tests/layer/Cursor", // 未迁移
          "mathEditor/tests/model/setData/sub",
          "mathEditor/tests/model/setData/sup",
          "mathEditor/tests/model/setData/fence",
-         // TODO:迁移到这里
+         
          "mathEditor/tests/model/moveLeft/frac",
          "mathEditor/tests/model/moveLeft/line",
          "mathEditor/tests/model/moveLeft/text",
          "mathEditor/tests/model/moveLeft/math",
          "mathEditor/tests/model/moveLeft/mn",
+         // 迁移到这里
          "mathEditor/tests/model/moveLeft/mi",
          "mathEditor/tests/model/moveLeft/mo",
          "mathEditor/tests/model/moveLeft/sqrt",

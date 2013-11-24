@@ -18,4 +18,10 @@ define(["./dataUtil",
         "./model/setData/root",
         "./model/setData/sub",
         "./model/setData/sup",
-        "./model/setData/fence"], function(){});
+        "./model/setData/fence",
+        
+        "./model/moveLeft/frac",
+        "./model/moveLeft/line",
+        "./model/moveLeft/text",
+        "./model/moveLeft/math",
+        "./model/moveLeft/mn"], function(){});
