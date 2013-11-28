@@ -1,4 +1,11 @@
-define([ "doh", "mathEditor/Model", "mathEditor/lang" ], function(doh, Model, dripLang) {
+define([ "intern!tdd", 
+         "intern/chai!assert", 
+         "mathEditor/Model", 
+         "mathEditor/lang" ], function(
+        		 tdd,
+        		 assert, 
+        		 Model, 
+        		 dripLang) {
 
 	// summary:
 	//		在根式中右移光标（这个根式中显示包含根次）
@@ -17,61 +24,47 @@ define([ "doh", "mathEditor/Model", "mathEditor/lang" ], function(doh, Model, dr
 	//		从根数后右移出根式，到根式后（注意：与根式后有无节点或节点种类无关）
 	//		1. 根数的最后一个节点是token节点
 	//		2. 根数的最后一个节点是layout节点
-	doh.register("Model.moveRight.root 在根式中右移光标",[
-	    {
-	    	name: "mathml模式下，在空的根式root中右移光标，将光标从index中移到base中。",
-  			setUp: function(){
-  				this.model = new Model({});
-  			},
-  			runTest: function(t){
-  				var model = this.model;
-  				model.toMathMLMode();
+	
+	with(tdd){
+		suite("Model.moveRight.root 在根式中右移光标", function(){
+			
+			var model = null;
+			beforeEach(function () {
+				model = new Model({});
+			});
+			
+			test("mathml模式下，在空的根式root中右移光标，将光标从index中移到base中。", function(){
+				model.toMathMLMode();
   				model.setData({data: "", nodeName: "mroot"});
   				model.moveRight();
   				
-				t.is("/root/line[1]/math[1]/mroot[1]/mrow[1]/mn[1]", model.getPath());
+				assert.equal("/root/line[1]/math[1]/mroot[1]/mrow[1]/mn[1]", model.getPath());
 				
 				var baseNode = model.getFocusNode();
-				t.is("mn", baseNode.nodeName);
-				t.is("drip_placeholder_box", baseNode.getAttribute("class"));
-				t.is(0, model.getOffset());
+				assert.equal("mn", baseNode.nodeName);
+				assert.equal("drip_placeholder_box", baseNode.getAttribute("class"));
+				assert.equal(0, model.getOffset());
 				
 				var indexNode = baseNode.parentNode.nextSibling.firstChild;
-				t.is("mn", indexNode.nodeName);
-				t.is("drip_placeholder_box", indexNode.getAttribute("class"));
-  			},
-  			tearDown: function(){
-  				
-  			}
-	    },{
-	    	name: "mathml模式下，在空的根式root中右移光标两次，将光标移到根式之后。",
-  			setUp: function(){
-  				this.model = new Model({});
-  			},
-  			runTest: function(t){
-  				var model = this.model;
-  				model.toMathMLMode();
+				assert.equal("mn", indexNode.nodeName);
+				assert.equal("drip_placeholder_box", indexNode.getAttribute("class"));
+			});
+			
+			test("mathml模式下，在空的根式root中右移光标两次，将光标移到根式之后。", function(){
+				model.toMathMLMode();
   				model.setData({data: "", nodeName: "mroot"});
   				model.moveRight();
   				model.moveRight();
   				
-				t.is("/root/line[1]/math[1]/mroot[1]", model.getPath());
+				assert.equal("/root/line[1]/math[1]/mroot[1]", model.getPath());
 				
 				var node = model.getFocusNode();
-				t.is("mroot", node.nodeName);
-				t.is(1, model.getOffset());
-  			},
-  			tearDown: function(){
-  				
-  			}
-	    },{
-	    	name: "右移进根次，根式前没有任何节点，在根式前右移光标到根次前，根次的第一个节点是token节点。",
-  			setUp: function(){
-  				this.model = new Model({});
-  			},
-  			runTest: function(t){
-  				var model = this.model;
-  				model.mode = "mathml";
+				assert.equal("mroot", node.nodeName);
+				assert.equal(1, model.getOffset());
+			});
+			
+			test("右移进根次，根式前没有任何节点，在根式前右移光标到根次前，根次的第一个节点是token节点。", function(){
+				model.mode = "mathml";
   				model.loadData("<root><line>" +
   						"<math>" +
 	  						"<mroot>" +
@@ -89,23 +82,15 @@ define([ "doh", "mathEditor/Model", "mathEditor/lang" ], function(doh, Model, dr
   				model.path.push({nodeName: "math", offset: 1});
   				model.path.push({nodeName: "mroot", offset: 1});
   				model.moveRight();
-  				t.is("/root/line[1]/math[1]/mroot[1]/mrow[2]/mn[1]", model.getPath());
+  				assert.equal("/root/line[1]/math[1]/mroot[1]/mrow[2]/mn[1]", model.getPath());
 				var node = model.getFocusNode();
-				t.is("mn", node.nodeName);
-				t.is(0, model.getOffset());
-				t.is("2", dripLang.getText(node));
-  			},
-  			tearDown: function(){
-  				
-  			}
-	    },{
-	    	name: "右移进根次，根式前没有任何节点，在根式前右移光标到根次前，根次的第一个节点是layout节点。",
-  			setUp: function(){
-  				this.model = new Model({});
-  			},
-  			runTest: function(t){
-  				var model = this.model;
-  				model.mode = "mathml";
+				assert.equal("mn", node.nodeName);
+				assert.equal(0, model.getOffset());
+				assert.equal("2", dripLang.getText(node));
+			});
+			
+			test("右移进根次，根式前没有任何节点，在根式前右移光标到根次前，根次的第一个节点是layout节点。", function(){
+				model.mode = "mathml";
   				model.loadData("<root><line>" +
   						"<math>" +
 	  						"<mroot>" +
@@ -123,22 +108,14 @@ define([ "doh", "mathEditor/Model", "mathEditor/lang" ], function(doh, Model, dr
   				model.path.push({nodeName: "math", offset: 1});
   				model.path.push({nodeName: "mroot", offset: 1});
   				model.moveRight();
-  				t.is("/root/line[1]/math[1]/mroot[1]/mrow[2]/mroot[1]", model.getPath());
+  				assert.equal("/root/line[1]/math[1]/mroot[1]/mrow[2]/mroot[1]", model.getPath());
 				var node = model.getFocusNode();
-				t.is("mroot", node.nodeName);
-				t.is(0, model.getOffset());
-  			},
-  			tearDown: function(){
-  				
-  			}
-	    },{
-	    	name: "右移进根次，根式前有一个token节点，在token节点最后右移光标到根次前，根次的第一个节点是token节点。",
-  			setUp: function(){
-  				this.model = new Model({});
-  			},
-  			runTest: function(t){
-  				var model = this.model;
-  				model.mode = "mathml";
+				assert.equal("mroot", node.nodeName);
+				assert.equal(0, model.getOffset());
+			});
+			
+			test("右移进根次，根式前有一个token节点，在token节点最后右移光标到根次前，根次的第一个节点是token节点。", function(){
+				model.mode = "mathml";
   				model.loadData("<root><line>" +
   						"<math>" +
   							"<mn>12</mn>" +
@@ -157,22 +134,14 @@ define([ "doh", "mathEditor/Model", "mathEditor/lang" ], function(doh, Model, dr
   				model.path.push({nodeName: "math", offset: 1});
   				model.path.push({nodeName: "mn", offset: 1});
   				model.moveRight();
-  				t.is("/root/line[1]/math[1]/mroot[2]/mrow[2]/mn[1]", model.getPath());
+  				assert.equal("/root/line[1]/math[1]/mroot[2]/mrow[2]/mn[1]", model.getPath());
 				var node = model.getFocusNode();
-				t.is("mn", node.nodeName);
-				t.is(0, model.getOffset());
-  			},
-  			tearDown: function(){
-  				
-  			}
-	    },{
-	    	name: "右移进根次，根式前有一个token节点，在token节点最后右移光标到根次前，根次的第一个节点是layout节点。",
-  			setUp: function(){
-  				this.model = new Model({});
-  			},
-  			runTest: function(t){
-  				var model = this.model;
-  				model.mode = "mathml";
+				assert.equal("mn", node.nodeName);
+				assert.equal(0, model.getOffset());
+			});
+			
+			test("右移进根次，根式前有一个token节点，在token节点最后右移光标到根次前，根次的第一个节点是layout节点。", function(){
+				model.mode = "mathml";
   				model.loadData("<root><line>" +
   						"<math>" +
   							"<mn>12</mn>" +
@@ -191,22 +160,14 @@ define([ "doh", "mathEditor/Model", "mathEditor/lang" ], function(doh, Model, dr
   				model.path.push({nodeName: "math", offset: 1});
   				model.path.push({nodeName: "mn", offset: 1});
   				model.moveRight();
-  				t.is("/root/line[1]/math[1]/mroot[2]/mrow[2]/mroot[1]", model.getPath());
+  				assert.equal("/root/line[1]/math[1]/mroot[2]/mrow[2]/mroot[1]", model.getPath());
 				var node = model.getFocusNode();
-				t.is("mroot", node.nodeName);
-				t.is(0, model.getOffset());
-  			},
-  			tearDown: function(){
-  				
-  			}
-	    },{
-	    	name: "右移进根次，根式前有一个layout节点，在layout节点最后右移光标到根次前，根次的第一个节点是token节点。",
-  			setUp: function(){
-  				this.model = new Model({});
-  			},
-  			runTest: function(t){
-  				var model = this.model;
-  				model.mode = "mathml";
+				assert.equal("mroot", node.nodeName);
+				assert.equal(0, model.getOffset());
+			});
+			
+			test("右移进根次，根式前有一个layout节点，在layout节点最后右移光标到根次前，根次的第一个节点是token节点。", function(){
+				model.mode = "mathml";
   				model.loadData("<root><line>" +
   						"<math>" +
   							"<mroot><mrow><mn>4</mn></mrow><mrow><mn>2</mn></mrow></mroot>" +
@@ -225,22 +186,14 @@ define([ "doh", "mathEditor/Model", "mathEditor/lang" ], function(doh, Model, dr
   				model.path.push({nodeName: "math", offset: 1});
   				model.path.push({nodeName: "mroot", offset: 1});
   				model.moveRight();
-  				t.is("/root/line[1]/math[1]/mroot[2]/mrow[2]/mn[1]", model.getPath());
+  				assert.equal("/root/line[1]/math[1]/mroot[2]/mrow[2]/mn[1]", model.getPath());
 				var node = model.getFocusNode();
-				t.is("mn", node.nodeName);
-				t.is(0, model.getOffset());
-  			},
-  			tearDown: function(){
-  				
-  			}
-	    },{
-	    	name: "右移进根次，根式前有一个layout节点，在layout节点最后右移光标到根次前，根次的第一个节点是layout节点。",
-  			setUp: function(){
-  				this.model = new Model({});
-  			},
-  			runTest: function(t){
-  				var model = this.model;
-  				model.mode = "mathml";
+				assert.equal("mn", node.nodeName);
+				assert.equal(0, model.getOffset());
+			});
+			
+			test("右移进根次，根式前有一个layout节点，在layout节点最后右移光标到根次前，根次的第一个节点是layout节点。", function(){
+				model.mode = "mathml";
   				model.loadData("<root><line>" +
   						"<math>" +
   							"<mroot><mrow><mn>4</mn></mrow><mrow><mn>2</mn></mrow></mroot>" +
@@ -259,22 +212,14 @@ define([ "doh", "mathEditor/Model", "mathEditor/lang" ], function(doh, Model, dr
   				model.path.push({nodeName: "math", offset: 1});
   				model.path.push({nodeName: "mroot", offset: 1});
   				model.moveRight();
-  				t.is("/root/line[1]/math[1]/mroot[2]/mrow[2]/mroot[1]", model.getPath());
+  				assert.equal("/root/line[1]/math[1]/mroot[2]/mrow[2]/mroot[1]", model.getPath());
 				var node = model.getFocusNode();
-				t.is("mroot", node.nodeName);
-				t.is(0, model.getOffset());
-  			},
-  			tearDown: function(){
-  				
-  			}
-	    },{
-	    	name: "从根次后右移进根数前，根次最后一个节点是token节点，根数第一个节点是token节点。",
-  			setUp: function(){
-  				this.model = new Model({});
-  			},
-  			runTest: function(t){
-  				var model = this.model;
-  				model.mode = "mathml";
+				assert.equal("mroot", node.nodeName);
+				assert.equal(0, model.getOffset());
+			});
+			
+			test("从根次后右移进根数前，根次最后一个节点是token节点，根数第一个节点是token节点。", function(){
+				model.mode = "mathml";
   				model.loadData("<root><line>" +
   						"<math>" +
 	  						"<mroot>" +
@@ -294,23 +239,15 @@ define([ "doh", "mathEditor/Model", "mathEditor/lang" ], function(doh, Model, dr
   				model.path.push({nodeName: "mrow", offset: 2});
   				model.path.push({nodeName: "mn", offset: 1});
   				model.moveRight();
-  				t.is("/root/line[1]/math[1]/mroot[1]/mrow[1]/mn[1]", model.getPath());
+  				assert.equal("/root/line[1]/math[1]/mroot[1]/mrow[1]/mn[1]", model.getPath());
 				var node = model.getFocusNode();
-				t.is("mn", node.nodeName);
-				t.is(0, model.getOffset());
-				t.is("34", dripLang.getText(node));
-  			},
-  			tearDown: function(){
-  				
-  			}
-	    },{
-	    	name: "从根次后右移进根数前，根次最后一个节点是token节点，根数第一个节点是layout节点。",
-  			setUp: function(){
-  				this.model = new Model({});
-  			},
-  			runTest: function(t){
-  				var model = this.model;
-  				model.mode = "mathml";
+				assert.equal("mn", node.nodeName);
+				assert.equal(0, model.getOffset());
+				assert.equal("34", dripLang.getText(node));
+			});
+			
+			test("从根次后右移进根数前，根次最后一个节点是token节点，根数第一个节点是layout节点。", function(){
+				model.mode = "mathml";
   				model.loadData("<root><line>" +
   						"<math>" +
 	  						"<mroot>" +
@@ -330,22 +267,14 @@ define([ "doh", "mathEditor/Model", "mathEditor/lang" ], function(doh, Model, dr
   				model.path.push({nodeName: "mrow", offset: 2});
   				model.path.push({nodeName: "mn", offset: 1});
   				model.moveRight();
-  				t.is("/root/line[1]/math[1]/mroot[1]/mrow[1]/mroot[1]", model.getPath());
+  				assert.equal("/root/line[1]/math[1]/mroot[1]/mrow[1]/mroot[1]", model.getPath());
 				var node = model.getFocusNode();
-				t.is("mroot", node.nodeName);
-				t.is(0, model.getOffset());
-  			},
-  			tearDown: function(){
-  				
-  			}
-	    },{
-	    	name: "从根次后右移进根数前，根次最后一个节点是layout节点，根数第一个节点是token节点。",
-  			setUp: function(){
-  				this.model = new Model({});
-  			},
-  			runTest: function(t){
-  				var model = this.model;
-  				model.mode = "mathml";
+				assert.equal("mroot", node.nodeName);
+				assert.equal(0, model.getOffset());
+			});
+			
+			test("从根次后右移进根数前，根次最后一个节点是layout节点，根数第一个节点是token节点。", function(){
+				model.mode = "mathml";
   				model.loadData("<root><line>" +
   						"<math>" +
 	  						"<mroot>" +
@@ -365,22 +294,14 @@ define([ "doh", "mathEditor/Model", "mathEditor/lang" ], function(doh, Model, dr
   				model.path.push({nodeName: "mrow", offset: 2});
   				model.path.push({nodeName: "mroot", offset: 1});
   				model.moveRight();
-  				t.is("/root/line[1]/math[1]/mroot[1]/mrow[1]/mn[1]", model.getPath());
+  				assert.equal("/root/line[1]/math[1]/mroot[1]/mrow[1]/mn[1]", model.getPath());
 				var node = model.getFocusNode();
-				t.is("mn", node.nodeName);
-				t.is(0, model.getOffset());
-  			},
-  			tearDown: function(){
-  				
-  			}
-	    },{
-	    	name: "从根次后右移进根数前，根次最后一个节点是layout节点，根数第一个节点是layout节点。",
-  			setUp: function(){
-  				this.model = new Model({});
-  			},
-  			runTest: function(t){
-  				var model = this.model;
-  				model.mode = "mathml";
+				assert.equal("mn", node.nodeName);
+				assert.equal(0, model.getOffset());
+			});
+			
+			test("从根次后右移进根数前，根次最后一个节点是layout节点，根数第一个节点是layout节点。", function(){
+				model.mode = "mathml";
   				model.loadData("<root><line>" +
   						"<math>" +
 	  						"<mroot>" +
@@ -400,22 +321,14 @@ define([ "doh", "mathEditor/Model", "mathEditor/lang" ], function(doh, Model, dr
   				model.path.push({nodeName: "mrow", offset: 2});
   				model.path.push({nodeName: "mroot", offset: 1});
   				model.moveRight();
-  				t.is("/root/line[1]/math[1]/mroot[1]/mrow[1]/mroot[1]", model.getPath());
+  				assert.equal("/root/line[1]/math[1]/mroot[1]/mrow[1]/mroot[1]", model.getPath());
 				var node = model.getFocusNode();
-				t.is("mroot", node.nodeName);
-				t.is(0, model.getOffset());
-  			},
-  			tearDown: function(){
-  				
-  			}
-	    },{
-	    	name: "从根数后右移出根式，到根式后，根数的最后一个节点是token节点。",
-  			setUp: function(){
-  				this.model = new Model({});
-  			},
-  			runTest: function(t){
-  				var model = this.model;
-  				model.mode = "mathml";
+				assert.equal("mroot", node.nodeName);
+				assert.equal(0, model.getOffset());
+			});
+			
+			test("从根数后右移出根式，到根式后，根数的最后一个节点是token节点。", function(){
+				model.mode = "mathml";
   				model.loadData("<root><line>" +
   						"<math>" +
 	  						"<mroot>" +
@@ -435,22 +348,14 @@ define([ "doh", "mathEditor/Model", "mathEditor/lang" ], function(doh, Model, dr
   				model.path.push({nodeName: "mrow", offset: 1});
   				model.path.push({nodeName: "mn", offset: 1});
   				model.moveRight();
-  				t.is("/root/line[1]/math[1]/mroot[1]", model.getPath());
+  				assert.equal("/root/line[1]/math[1]/mroot[1]", model.getPath());
 				var node = model.getFocusNode();
-				t.is("mroot", node.nodeName);
-				t.is(1, model.getOffset());
-  			},
-  			tearDown: function(){
-  				
-  			}
-	    },{
-	    	name: "从根数后右移出根式，到根式后，根数的最后一个节点是layout节点。",
-  			setUp: function(){
-  				this.model = new Model({});
-  			},
-  			runTest: function(t){
-  				var model = this.model;
-  				model.mode = "mathml";
+				assert.equal("mroot", node.nodeName);
+				assert.equal(1, model.getOffset());
+			});
+			
+			test("从根数后右移出根式，到根式后，根数的最后一个节点是layout节点。", function(){
+				model.mode = "mathml";
   				model.loadData("<root><line>" +
   						"<math>" +
 	  						"<mroot>" +
@@ -470,15 +375,13 @@ define([ "doh", "mathEditor/Model", "mathEditor/lang" ], function(doh, Model, dr
   				model.path.push({nodeName: "mrow", offset: 1});
   				model.path.push({nodeName: "mroot", offset: 1});
   				model.moveRight();
-  				t.is("/root/line[1]/math[1]/mroot[1]", model.getPath());
+  				assert.equal("/root/line[1]/math[1]/mroot[1]", model.getPath());
 				var node = model.getFocusNode();
-				t.is("mroot", node.nodeName);
-				t.is(1, model.getOffset());
-  			},
-  			tearDown: function(){
-  				
-  			}
-	    }
-            
-	]);
+				assert.equal("mroot", node.nodeName);
+				assert.equal(1, model.getOffset());
+			});
+			
+		});
+	}
+	
 });

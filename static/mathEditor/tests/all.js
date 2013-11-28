@@ -32,4 +32,17 @@ define(["./dataUtil",
         "./model/moveLeft/token",
         "./model/moveLeft/sub",
         "./model/moveLeft/sup",
-        "./model/moveLeft/fence"], function(){});
+        "./model/moveLeft/fence",
+        
+        "./model/moveRight/frac",
+        "./model/moveRight/line",
+        "./model/moveRight/text",
+        "./model/moveRight/math",
+        "./model/moveRight/mi",
+        "./model/moveRight/mn",
+        "./model/moveRight/root",
+        "./model/moveRight/sqrt",
+        "./model/moveRight/token",
+        "./model/moveRight/sub",
+        "./model/moveRight/sup",
+        "./model/moveRight/fence"], function(){});

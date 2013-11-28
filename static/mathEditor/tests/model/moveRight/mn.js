@@ -1,14 +1,22 @@
-define([ "doh", "mathEditor/Model", "mathEditor/lang" ], function(doh, Model, dripLang) {
+define([ "intern!tdd", 
+         "intern/chai!assert", 
+         "mathEditor/Model", 
+         "mathEditor/lang" ], function(
+        		 tdd,
+        		 assert, 
+        		 Model, 
+        		 dripLang) {
 
-	doh.register("Model.moveRight.mn 在mn节点中右移",[
-	    {
-	    	name: "从分数后右移到分数后面的mn节点上，mn中只有一个数字",
-  			setUp: function(){
-  				this.model = new Model({});
-  			},
-  			runTest: function(t){
-  				var model = this.model;
-  				model.loadData("<root><line><math>" +
+	with(tdd){
+		suite("Model.moveRight.mn 在mn节点中右移", function(){
+			
+			var model = null;
+			beforeEach(function () {
+				model = new Model({});
+			});
+			
+			test("从分数后右移到分数后面的mn节点上，mn中只有一个数字", function(){
+				model.loadData("<root><line><math>" +
   						"<mstyle>" +
   							"<mfrac><mrow><mn>2</mn></mrow><mrow><mn>3</mn></mrow></mfrac>" +
   						"</mstyle>" +
@@ -26,22 +34,14 @@ define([ "doh", "mathEditor/Model", "mathEditor/lang" ], function(doh, Model, dr
   				
   				model.moveRight();
   				var node = model.getFocusNode();
-  				t.is("/root/line[1]/math[1]/mn[2]", model.getPath()); 
-  				t.is(node.nodeName, "mn");
-  				t.is(1, model.getOffset());
-  				t.is("1", dripLang.getText(node));
-  			},
-  			tearDown: function(){
-  				
-  			}
-	    },{
-	    	name: "从分数后右移到分数后面的mn节点上，mn中有两个数字",
-  			setUp: function(){
-  				this.model = new Model({});
-  			},
-  			runTest: function(t){
-  				var model = this.model;
-  				model.loadData("<root><line><math>" +
+  				assert.equal("/root/line[1]/math[1]/mn[2]", model.getPath()); 
+  				assert.equal(node.nodeName, "mn");
+  				assert.equal(1, model.getOffset());
+  				assert.equal("1", dripLang.getText(node));
+			});
+			
+			test("从分数后右移到分数后面的mn节点上，mn中有两个数字", function(){
+				model.loadData("<root><line><math>" +
   						"<mstyle>" +
   							"<mfrac><mrow><mn>2</mn></mrow><mrow><mn>3</mn></mrow></mfrac>" +
   						"</mstyle>" +
@@ -59,15 +59,12 @@ define([ "doh", "mathEditor/Model", "mathEditor/lang" ], function(doh, Model, dr
   				
   				model.moveRight();
   				var node = model.getFocusNode();
-  				t.is("/root/line[1]/math[1]/mn[2]", model.getPath()); 
-  				t.is(node.nodeName, "mn");
-  				t.is(1, model.getOffset());
-  				t.is("12", dripLang.getText(node));
-  			},
-  			tearDown: function(){
-  				
-  			}
-	    }
-	                             
-	]);
+  				assert.equal("/root/line[1]/math[1]/mn[2]", model.getPath()); 
+  				assert.equal(node.nodeName, "mn");
+  				assert.equal(1, model.getOffset());
+  				assert.equal("12", dripLang.getText(node));
+			});
+		});
+	}
+	
 });

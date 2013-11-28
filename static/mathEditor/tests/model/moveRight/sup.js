@@ -1,4 +1,11 @@
-define([ "doh", "mathEditor/Model", "mathEditor/lang" ], function(doh, Model, dripLang) {
+define([ "intern!tdd", 
+         "intern/chai!assert", 
+         "mathEditor/Model", 
+         "mathEditor/lang" ], function(
+        		 tdd,
+        		 assert,
+        		 Model, 
+        		 dripLang) {
 
 	// summary:
 	//		在有上标的公式上右移光标(base的mrow部分要高亮显示)
@@ -18,41 +25,35 @@ define([ "doh", "mathEditor/Model", "mathEditor/lang" ], function(doh, Model, dr
 	//		从superscript后移出sup节点
 	//		1. superscript的最后一个节点是token节点
 	//		2. superscript的最后一个节点是layout节点
-	doh.register("Model.moveRight.sup 在有上标的符号中右移光标",[
-	    {
-	    	name: "mathml模式下，在空的有上标的公式中，将光标从base中移到supscript中",
-  			setUp: function(){
-  				this.model = new Model({});
-  			},
-  			runTest: function(t){
-  				var model = this.model;
-  				model.toMathMLMode();
+	
+	with(tdd){
+		suite("Model.moveRight.sup 在有上标的符号中右移光标", function(){
+			
+			var model = null;
+			beforeEach(function () {
+				model = new Model({});
+			});
+			
+			test("mathml模式下，在空的有上标的公式中，将光标从base中移到supscript中", function(){
+				model.toMathMLMode();
   				model.setData({data: "", nodeName: "msup"});
   				model.moveLeft();
   				model.moveRight();
   				
-  				t.is("/root/line[1]/math[1]/msup[1]/mrow[2]/mn[1]", model.getPath());
+  				assert.equal("/root/line[1]/math[1]/msup[1]/mrow[2]/mn[1]", model.getPath());
   				var node = model.getFocusNode();
-	  			t.is("mn", node.nodeName);
-	  			t.is("drip_placeholder_box", node.getAttribute("class"));
-	  			t.is(0, model.getOffset());
+	  			assert.equal("mn", node.nodeName);
+	  			assert.equal("drip_placeholder_box", node.getAttribute("class"));
+	  			assert.equal(0, model.getOffset());
 	  			
 	  			var baseNode = node;
 	  			var superscriptNode = baseNode.parentNode.previousSibling.firstChild;
-	  			t.is("mn", superscriptNode.nodeName);
-	  			t.is("drip_placeholder_box", superscriptNode.getAttribute("class"));
-  			},
-  			tearDown: function(){
-  				
-  			}
-	    },{
-	    	name: "右移进入sup，sup前没有任何节点，在sup前右移光标，移到base前，base的第一个节点是token节点。",
-  			setUp: function(){
-  				this.model = new Model({});
-  			},
-  			runTest: function(t){
-  				var model = this.model;
-  				model.mode = "mathml";
+	  			assert.equal("mn", superscriptNode.nodeName);
+	  			assert.equal("drip_placeholder_box", superscriptNode.getAttribute("class"));
+			});
+			
+			test("右移进入sup，sup前没有任何节点，在sup前右移光标，移到base前，base的第一个节点是token节点。", function(){
+				model.mode = "mathml";
   				model.loadData("<root><line>" +
   						"<math>" +
 	  						"<msup>" +
@@ -70,23 +71,15 @@ define([ "doh", "mathEditor/Model", "mathEditor/lang" ], function(doh, Model, dr
   				model.path.push({nodeName: "math", offset: 1});
   				model.path.push({nodeName: "msup", offset: 1});
   				model.moveRight();
-  				t.is("/root/line[1]/math[1]/msup[1]/mrow[1]/mn[1]", model.getPath());
+  				assert.equal("/root/line[1]/math[1]/msup[1]/mrow[1]/mn[1]", model.getPath());
 				var node = model.getFocusNode();
-				t.is("mn", node.nodeName);
-				t.is(0, model.getOffset());
-				t.is("123", dripLang.getText(node));
-  			},
-  			tearDown: function(){
-  				
-  			}
-	    },{
-	    	name: "右移进入sup，sup前没有任何节点，在sup前右移光标，移到base前，base的第一个节点是layout节点。",
-  			setUp: function(){
-  				this.model = new Model({});
-  			},
-  			runTest: function(t){
-  				var model = this.model;
-  				model.mode = "mathml";
+				assert.equal("mn", node.nodeName);
+				assert.equal(0, model.getOffset());
+				assert.equal("123", dripLang.getText(node));
+			});
+			
+			test("右移进入sup，sup前没有任何节点，在sup前右移光标，移到base前，base的第一个节点是layout节点。", function(){
+				model.mode = "mathml";
   				model.loadData("<root><line>" +
   						"<math>" +
 	  						"<msup>" +
@@ -104,22 +97,14 @@ define([ "doh", "mathEditor/Model", "mathEditor/lang" ], function(doh, Model, dr
   				model.path.push({nodeName: "math", offset: 1});
   				model.path.push({nodeName: "msup", offset: 1});
   				model.moveRight();
-  				t.is("/root/line[1]/math[1]/msup[1]/mrow[1]/msup[1]", model.getPath());
+  				assert.equal("/root/line[1]/math[1]/msup[1]/mrow[1]/msup[1]", model.getPath());
 				var node = model.getFocusNode();
-				t.is("msup", node.nodeName);
-				t.is(0, model.getOffset());
-  			},
-  			tearDown: function(){
-  				
-  			}
-	    },{
-	    	name: "右移进入sup，sup前有一个token节点，从token的最后右移到sup的base前，base的第一个节点是token节点。",
-  			setUp: function(){
-  				this.model = new Model({});
-  			},
-  			runTest: function(t){
-  				var model = this.model;
-  				model.mode = "mathml";
+				assert.equal("msup", node.nodeName);
+				assert.equal(0, model.getOffset());
+			});
+			
+			test("右移进入sup，sup前有一个token节点，从token的最后右移到sup的base前，base的第一个节点是token节点。", function(){
+				model.mode = "mathml";
   				model.loadData("<root><line>" +
   						"<math>" +
   							"<mn>12</mn>" +
@@ -138,23 +123,15 @@ define([ "doh", "mathEditor/Model", "mathEditor/lang" ], function(doh, Model, dr
   				model.path.push({nodeName: "math", offset: 1});
   				model.path.push({nodeName: "mn", offset: 1});
   				model.moveRight();
-  				t.is("/root/line[1]/math[1]/msup[2]/mrow[1]/mn[1]", model.getPath());
+  				assert.equal("/root/line[1]/math[1]/msup[2]/mrow[1]/mn[1]", model.getPath());
 				var node = model.getFocusNode();
-				t.is("mn", node.nodeName);
-				t.is(0, model.getOffset());
-				t.is("5678", dripLang.getText(node));
-  			},
-  			tearDown: function(){
-  				
-  			}
-	    },{
-	    	name: "右移进入sup，sup前有一个token节点，从token的最后右移到sup的base前，base的第一个节点是layout节点。",
-  			setUp: function(){
-  				this.model = new Model({});
-  			},
-  			runTest: function(t){
-  				var model = this.model;
-  				model.mode = "mathml";
+				assert.equal("mn", node.nodeName);
+				assert.equal(0, model.getOffset());
+				assert.equal("5678", dripLang.getText(node));
+			});
+			
+			test("右移进入sup，sup前有一个token节点，从token的最后右移到sup的base前，base的第一个节点是layout节点。", function(){
+				model.mode = "mathml";
   				model.loadData("<root><line>" +
   						"<math>" +
   							"<mn>12</mn>" +
@@ -173,22 +150,14 @@ define([ "doh", "mathEditor/Model", "mathEditor/lang" ], function(doh, Model, dr
   				model.path.push({nodeName: "math", offset: 1});
   				model.path.push({nodeName: "mn", offset: 1});
   				model.moveRight();
-  				t.is("/root/line[1]/math[1]/msup[2]/mrow[1]/msup[1]", model.getPath());
+  				assert.equal("/root/line[1]/math[1]/msup[2]/mrow[1]/msup[1]", model.getPath());
 				var node = model.getFocusNode();
-				t.is("msup", node.nodeName);
-				t.is(0, model.getOffset());
-  			},
-  			tearDown: function(){
-  				
-  			}
-	    },{
-	    	name: "右移进入sup，sup前有一个layout节点，从layout的最后右移到sup的base前，base的第一个节点是token节点。",
-  			setUp: function(){
-  				this.model = new Model({});
-  			},
-  			runTest: function(t){
-  				var model = this.model;
-  				model.mode = "mathml";
+				assert.equal("msup", node.nodeName);
+				assert.equal(0, model.getOffset());
+			});
+			
+			test("右移进入sup，sup前有一个layout节点，从layout的最后右移到sup的base前，base的第一个节点是token节点。", function(){
+				model.mode = "mathml";
   				model.loadData("<root><line>" +
   						"<math>" +
   							"<msup><mrow><mn>4</mn></mrow><mrow><mn>2</mn></mrow></msup>" +
@@ -206,23 +175,15 @@ define([ "doh", "mathEditor/Model", "mathEditor/lang" ], function(doh, Model, dr
   				model.path.push({nodeName: "math", offset: 1});
   				model.path.push({nodeName: "msup", offset: 1});
   				model.moveRight();
-  				t.is("/root/line[1]/math[1]/msup[2]/mrow[1]/mn[1]", model.getPath());
+  				assert.equal("/root/line[1]/math[1]/msup[2]/mrow[1]/mn[1]", model.getPath());
 				var node = model.getFocusNode();
-				t.is("mn", node.nodeName);
-				t.is(0, model.getOffset());
-				t.is("12", dripLang.getText(node));
-  			},
-  			tearDown: function(){
-  				
-  			}
-	    },{
-	    	name: "右移进入sup，sup前有一个layout节点，从layout的最后右移到sup的base前，base的第一个节点是layout节点。",
-  			setUp: function(){
-  				this.model = new Model({});
-  			},
-  			runTest: function(t){
-  				var model = this.model;
-  				model.mode = "mathml";
+				assert.equal("mn", node.nodeName);
+				assert.equal(0, model.getOffset());
+				assert.equal("12", dripLang.getText(node));
+			});
+			
+			test("右移进入sup，sup前有一个layout节点，从layout的最后右移到sup的base前，base的第一个节点是layout节点。", function(){
+				model.mode = "mathml";
   				model.loadData("<root><line>" +
   						"<math>" +
   							"<msup><mrow><mn>4</mn></mrow><mrow><mn>2</mn></mrow></msup>" +
@@ -240,22 +201,14 @@ define([ "doh", "mathEditor/Model", "mathEditor/lang" ], function(doh, Model, dr
   				model.path.push({nodeName: "math", offset: 1});
   				model.path.push({nodeName: "msup", offset: 1});
   				model.moveRight();
-  				t.is("/root/line[1]/math[1]/msup[2]/mrow[1]/msup[1]", model.getPath());
+  				assert.equal("/root/line[1]/math[1]/msup[2]/mrow[1]/msup[1]", model.getPath());
 				var node = model.getFocusNode();
-				t.is("msup", node.nodeName);
-				t.is(0, model.getOffset());
-  			},
-  			tearDown: function(){
-  				
-  			}
-	    },{
-	    	name: "从base后右移到superscript前，base的最后一个节点是token节点，superscript的第一个节点是token节点。",
-  			setUp: function(){
-  				this.model = new Model({});
-  			},
-  			runTest: function(t){
-  				var model = this.model;
-  				model.mode = "mathml";
+				assert.equal("msup", node.nodeName);
+				assert.equal(0, model.getOffset());
+			});
+			
+			test("从base后右移到superscript前，base的最后一个节点是token节点，superscript的第一个节点是token节点。", function(){
+				model.mode = "mathml";
   				model.loadData("<root><line>" +
   						"<math>" +
 	  						"<msup>" +
@@ -275,23 +228,15 @@ define([ "doh", "mathEditor/Model", "mathEditor/lang" ], function(doh, Model, dr
   				model.path.push({nodeName: "mrow", offset: 1});
   				model.path.push({nodeName: "mn", offset: 1});
   				model.moveRight();
-  				t.is("/root/line[1]/math[1]/msup[1]/mrow[2]/mn[1]", model.getPath());
+  				assert.equal("/root/line[1]/math[1]/msup[1]/mrow[2]/mn[1]", model.getPath());
 				var node = model.getFocusNode();
-				t.is("mn", node.nodeName);
-				t.is(0, model.getOffset());
-				t.is("12", dripLang.getText(node));
-  			},
-  			tearDown: function(){
-  				
-  			}
-	    },{
-	    	name: "从base后右移到superscript前，base的最后一个节点是token节点，superscript的第一个节点是layout节点。",
-  			setUp: function(){
-  				this.model = new Model({});
-  			},
-  			runTest: function(t){
-  				var model = this.model;
-  				model.mode = "mathml";
+				assert.equal("mn", node.nodeName);
+				assert.equal(0, model.getOffset());
+				assert.equal("12", dripLang.getText(node));
+			});
+			
+			test("从base后右移到superscript前，base的最后一个节点是token节点，superscript的第一个节点是layout节点。", function(){
+				model.mode = "mathml";
   				model.loadData("<root><line>" +
   						"<math>" +
 	  						"<msup>" +
@@ -311,22 +256,14 @@ define([ "doh", "mathEditor/Model", "mathEditor/lang" ], function(doh, Model, dr
   				model.path.push({nodeName: "mrow", offset: 1});
   				model.path.push({nodeName: "mn", offset: 1});
   				model.moveRight();
-  				t.is("/root/line[1]/math[1]/msup[1]/mrow[2]/msup[1]", model.getPath());
+  				assert.equal("/root/line[1]/math[1]/msup[1]/mrow[2]/msup[1]", model.getPath());
 				var node = model.getFocusNode();
-				t.is("msup", node.nodeName);
-				t.is(0, model.getOffset());
-  			},
-  			tearDown: function(){
-  				
-  			}
-	    },{
-	    	name: "从base后右移到superscript前，base的最后一个节点是layout节点，superscript的第一个节点是token节点。",
-  			setUp: function(){
-  				this.model = new Model({});
-  			},
-  			runTest: function(t){
-  				var model = this.model;
-  				model.mode = "mathml";
+				assert.equal("msup", node.nodeName);
+				assert.equal(0, model.getOffset());
+			});
+			
+			test("从base后右移到superscript前，base的最后一个节点是layout节点，superscript的第一个节点是token节点。", function(){
+				model.mode = "mathml";
   				model.loadData("<root><line>" +
   						"<math>" +
 	  						"<msup>" +
@@ -346,23 +283,15 @@ define([ "doh", "mathEditor/Model", "mathEditor/lang" ], function(doh, Model, dr
   				model.path.push({nodeName: "mrow", offset: 1});
   				model.path.push({nodeName: "msup", offset: 1});
   				model.moveRight();
-  				t.is("/root/line[1]/math[1]/msup[1]/mrow[2]/mn[1]", model.getPath());
+  				assert.equal("/root/line[1]/math[1]/msup[1]/mrow[2]/mn[1]", model.getPath());
 				var node = model.getFocusNode();
-				t.is("mn", node.nodeName);
-				t.is(0, model.getOffset());
-				t.is("12", dripLang.getText(node));
-  			},
-  			tearDown: function(){
-  				
-  			}
-	    },{
-	    	name: "从base后右移到superscript前，base的最后一个节点是layout节点，superscript的第一个节点是layout节点。",
-  			setUp: function(){
-  				this.model = new Model({});
-  			},
-  			runTest: function(t){
-  				var model = this.model;
-  				model.mode = "mathml";
+				assert.equal("mn", node.nodeName);
+				assert.equal(0, model.getOffset());
+				assert.equal("12", dripLang.getText(node));
+			});
+			
+			test("从base后右移到superscript前，base的最后一个节点是layout节点，superscript的第一个节点是layout节点。", function(){
+				model.mode = "mathml";
   				model.loadData("<root><line>" +
   						"<math>" +
 	  						"<msup>" +
@@ -382,22 +311,14 @@ define([ "doh", "mathEditor/Model", "mathEditor/lang" ], function(doh, Model, dr
   				model.path.push({nodeName: "mrow", offset: 1});
   				model.path.push({nodeName: "msup", offset: 1});
   				model.moveRight();
-  				t.is("/root/line[1]/math[1]/msup[1]/mrow[2]/msup[1]", model.getPath());
+  				assert.equal("/root/line[1]/math[1]/msup[1]/mrow[2]/msup[1]", model.getPath());
 				var node = model.getFocusNode();
-				t.is("msup", node.nodeName);
-				t.is(0, model.getOffset());
-  			},
-  			tearDown: function(){
-  				
-  			}
-	    },{
-	    	name: "从superscript后移出sup节点，superscript的最后一个节点是token节点。",
-  			setUp: function(){
-  				this.model = new Model({});
-  			},
-  			runTest: function(t){
-  				var model = this.model;
-  				model.mode = "mathml";
+				assert.equal("msup", node.nodeName);
+				assert.equal(0, model.getOffset());
+			});
+			
+			test("从superscript后移出sup节点，superscript的最后一个节点是token节点。", function(){
+				model.mode = "mathml";
   				model.loadData("<root><line>" +
   						"<math>" +
 	  						"<msup>" +
@@ -416,22 +337,14 @@ define([ "doh", "mathEditor/Model", "mathEditor/lang" ], function(doh, Model, dr
   				model.path.push({nodeName: "mrow", offset: 2});
   				model.path.push({nodeName: "mn", offset: 1});
   				model.moveRight();
-  				t.is("/root/line[1]/math[1]/msup[1]", model.getPath());
+  				assert.equal("/root/line[1]/math[1]/msup[1]", model.getPath());
 				var node = model.getFocusNode();
-				t.is("msup", node.nodeName);
-				t.is(1, model.getOffset());
-  			},
-  			tearDown: function(){
-  				
-  			}
-	    },{
-	    	name: "从superscript后移出sup节点，superscript的最后一个节点是layout节点。",
-  			setUp: function(){
-  				this.model = new Model({});
-  			},
-  			runTest: function(t){
-  				var model = this.model;
-  				model.mode = "mathml";
+				assert.equal("msup", node.nodeName);
+				assert.equal(1, model.getOffset());
+			});
+			
+			test("从superscript后移出sup节点，superscript的最后一个节点是layout节点。", function(){
+				model.mode = "mathml";
   				model.loadData("<root><line>" +
   						"<math>" +
 	  						"<msup>" +
@@ -450,15 +363,12 @@ define([ "doh", "mathEditor/Model", "mathEditor/lang" ], function(doh, Model, dr
   				model.path.push({nodeName: "mrow", offset: 2});
   				model.path.push({nodeName: "msup", offset: 1});
   				model.moveRight();
-  				t.is("/root/line[1]/math[1]/msup[1]", model.getPath());
+  				assert.equal("/root/line[1]/math[1]/msup[1]", model.getPath());
 				var node = model.getFocusNode();
-				t.is("msup", node.nodeName);
-				t.is(1, model.getOffset());
-  			},
-  			tearDown: function(){
-  				
-  			}
-	    }
-	                             
-	]);
+				assert.equal("msup", node.nodeName);
+				assert.equal(1, model.getOffset());
+			});
+		});
+	}
+	
 });
