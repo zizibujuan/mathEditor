@@ -29,7 +29,6 @@ define([ "mathEditor/tests/layer/Cursor", // 未迁移
          "mathEditor/tests/model/moveLeft/text",
          "mathEditor/tests/model/moveLeft/math",
          "mathEditor/tests/model/moveLeft/mn",
-         // 迁移到这里
          "mathEditor/tests/model/moveLeft/mi",
          "mathEditor/tests/model/moveLeft/mo",
          "mathEditor/tests/model/moveLeft/sqrt",

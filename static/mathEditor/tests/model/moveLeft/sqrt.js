@@ -1,4 +1,11 @@
-define([ "doh","mathEditor/Model" ], function(doh,Model) {
+define([ "intern!tdd", 
+         "intern/chai!assert",
+         "mathEditor/Model",
+         "mathEditor/lang"], function(
+        		 tdd,
+        		 assert,
+        		 Model,
+        		 dripLang) {
 
 	// FIXME：setData时，要根据光标两边的节点，来决定将值插入到哪个节点中。
 	// summary:
@@ -9,15 +16,16 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
 	//		5. 平方根前有一个token节点，从根数前移动到平方根前(与前面的节点无关)
 	//		6. 平方根前有一个layout节点，从根数前移动到平方根前(与前面的节点无关)
 	//		上面的根数中的节点可能为token和layout两种情况。
-	doh.register("Model.moveLeft.sqrt 在平方根中左移光标",[
-	    {
-	    	name: "mathml模式下，平方根后没有任何节点，从平方根后，左移到根数后，根数中的最后一个节点是token节点",
-  			setUp: function(){
-  				this.model = new Model({});
-  			},
-  			runTest: function(t){
-  				var model = this.model;
-  				model.loadData("<root><line>" +
+	
+	with(tdd){
+		suite("Model.moveLeft.sqrt 在平方根中左移光标", function(){
+			var model = null;
+			beforeEach(function () {
+				model = new Model({});
+			});
+			
+			test("mathml模式下，平方根后没有任何节点，从平方根后，左移到根数后，根数中的最后一个节点是token节点", function(){
+				model.loadData("<root><line>" +
   						"<math>" +
 	  						"<msqrt>" +
 		  						"<mn>12</mn>" +
@@ -34,23 +42,15 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				model.path.push({nodeName: "math", offset: 1});
   				model.path.push({nodeName: "msqrt", offset: 1});
   				model.moveLeft();
-  				t.is("/root/line[1]/math[1]/msqrt[1]/mn[1]", model.getPath());
+  				assert.equal("/root/line[1]/math[1]/msqrt[1]/mn[1]", model.getPath());
 				var node = model.getFocusNode();
-				t.is("mn", node.nodeName);
-				t.is(2, model.getOffset());
-				t.is("12", dripLang.getText(node));
-  			},
-  			tearDown: function(){
-  				
-  			}
-	    },{
-	    	name: "mathml模式下，平方根后没有任何节点，从平方根后，左移到根数后，根数中的最后一个节点是layout节点",
-  			setUp: function(){
-  				this.model = new Model({});
-  			},
-  			runTest: function(t){
-  				var model = this.model;
-  				model.loadData("<root><line>" +
+				assert.equal("mn", node.nodeName);
+				assert.equal(2, model.getOffset());
+				assert.equal("12", dripLang.getText(node));
+			});
+			
+			test("mathml模式下，平方根后没有任何节点，从平方根后，左移到根数后，根数中的最后一个节点是layout节点", function(){
+				model.loadData("<root><line>" +
   						"<math>" +
 	  						"<msqrt>" +
 		  						"<msqrt><mn>2</mn></msqrt>" +
@@ -67,22 +67,14 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				model.path.push({nodeName: "math", offset: 1});
   				model.path.push({nodeName: "msqrt", offset: 1});
   				model.moveLeft();
-  				t.is("/root/line[1]/math[1]/msqrt[1]/msqrt[1]", model.getPath());
+  				assert.equal("/root/line[1]/math[1]/msqrt[1]/msqrt[1]", model.getPath());
 				var node = model.getFocusNode();
-				t.is("msqrt", node.nodeName);
-				t.is(1, model.getOffset());
-  			},
-  			tearDown: function(){
-  				
-  			}
-	    },{
-	    	name: "mathml模式下，平方根后有一个token节点，从token节点前右移动到根数后,根数中的最后一个节点是token节点",
-  			setUp: function(){
-  				this.model = new Model({});
-  			},
-  			runTest: function(t){
-  				var model = this.model;
-  				model.loadData("<root><line>" +
+				assert.equal("msqrt", node.nodeName);
+				assert.equal(1, model.getOffset());
+			});
+			
+			test("mathml模式下，平方根后有一个token节点，从token节点前右移动到根数后,根数中的最后一个节点是token节点", function(){
+				model.loadData("<root><line>" +
   						"<math>" +
 	  						"<msqrt>" +
 		  						"<mn>12</mn>" +
@@ -100,23 +92,15 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				model.path.push({nodeName: "math", offset: 1});
   				model.path.push({nodeName: "mn", offset: 2});
   				model.moveLeft();
-  				t.is("/root/line[1]/math[1]/msqrt[1]/mn[1]", model.getPath());
+  				assert.equal("/root/line[1]/math[1]/msqrt[1]/mn[1]", model.getPath());
 				var node = model.getFocusNode();
-				t.is("mn", node.nodeName);
-				t.is(2, model.getOffset());
-				t.is("12", dripLang.getText(node));
-  			},
-  			tearDown: function(){
-  				
-  			}
-	    },{
-	    	name: "mathml模式下，平方根后有一个token节点，从token节点前左移动到根数后,根数中的最后一个节点是layout节点",
-  			setUp: function(){
-  				this.model = new Model({});
-  			},
-  			runTest: function(t){
-  				var model = this.model;
-  				model.loadData("<root><line>" +
+				assert.equal("mn", node.nodeName);
+				assert.equal(2, model.getOffset());
+				assert.equal("12", dripLang.getText(node));
+			});
+			
+			test("mathml模式下，平方根后有一个token节点，从token节点前左移动到根数后,根数中的最后一个节点是layout节点", function(){
+				model.loadData("<root><line>" +
   						"<math>" +
 	  						"<msqrt>" +
 		  						"<msqrt><mn>2</mn></msqrt>" +
@@ -134,22 +118,14 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				model.path.push({nodeName: "math", offset: 1});
   				model.path.push({nodeName: "mn", offset: 2});
   				model.moveLeft();
-  				t.is("/root/line[1]/math[1]/msqrt[1]/msqrt[1]", model.getPath());
+  				assert.equal("/root/line[1]/math[1]/msqrt[1]/msqrt[1]", model.getPath());
 				var node = model.getFocusNode();
-				t.is("msqrt", node.nodeName);
-				t.is(1, model.getOffset());
-  			},
-  			tearDown: function(){
-  				
-  			}
-	    },{
-	    	name: "mathml模式下，平方根后有一个layout节点，从layout节点前左移动到根数后,根数中的最后一个节点是token节点",
-  			setUp: function(){
-  				this.model = new Model({});
-  			},
-  			runTest: function(t){
-  				var model = this.model;
-  				model.loadData("<root><line>" +
+				assert.equal("msqrt", node.nodeName);
+				assert.equal(1, model.getOffset());
+			});
+			
+			test("mathml模式下，平方根后有一个layout节点，从layout节点前左移动到根数后,根数中的最后一个节点是token节点", function(){
+				model.loadData("<root><line>" +
   						"<math>" +
 	  						"<msqrt>" +
 	  							"<mn>12</mn>" +
@@ -169,22 +145,14 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				model.path.push({nodeName: "math", offset: 1});
   				model.path.push({nodeName: "msqrt", offset: 2});
   				model.moveLeft();
-  				t.is("/root/line[1]/math[1]/msqrt[1]/mn[1]", model.getPath());
+  				assert.equal("/root/line[1]/math[1]/msqrt[1]/mn[1]", model.getPath());
 				var node = model.getFocusNode();
-				t.is("mn", node.nodeName);
-				t.is(2, model.getOffset());
-  			},
-  			tearDown: function(){
-  				
-  			}
-	    },{
-	    	name: "mathml模式下，平方根后有一个layout节点，从layout节点前左移动到根数后,根数中的最后一个节点是layout节点",
-  			setUp: function(){
-  				this.model = new Model({});
-  			},
-  			runTest: function(t){
-  				var model = this.model;
-  				model.loadData("<root><line>" +
+				assert.equal("mn", node.nodeName);
+				assert.equal(2, model.getOffset());
+			});
+			
+			test("mathml模式下，平方根后有一个layout节点，从layout节点前左移动到根数后,根数中的最后一个节点是layout节点", function(){
+				model.loadData("<root><line>" +
   						"<math>" +
 	  						"<msqrt>" +
 								"<msqrt><mn>1</mn></msqrt>" +
@@ -204,22 +172,14 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				model.path.push({nodeName: "math", offset: 1});
   				model.path.push({nodeName: "msqrt", offset: 2});
   				model.moveLeft();
-  				t.is("/root/line[1]/math[1]/msqrt[1]/msqrt[1]", model.getPath());
+  				assert.equal("/root/line[1]/math[1]/msqrt[1]/msqrt[1]", model.getPath());
 				var node = model.getFocusNode();
-				t.is("msqrt", node.nodeName);
-				t.is(1, model.getOffset());
-  			},
-  			tearDown: function(){
-  				
-  			}
-	    },{
-	    	name: "mathml模式下，平方根前没有任何节点，从根数前左移到平方根前,根数的第一个节点是token节点",
-  			setUp: function(){
-  				this.model = new Model({});
-  			},
-  			runTest: function(t){
-  				var model = this.model;
-  				model.loadData("<root><line>" +
+				assert.equal("msqrt", node.nodeName);
+				assert.equal(1, model.getOffset());
+			});
+			
+			test("mathml模式下，平方根前没有任何节点，从根数前左移到平方根前,根数的第一个节点是token节点", function(){
+				model.loadData("<root><line>" +
   						"<math>" +
 	  						"<msqrt>" +
 								"<mn>12</mn>" +
@@ -237,22 +197,14 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				model.path.push({nodeName: "msqrt", offset: 1});
   				model.path.push({nodeName: "mn", offset: 1});
   				model.moveLeft();
-  				t.is("/root/line[1]/math[1]/msqrt[1]", model.getPath());
+  				assert.equal("/root/line[1]/math[1]/msqrt[1]", model.getPath());
 				var node = model.getFocusNode();
-				t.is("msqrt", node.nodeName);
-				t.is(0, model.getOffset());
-  			},
-  			tearDown: function(){
-  				
-  			}
-	    },{
-	    	name: "mathml模式下，平方根前没有任何节点，从根数前左移到平方根前,根数的第一个节点是layout节点",
-  			setUp: function(){
-  				this.model = new Model({});
-  			},
-  			runTest: function(t){
-  				var model = this.model;
-  				model.mode = "mathml";
+				assert.equal("msqrt", node.nodeName);
+				assert.equal(0, model.getOffset());
+			});
+			
+			test("mathml模式下，平方根前没有任何节点，从根数前左移到平方根前,根数的第一个节点是layout节点", function(){
+				model.mode = "mathml";
   				model.loadData("<root><line>" +
   						"<math>" +
 	  						"<msqrt>" +
@@ -270,15 +222,12 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				model.path.push({nodeName: "msqrt", offset: 1});
   				model.path.push({nodeName: "msqrt", offset: 1});
   				model.moveLeft();
-  				t.is("/root/line[1]/math[1]/msqrt[1]", model.getPath());
+  				assert.equal("/root/line[1]/math[1]/msqrt[1]", model.getPath());
 				var node = model.getFocusNode();
-				t.is("msqrt", node.nodeName);
-				t.is(0, model.getOffset());
-  			},
-  			tearDown: function(){
-  				
-  			}
-	    }
-	                             
-	]);
+				assert.equal("msqrt", node.nodeName);
+				assert.equal(0, model.getOffset());
+			});
+			
+		});
+	}
 });

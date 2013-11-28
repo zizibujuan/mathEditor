@@ -24,4 +24,12 @@ define(["./dataUtil",
         "./model/moveLeft/line",
         "./model/moveLeft/text",
         "./model/moveLeft/math",
-        "./model/moveLeft/mn"], function(){});
+        "./model/moveLeft/mn",
+        "./model/moveLeft/mi",
+        "./model/moveLeft/mo",
+        "./model/moveLeft/sqrt",
+        "./model/moveLeft/root",
+        "./model/moveLeft/token",
+        "./model/moveLeft/sub",
+        "./model/moveLeft/sup",
+        "./model/moveLeft/fence"], function(){});
