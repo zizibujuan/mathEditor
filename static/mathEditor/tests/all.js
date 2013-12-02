@@ -45,4 +45,6 @@ define(["./dataUtil",
         "./model/moveRight/token",
         "./model/moveRight/sub",
         "./model/moveRight/sup",
-        "./model/moveRight/fence"], function(){});
+        "./model/moveRight/fence"/*,
+        
+        "./model/moveLeft"*/], function(){});
