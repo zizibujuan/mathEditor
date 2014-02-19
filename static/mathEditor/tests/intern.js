@@ -15,7 +15,9 @@ define({
 	// Note that the `build` capability will be filled in with the current commit ID from the Travis CI environment
 	// automatically
 	capabilities: {
-		'selenium-version': '2.37.0'
+		'max-duration': 600,
+		'idle-timeout': 180,
+		'selenium-version': '2.39.0'
 	},
 
 	// Browsers to run integration testing against. Note that version numbers must be strings if used with Sauce
@@ -32,7 +34,7 @@ define({
 	],
 
 	// Maximum number of simultaneous integration tests that should be executed on the remote WebDriver service
-	maxConcurrency: 1,
+	maxConcurrency: 3,
 
 	// Whether or not to start Sauce Connect before running tests
 	useSauceConnect: true,
@@ -69,7 +71,7 @@ define({
 	suites: [ "mathEditor/tests/all" ],
 
 	// Functional test suite(s) to run in each browser once non-functional tests are completed
-	functionalSuites: [ /*"mathEditor/tests/functional/TextInput"*/ ],
+	functionalSuites: [ "mathEditor/tests/functional/TextInput" ],
 
 	// A regular expression matching URLs to files that should not be included in code coverage analysis
 	excludeInstrumentation: /^tests\//
