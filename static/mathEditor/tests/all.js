@@ -32,7 +32,7 @@ define(["./dataUtil",
         "./model/moveLeft/token",
         "./model/moveLeft/sub",
         "./model/moveLeft/sup",
-        "./model/moveLeft/fence",
+        "./model/moveLeft/fence"/*,
         
         "./model/moveRight/frac",
         "./model/moveRight/line",
@@ -45,6 +45,6 @@ define(["./dataUtil",
         "./model/moveRight/token",
         "./model/moveRight/sub",
         "./model/moveRight/sup",
-        "./model/moveRight/fence"/*,
+        "./model/moveRight/fence",
         
         "./model/moveLeft"*/], function(){});
