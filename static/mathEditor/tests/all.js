@@ -34,9 +34,9 @@ define(["./dataUtil",
         "./model/moveLeft/sup",
         "./model/moveLeft/fence",
         
-        "./model/moveRight/frac",
+        /*"./model/moveRight/frac",
         "./model/moveRight/line",
-        "./model/moveRight/text"/*,
+        "./model/moveRight/text",*/
         "./model/moveRight/math",
         "./model/moveRight/mi",
         "./model/moveRight/mn",
@@ -45,6 +45,6 @@ define(["./dataUtil",
         "./model/moveRight/token",
         "./model/moveRight/sub",
         "./model/moveRight/sup",
-        "./model/moveRight/fence",
+        "./model/moveRight/fence"/*,
         
         "./model/moveLeft"*/], function(){});
