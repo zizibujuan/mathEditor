@@ -50,9 +50,9 @@ define([ "mathEditor/tests/layer/Cursor", // 未迁移
          "mathEditor/tests/model/moveRight/sub",
          "mathEditor/tests/model/moveRight/sup",
          "mathEditor/tests/model/moveRight/fence",
-         // 迁移到这里
+
          "mathEditor/tests/model/moveLeft",
-         
+         // 迁移到这里
          "mathEditor/tests/model/removeLeft/math",
          "mathEditor/tests/model/removeLeft/mn",
          "mathEditor/tests/model/removeLeft/text",
