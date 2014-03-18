@@ -14,6 +14,7 @@ visual math editor
 ### 默认快捷键列表：
 
 1. 中文版
+
 * 切换到编辑数学公式模式 `Ctrl` + `=`
 * 退出编辑数学公式模式 `Ctrl` + `=`
 * 除号 `/`
@@ -34,7 +35,7 @@ http://localhost:port/mathEditor/tests/demo/Editor.html
 
 mathEditor使用[Intern](http://theintern.io/)做单元测试和功能测试。
 
-### 浏览器中的页面
+### 浏览器中运行
 
 http://localhost:port/mathEditor/tests/runTests.html
 
