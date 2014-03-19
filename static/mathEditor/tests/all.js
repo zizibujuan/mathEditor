@@ -47,4 +47,29 @@ define(["./dataUtil",
         "./model/moveRight/sup",
         "./model/moveRight/fence",
         
-        "./model/moveLeft"], function(){});
+        "./model/moveLeft",
+        
+        "./model/removeLeft/math",
+        "./model/removeLeft/mn",
+        "./model/removeLeft/text",
+        "./model/removeLeft/line",
+        "./model/removeLeft/frac",
+        "./model/removeLeft/sqrt",
+        "./model/removeLeft/root",
+        
+        "./model/removeLeft",
+        
+        "./model/removeRight/math",
+        "./model/removeRight/mn",
+        "./model/removeRight/text",
+        "./model/removeRight/line",
+        "./model/removeRight/frac",
+        "./model/removeRight/sqrt",
+        "./model/removeRight/root",
+        
+        "./lang",
+        "./string",
+        //"./MathJaxView",
+        //"./Editor",
+        //"./ContentAssist",
+        "./mathContentAssist"], function(){});

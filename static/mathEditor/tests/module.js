@@ -52,7 +52,7 @@ define([ "mathEditor/tests/layer/Cursor", // 未迁移
          "mathEditor/tests/model/moveRight/fence",
 
          "mathEditor/tests/model/moveLeft",
-         // 迁移到这里
+         
          "mathEditor/tests/model/removeLeft/math",
          "mathEditor/tests/model/removeLeft/mn",
          "mathEditor/tests/model/removeLeft/text",
@@ -62,7 +62,7 @@ define([ "mathEditor/tests/layer/Cursor", // 未迁移
          "mathEditor/tests/model/removeLeft/root",
          
          "mathEditor/tests/model/removeLeft",
-         
+         // 迁移到这里
          "mathEditor/tests/model/removeRight/math",
          "mathEditor/tests/model/removeRight/mn",
          "mathEditor/tests/model/removeRight/text",

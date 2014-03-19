@@ -1,16 +1,22 @@
-define([ "doh","mathEditor/Model" ], function(doh,Model) {
+define([ "intern!tdd", 
+         "intern/chai!assert",
+         "mathEditor/Model" ], function(
+        		 tdd,
+        		 assert,
+        		 Model) {
 
 	// summary:
 	//		1.右删除删除根数,如果根数中没有任何内容，则直接删除掉根式
-	doh.register("Model.removeRight.sqrt 右删除平方根",[
-	    {
-	    	name: "右删除删除根数,如果根数中没有任何内容，则直接删除掉根式。",
-  			setUp: function(){
-  				this.model = new Model({});
-  			},
-  			runTest: function(t){
-  				var model = this.model;
-  				model.loadData("<root><line>" +
+	with(tdd){
+		suite("Model.removeRight.sqrt 右删除平方根", function(){
+			
+			var model = null;
+			beforeEach(function () {
+				model = new Model({});
+			});
+			
+			test("右删除删除根数,如果根数中没有任何内容，则直接删除掉根式。", function(){
+				model.loadData("<root><line>" +
   						"<math><msqrt><mn class=\"drip_placeholder_box\">8</mn></msqrt></math>" +
   				"</line></root>");
   				model.mode = "mathml";
@@ -26,15 +32,12 @@ define([ "doh","mathEditor/Model" ], function(doh,Model) {
   				model.removeRight();
   				
   				var focusNode = model.getFocusNode();
-  				t.is("/root/line[1]/math[1]", model.getPath());
-  				t.is("math", focusNode.nodeName);
-  				t.is(2, model.getOffset());// layoutOffset.select
-  				t.is(0, focusNode.childNodes.length);
-  			},
-  			tearDown: function(){
-  				
-  			}
-	    }
-	                             
-	]);
+  				assert.equal("/root/line[1]/math[1]", model.getPath());
+  				assert.equal("math", focusNode.nodeName);
+  				assert.equal(2, model.getOffset());// layoutOffset.select
+  				assert.equal(0, focusNode.childNodes.length);
+			});
+		});
+	}
+
 });

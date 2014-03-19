@@ -1,19 +1,27 @@
-define([ "doh", "mathEditor/Model", "mathEditor/lang" ], function(doh, Model, dripLang) {
+define([ "intern!tdd", 
+         "intern/chai!assert", 
+         "mathEditor/Model", 
+         "mathEditor/lang" ], function(
+        		 tdd,
+        		 assert, 
+        		 Model, 
+        		 dripLang) {
 
 	// summary:
 	//		1.根式中的根数为空时，左删除时，删掉整个根式，同时将根次中的内容放在之前的根式前,根式最后一个节点是token节点
 	//		2.根式中的根数为空时，左删除时，删掉整个根式，同时将根次中的内容放在之前的根式前,根式最后一个节点是layout节点
 	//		3.根式中的根次为空时，左删除时，删掉整个根式，同时将根数中的内容放在之前的根式前,根数中最前一个节点是token节点
 	//		4.根式中的根次为空时，左删除时，删掉整个根式，同时将根数中的内容放在之前的根式前,根数中最前一个节点是layout节点
-	doh.register("Model.removeLeft.root 左删除根式",[
-	    {
-	    	name: "左删除删除根数，根式中的根数为空时，左删除时，删掉整个根式，同时将根次中的内容放在之前的根式前,根式最后一个节点是token节点",
-  			setUp: function(){
-  				this.model = new Model({});
-  			},
-  			runTest: function(t){
-  				var model = this.model;
-  				model.loadData("<root><line>" +
+	with(tdd){
+		suite("Model.removeLeft.root 左删除根式", function(){
+			
+			var model = null;
+			beforeEach(function () {
+				model = new Model({});
+			});
+			
+			test("左删除删除根数，根式中的根数为空时，左删除时，删掉整个根式，同时将根次中的内容放在之前的根式前,根式最后一个节点是token节点", function(){
+				model.loadData("<root><line>" +
   						"<math>" +
 	  						"<mroot>" +
 		  						"<mrow><mn class=\"drip_placeholder_box\">8</mn></mrow>" +
@@ -41,18 +49,10 @@ define([ "doh", "mathEditor/Model", "mathEditor/lang" ], function(doh, Model, dr
   				// 确认mroot已经被删除掉了
   				t.is(focusNode, line.firstChild.firstChild);
   				t.is(1, line.firstChild.childNodes.length);
-  			},
-  			tearDown: function(){
-  				
-  			}
-	    },{
-	    	name: "左删除删除根数，根式中的根数为空时，左删除时，删掉整个根式，同时将根次中的内容放在之前的根式前,根式最后一个节点是layout节点",
-  			setUp: function(){
-  				this.model = new Model({});
-  			},
-  			runTest: function(t){
-  				var model = this.model;
-  				model.loadData("<root><line>" +
+			});
+			
+			test("左删除删除根数，根式中的根数为空时，左删除时，删掉整个根式，同时将根次中的内容放在之前的根式前,根式最后一个节点是layout节点", function(){
+				model.loadData("<root><line>" +
   						"<math>" +
 	  						"<mroot>" +
 		  						"<mrow><mn class=\"drip_placeholder_box\">8</mn></mrow>" +
@@ -79,18 +79,10 @@ define([ "doh", "mathEditor/Model", "mathEditor/lang" ], function(doh, Model, dr
   				// 确认mroot已经被删除掉了
   				t.is(focusNode, line.firstChild.firstChild);
   				t.is(1, line.firstChild.childNodes.length);
-  			},
-  			tearDown: function(){
-  				
-  			}
-	    },{
-	    	name: "左删除删除根数，根式中的根次为空时，左删除时，删掉整个根式，同时将根数中的内容放在之前的根式前,根数中最前一个节点是token节点",
-  			setUp: function(){
-  				this.model = new Model({});
-  			},
-  			runTest: function(t){
-  				var model = this.model;
-  				model.loadData("<root><line>" +
+			});
+			
+			test("左删除删除根数，根式中的根次为空时，左删除时，删掉整个根式，同时将根数中的内容放在之前的根式前,根数中最前一个节点是token节点", function(){
+				model.loadData("<root><line>" +
   						"<math>" +
 	  						"<mroot>" +
 	  							"<mrow><mn>12</mn></mrow>" +
@@ -118,18 +110,10 @@ define([ "doh", "mathEditor/Model", "mathEditor/lang" ], function(doh, Model, dr
   				// 确认mroot已经被删除掉了
   				t.is(focusNode, line.firstChild.firstChild);
   				t.is(1, line.firstChild.childNodes.length);
-  			},
-  			tearDown: function(){
-  				
-  			}
-	    },{
-	    	name: "左删除删除根数，根式中的根次为空时，左删除时，删掉整个根式，同时将根数中的内容放在之前的根式前,根数中最前一个节点是layout节点",
-  			setUp: function(){
-  				this.model = new Model({});
-  			},
-  			runTest: function(t){
-  				var model = this.model;
-  				model.loadData("<root><line>" +
+			});
+			
+			test("左删除删除根数，根式中的根次为空时，左删除时，删掉整个根式，同时将根数中的内容放在之前的根式前,根数中最前一个节点是layout节点", function(){
+				model.loadData("<root><line>" +
   						"<math>" +
 	  						"<mroot>" +
 	  							"<mrow><msqrt><mrow><mn>2</mn></mrow></msqrt></mrow>" +
@@ -156,11 +140,8 @@ define([ "doh", "mathEditor/Model", "mathEditor/lang" ], function(doh, Model, dr
   				// 确认mroot已经被删除掉了
   				t.is(focusNode, line.firstChild.firstChild);
   				t.is(1, line.firstChild.childNodes.length);
-  			},
-  			tearDown: function(){
-  				
-  			}
-	    }
-	                             
-	]);
+			});
+		});
+	}
+	
 });
